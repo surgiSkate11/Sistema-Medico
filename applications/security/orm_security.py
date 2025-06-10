@@ -5,12 +5,14 @@ import os
 # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proy_clinico.settings')
 # django.setup()
 from django.contrib.auth.models import Group, Permission
-from applications.security.models import Menu, Module, User,GroupModulePermission
+from applications.security.models import Menu, Module, User, GroupModulePermission
 
 def pausar_y_limpiar():
     input("Presione una tecla para continuar...")
     os.system('cls' if os.name == 'nt' else 'clear')
-    
+
+# --- FUNCIONES DE CONSULTA ORM CON try-except ---
+
 # 1. Seleccionar todos los menús
 def get_all_menus():
     print("ORM: Menu.objects.all()")
@@ -71,14 +73,14 @@ def get_users_of_group(group_id):
     except Group.DoesNotExist:
         return []
 
-# 9 Obtener todos los permisos del modelo Permission
+# 9. Obtener todos los permisos del modelo Permission
 def get_all_permissions():
     print("\nTEMA: Listar todos los permisos")
     print("ORM: Permission.objects.all()")
     print("SQL: SELECT * FROM auth_permission;")
     return Permission.objects.all()
 
-# 10 Dado un usuario, obtener todos los GroupModulePermission de los grupos a los que pertenece
+# 10. Dado un usuario, obtener todos los GroupModulePermission de los grupos a los que pertenece
 def get_group_module_permissions_of_user(user_id):
     print(f"\nTEMA: Listar GroupModulePermission de los grupos del usuario (id={user_id})")
     print(f"ORM: GroupModulePermission.objects.filter(group__in=User.objects.get(pk={user_id}).groups.all())")
@@ -89,7 +91,7 @@ def get_group_module_permissions_of_user(user_id):
     except User.DoesNotExist:
         return []
 
-# 11 Dado un GroupModulePermission, obtener todos los permisos asociados
+# 11. Dado un GroupModulePermission, obtener todos los permisos asociados
 def get_permissions_of_group_module_permission(gmp_id):
     print(f"\nTEMA: Listar permisos de un GroupModulePermission (id={gmp_id})")
     print(f"ORM: GroupModulePermission.objects.get(pk={gmp_id}).permissions.all()")
@@ -100,7 +102,7 @@ def get_permissions_of_group_module_permission(gmp_id):
     except GroupModulePermission.DoesNotExist:
         return []
 
-# 12 Para el superusuario cuyo id=1, obtener todos los permisos, sus grupos y los módulos de GroupModulePermission
+# 12. Para el superusuario cuyo id=1, obtener todos los permisos, sus grupos y los módulos de GroupModulePermission
 def get_all_permissions_of_superuser():
     print("\nTEMA: Listar todos los permisos del superusuario (id=1)")
     print("ORM: Permission.objects.all()")
@@ -121,7 +123,8 @@ def get_superuser_groups_and_modules():
     except User.DoesNotExist:
         return [], []
 
-#if __name__ == "__main__":
+# --- EJEMPLOS DE USO DE LAS FUNCIONES ANTERIORES ---
+
 print("SQL: SELECT * FROM security_menu;")
 for menu in get_all_menus():
     print(f"- {menu.id}: {menu.name}")
@@ -150,6 +153,7 @@ print(f"\nMódulos del menú {example_menu_id}:")
 for m in modules:
     print(f"- {m.name}")
 pausar_y_limpiar()
+
 # Listar todos los usuarios
 users = get_all_users()
 for u in users:
