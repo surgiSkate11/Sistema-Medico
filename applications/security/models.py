@@ -42,6 +42,8 @@ Ejemplos:
 class Module(models.Model):
     url = models.CharField(verbose_name='Url', max_length=100, unique=True)
     name = models.CharField(verbose_name='Nombre', max_length=100)
+    # La relación ForeignKey con el modelo Menu indica una relación de una a muchos en la que
+    # un menú puede tener múltiples módulos, pero cada módulo pertenece a un solo menú.
     menu = models.ForeignKey(Menu, on_delete=models.PROTECT, verbose_name='Menu', related_name='modules')
     description = models.CharField(verbose_name='Descripción', max_length=200, null=True, blank=True)
     icon = models.CharField(verbose_name='Icono', max_length=100, default='bi bi-x-octagon')
@@ -69,6 +71,13 @@ class GroupModulePermissionManager(models.Manager):
             group_id=group_id,
             module__is_active=True
         )
+# modulos_activos_de_grupo = GroupModulePermission.objects.get_group_module_permission_active_list(group_id)
+# El select_related permite optimizar las consultas a la base de datos, hace un join, y une estos tres:
+# GrupoModulePermission | module | menu
+
+# autor = Autor.objects.filter(nombre='Gabriel García Márquez')
+# En mi caso voy a decir:
+# modulos_activos_de_grupo = GroupModulePermission.objects.get_group_module_permission_active_list(group_id = "1", module__is_active=True)
 
 # =========================
 # MODELO: GroupModulePermission
@@ -83,6 +92,7 @@ Ejemplos:
 3. Bodegueros - Stock: permisos [view_stock, add_stock, change_stock]
 """
 class GroupModulePermission(models.Model):
+    # La relación del campo group indica que un grupo puede tener múltiples permisos sobre diferentes módulos.
     group = models.ForeignKey(Group, on_delete=models.PROTECT, verbose_name='Grupo', related_name='module_permissions')
     module = models.ForeignKey('security.Module', on_delete=models.PROTECT, verbose_name='Módulo', related_name='group_permissions')
     permissions = models.ManyToManyField(Permission, verbose_name='Permisos')
@@ -147,18 +157,18 @@ class User(AbstractUser, PermissionsMixin):
     def get_short_name(self):
         return self.username
 
-    def get_group_session(self):
-        request = get_current_request()
-        print("request==>", request)
-        return Group.objects.get(pk=request.session['group_id'])
+    # def get_group_session(self):
+    #     request = get_current_request()
+    #     print("request==>", request)
+    #     return Group.objects.get(pk=request.session['group_id'])
 
-    def set_group_session(self):
-        request = get_current_request()
-        if 'group' not in request.session:
-            groups = request.user.groups.all().order_by('id')
-            if groups.exists():
-                request.session['group'] = groups.first()
-                request.session['group_id'] = request.session['group'].id
+    # def set_group_session(self):
+    #     request = get_current_request()
+    #     if 'group' not in request.session:
+    #         groups = request.user.groups.all().order_by('id')
+    #         if groups.exists():
+    #             request.session['group'] = groups.first()
+    #             request.session['group_id'] = request.session['group'].id
 
     def get_image(self):
         if self.image:
