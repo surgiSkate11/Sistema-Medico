@@ -23,8 +23,8 @@ menus_data = [
     {"name": "Auditores", "icon": "bi bi-person-badge", "order": 2},
     {"name": "Emergencia", "icon": "bi bi-clipboard-pulse", "order": 3},
     {"name": "Registros", "icon": "bi bi-journal-medical", "order": 4},
-    {"name": "MODULOS", "icon": "bi bi-boxes", "order": 99},
-    {"name": "MENUS", "icon": "bi bi-list-columns", "order": 100},
+    {"name": "Module", "icon": "bi bi-boxes", "order": 99},
+    {"name": "Menu", "icon": "bi bi-list-columns", "order": 100},
 ]
 menu_objs = {}
 for data in menus_data:
