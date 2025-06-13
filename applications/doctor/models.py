@@ -55,3 +55,47 @@ class Diagnosis(models.Model):
         verbose_name = 'Diagnóstico'
         verbose_name_plural = 'Diagnósticos'
         ordering = ['-date']
+
+class Appointment(models.Model):
+    patient = models.ForeignKey(
+        "Patient",
+        on_delete=models.CASCADE,
+        verbose_name="Paciente",
+        related_name="appointments"
+    )
+    # Si más adelante tienes un modelo Doctor, cámbialo a ForeignKey
+    doctor_name = models.CharField(
+        verbose_name="Médico",
+        max_length=150,
+        null=True, blank=True
+    )
+    date = models.DateField(verbose_name="Fecha de la Cita")
+    time = models.TimeField(verbose_name="Hora de la Cita")
+    reason = models.CharField(
+        verbose_name="Motivo / Asunto",
+        max_length=200
+    )
+    notes = models.TextField(
+        verbose_name="Notas Adicionales",
+        null=True, blank=True
+    )
+    created_at = models.DateTimeField(
+        verbose_name="Fecha de Registro",
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        verbose_name="Última Actualización",
+        auto_now=True
+    )
+    is_active = models.BooleanField(
+        verbose_name="Activa",
+        default=True
+    )
+
+    def __str__(self):
+        return f"Cita con {self.patient} el {self.date} a las {self.time}"
+
+    class Meta:
+        verbose_name = "Cita"
+        verbose_name_plural = "Citas"
+        ordering = ["-date", "-time"]

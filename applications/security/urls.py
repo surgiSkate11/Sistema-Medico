@@ -1,6 +1,6 @@
 from django.urls import path
 
-from applications.security.views.auth import signin, signout
+from applications.security.views.auth import signin, signout , signup
 from applications.security.views.menu import MenuCreateView, MenuDeleteView, MenuListView, MenuUpdateView
 from applications.security.views.module import ModuleCreateView, ModuleDeleteView, ModuleListView, ModuleUpdateView
 from applications.security.views.usuarios import UserCreateView, UserDeleteView, UserListView, UserUpdateView
@@ -23,9 +23,9 @@ urlpatterns = [
   path('menu_delete/<int:pk>/', MenuDeleteView.as_view(),name='menu_delete'),
 
   # rutas de autenticacion
-  path('logout/', signout, name='signout'),
   path('signin/', signin, name='signin'),
-  #path('signup/', signup, name='signup'),
+  path('signup/', signup, name='signup'),
+  path('logout/', signout, name='signout'),
 
 
 # rutas de usuarios
@@ -46,4 +46,4 @@ path('group_module_permission_create/', GroupModulePermissionCreateView.as_view(
 path('group_module_permission_update/<int:pk>/', GroupModulePermissionUpdateView.as_view(), name='group_module_permission_update'),
 path('group_module_permission_delete/<int:pk>/', GroupModulePermissionDeleteView.as_view(), name='group_module_permission_delete'),
 
-] 
+]
