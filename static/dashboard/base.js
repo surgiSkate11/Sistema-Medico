@@ -47,34 +47,11 @@ class MedicalSystemCore {
     initFloatingElements() {
         const container = document.querySelector('.floating-elements');
         if (!container) return;
-        
-        // Crear partículas médicas flotantes
-        this.createMedicalParticles(container);
-        
+                
         // Crear ondas de fondo
         this.createBackgroundWaves(container);
     }
     
-    createMedicalParticles(container) {
-        const particleTypes = ['💊', '🧬', '⚕️', '🔬', '📊'];
-        
-        for (let i = 0; i < 15; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'medical-particle';
-            particle.innerHTML = particleTypes[Math.floor(Math.random() * particleTypes.length)];
-            particle.style.cssText = `
-                position: absolute;
-                font-size: ${Math.random() * 20 + 15}px;
-                opacity: ${Math.random() * 0.3 + 0.1};
-                left: ${Math.random() * 100}%;
-                top: ${Math.random() * 100}%;
-                animation: medicalFloat ${Math.random() * 10 + 10}s infinite linear;
-                pointer-events: none;
-                z-index: 1;
-            `;
-            container.appendChild(particle);
-        }
-    }
     
     createBackgroundWaves(container) {
         const wave = document.createElement('div');
@@ -140,36 +117,14 @@ class MedicalSystemCore {
 
     // ===== EFECTOS GLOBALES =====
     initGlobalEffects() {
-        // Loader global
-        this.createGlobalLoader();
-    }
-
-    createGlobalLoader() {
-        const loader = document.createElement('div');
-        loader.id = 'global-loader';
-        loader.style.cssText = `
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(255,255,255,0.7);
-            z-index: 2000;
-            align-items: center; justify-content: center;
-        `;
-        loader.innerHTML = '<div class="loader-spinner"></div>';
-        document.body.appendChild(loader);
-    }
-
-    showLoader() {
-        document.getElementById('global-loader').style.display = 'flex';
-    }
-    hideLoader() {
-        document.getElementById('global-loader').style.display = 'none';
+        // Loader global eliminado: ahora lo gestiona MedicalLoader de forma independiente
+        // this.initMedicalLoader(); // <-- ELIMINADO
     }
 
     // ===== OPTIMIZACIONES =====
     initPerformanceOptimizations() {
         // Lazy load imágenes, debounce, etc.
-    }
+    };
 
     // ===== HANDLERS =====
     handleResize() {
@@ -225,6 +180,99 @@ class MedicalSystemCore {
 
 // ===== INICIALIZACIÓN GLOBAL =====
 window.MedicalSystem = new MedicalSystemCore();
+
+// ===== LOADER FUTURISTA MÉDICO (CORREGIDO) =====
+class MedicalLoader {
+    constructor() {
+        this.loader = document.getElementById('medicalLoading');
+        this.progressFill = document.getElementById('progressFill');
+        this.mainContent = document.querySelector('.main-content');
+        this.isLoading = true;
+        this.init();
+    }
+    init() {
+        // Mostrar loader inmediatamente
+        this.showLoader();
+        // Simular carga del sistema
+        this.simulateLoading();
+    }
+    showLoader() {
+        if (!this.loader) return;
+        this.loader.style.display = 'flex';
+        this.loader.style.opacity = '1';
+        this.loader.style.visibility = 'visible';
+        this.loader.style.pointerEvents = 'all';
+        if (this.mainContent) {
+            this.mainContent.style.opacity = '0';
+            this.mainContent.style.pointerEvents = 'none';
+        }
+    }
+    simulateLoading() {
+        setTimeout(() => {
+            if (this.progressFill) {
+                this.progressFill.style.width = '100%';
+            }
+        }, 100);
+        setTimeout(() => {
+            this.hideLoader();
+        }, 3500);
+    }
+    hideLoader() {
+        if (!this.loader) return;
+        this.loader.classList.add('hidden');
+        setTimeout(() => {
+            this.loader.style.display = 'none';
+            if (this.mainContent) {
+                this.mainContent.style.opacity = '1';
+                this.mainContent.style.pointerEvents = 'auto';
+            }
+            this.isLoading = false;
+        }, 500);
+    }
+    show() {
+        this.isLoading = true;
+        this.showLoader();
+        if (this.progressFill) {
+            this.progressFill.style.transition = 'none';
+            this.progressFill.style.width = '0%';
+            setTimeout(() => {
+                this.progressFill.style.transition = 'width 2.5s linear';
+                this.progressFill.style.width = '100%';
+            }, 50);
+        }
+    }
+    hide() {
+        this.hideLoader();
+    }
+}
+// Inicializar cuando el DOM esté listo
+(function() {
+    function startLoader() {
+        window.medicalLoader = new MedicalLoader();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startLoader);
+    } else {
+        startLoader();
+    }
+    // Atajo para probar el loader manualmente (Ctrl+L)
+    window.toggleLoader = function() {
+        if (window.medicalLoader) {
+            if (window.medicalLoader.isLoading) {
+                window.medicalLoader.hide();
+            } else {
+                window.medicalLoader.show();
+                setTimeout(() => window.medicalLoader.hide(), 3500);
+            }
+        }
+    };
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'l' && e.ctrlKey) {
+            e.preventDefault();
+            window.toggleLoader();
+        }
+    });
+})();
 
 // ===== MANEJO DE ERRORES GLOBALES =====
 window.addEventListener('error', function(e) {

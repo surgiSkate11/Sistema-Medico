@@ -8,11 +8,76 @@
     {% tailwind_css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'dashboard/base.css' %}">
-    <link rel="icon" href="{% static 'img/iguana_corporation.png' %}" type="image/png">
+    {# <link rel="stylesheet" href="{% static 'dashboard/loader.css' %}"> #}
+    <link rel="icon" href="{% static 'img/corporation.png' %}" type="image/png">
     {% block extra_head %}{% endblock %}
 </head>
 <body class="relative min-h-screen font-inter bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 overflow-x-hidden">
-    <div class="floating-elements"></div>
+
+    <!-- Loading Animado Futurista Global -->
+    <div id="medicalLoading">
+        <!-- Partículas flotantes -->
+        <div class="particles">
+            <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+            <div class="particle" style="left: 20%; animation-delay: 1s;"></div>
+            <div class="particle" style="left: 30%; animation-delay: 2s;"></div>
+            <div class="particle" style="left: 40%; animation-delay: 3s;"></div>
+            <div class="particle" style="left: 50%; animation-delay: 4s;"></div>
+            <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
+            <div class="particle" style="left: 70%; animation-delay: 6s;"></div>
+            <div class="particle" style="left: 80%; animation-delay: 7s;"></div>
+            <div class="particle" style="left: 90%; animation-delay: 8s;"></div>
+        </div>
+        <!-- Ondas de radar -->
+        <div class="radar-container">
+            <div class="radar-wave"></div>
+            <div class="radar-wave"></div>
+            <div class="radar-wave"></div>
+        </div>
+        <!-- Efecto de resplandor -->
+        <div class="glow-effect"></div>
+        <!-- Contenedor principal -->
+        <div class="loading-container">
+            <!-- Hexágono con icono -->
+            <div class="hexagon-container">
+                <!-- Órbitas -->
+                <div class="orbit orbit-1">
+                    <div class="orbit-item"></div>
+                </div>
+                <div class="orbit orbit-2">
+                    <div class="orbit-item"></div>
+                </div>
+                <!-- Hexágono principal -->
+                <div class="hexagon">
+                    <i class="fas fa-user-md medical-icon"></i>
+                </div>
+            </div>
+            <!-- Textos -->
+            <h2 class="loading-title">SISTEMA MÉDICO</h2>
+            <p class="loading-subtitle">Inicializando protocolo avanzado...</p>
+            <!-- Barra de progreso -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            <!-- Estados del sistema -->
+            <div class="status-grid">
+                <div class="status-item">
+                    <i class="fas fa-database status-icon"></i>
+                    <div class="status-text">Base de Datos</div>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-shield-alt status-icon"></i>
+                    <div class="status-text">Seguridad</div>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-heartbeat status-icon"></i>
+                    <div class="status-text">Monitoreo</div>
+                </div>
+            </div>
+        </div>
+    </div>
     {% if user.is_authenticated %}
     <!-- Sidebar -->
     <nav class="sidebar glass-effect">
@@ -64,10 +129,10 @@
                     </button>
                     {% endif %}
                 </div>
-                <div class="flex items-center gap-4">
-                    <span class="header-title">
-                        <i class="fas fa-heartbeat"></i>
-                        {% block header_title %}SaludTotal{% endblock %}
+                <div class="flex-1 flex items-center justify-center">
+                    <span class="header-title flex items-center gap-2">
+                        <i class="fas fa-heartbeat" style="margin-right:0.5rem;"></i>
+                        {% block header_title %}Healthcare System{% endblock %}
                     </span>
                 </div>
                 <div class="flex items-center gap-6">
@@ -88,7 +153,7 @@
                     </div>
                     {% else %}
                     <a href="{% url 'security:signin' %}" class="btn-primary flex items-center space-x-2 px-4 py-2 ml-4">
-                        <i class="fas fa-sign-in-alt"></i>
+                        <i class="fas fa-arrow-right-to-bracket" style="margin-right:0.5rem;min-width:1.25em;text-align:center;"></i>
                         <span>Iniciar Sesión</span>
                     </a>
                     {% endif %}
@@ -101,10 +166,9 @@
         <main class="fade-in">
             {% block content %}{% endblock %}
         </main>
-        {% block extra_js %}{% endblock %}
     </div>
-    {% block modals %}{% endblock %}
     <script src="{% static 'dashboard/base.js' %}"></script>
-    {% block extra_js_bottom %}{% endblock %}
+    {# <script src="{% static 'dashboard/loader.js' %}"></script> #}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

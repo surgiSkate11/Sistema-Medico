@@ -1,12 +1,11 @@
 // NeuroMed Login - Advanced Medical Interface JavaScript
 document.addEventListener('DOMContentLoaded', function() {
+    // No manipular el loader global aquí, solo en base.js
     console.log('🏥 NeuroMed System Initializing...');
-    
     // Initialize all login components
     initializeLogin();
     initializeNeuralBackground();
     initializeFormValidation();
-    initializeLoadingSystem();
     initializeMicroInteractions();
 });
 
@@ -386,12 +385,5 @@ console.log('✅ NeuroMed Login System Ready');
 
 function initializeLoadingSystem() {
     // Loader médico
-    const loading = document.getElementById('medicalLoading');
-    if (!loading) return;
-
-    // Simulación de carga
-    loading.style.display = 'flex';
-    setTimeout(() => {
-        loading.style.display = 'none';
-    }, 3000);
+    // Esta función queda vacía para evitar mostrar el loader automáticamente en login
 }
