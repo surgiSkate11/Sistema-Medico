@@ -1,6 +1,7 @@
 /* NeuroMed Login - Futuristic Medical Interface */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* Neural Network Color Palette */
@@ -29,6 +30,9 @@
   /* Neon Glow */
   --neon-glow: 0 0 20px rgba(102, 126, 234, 0.5);
   --neon-glow-hover: 0 0 30px rgba(102, 126, 234, 0.8);
+  
+  /* Hologram Gradient */
+  --hologram-gradient: linear-gradient(270deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
 }
 
 * {
@@ -92,6 +96,80 @@ section {
     rgba(102, 126, 234, 0.1), 
     transparent);
   animation: shimmer 3s infinite;
+}
+
+/* ===== BANNER LOGIN FUTURISTA ===== */
+.login-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+  background: var(--glass-bg);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(102,126,234,0.10), 0 0 0 2px var(--hologram-gradient);
+  border: 1.5px solid var(--glass-border);
+  position: relative;
+  overflow: hidden;
+}
+.login-banner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: var(--hologram-gradient);
+  background-size: 400% 400%;
+  animation: hologram-flow 4s ease-in-out infinite;
+  border-radius: 24px 24px 0 0;
+  z-index: 1;
+}
+.login-banner .banner-icon {
+  width: 60px;
+  height: 60px;
+  background: var(--glass-bg);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 0 20px rgba(102,126,234,0.18);
+  border: 2px solid rgba(255,255,255,0.18);
+  position: relative;
+}
+.login-banner .banner-icon i {
+  font-size: 2.2rem;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 12px rgba(102,126,234,0.25));
+}
+.login-banner .banner-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.2rem;
+  font-weight: 900;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 30px rgba(102,126,234,0.18);
+  z-index: 2;
+}
+.login-banner .banner-subtitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+  z-index: 2;
+}
+@media (max-width: 640px) {
+  .login-banner { padding: 1.2rem 0.5rem 0.8rem 0.5rem; }
+  .login-banner .banner-title { font-size: 1.3rem; }
 }
 
 /* Typography */
@@ -570,6 +648,11 @@ a:hover::after {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
+}
+
+@keyframes hologram-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
 }
 
 .animate-float {

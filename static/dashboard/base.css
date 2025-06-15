@@ -235,6 +235,55 @@ header.glass-effect::before {
   transform: translateY(-1px) scale(1.02);
 }
 
+/* === BOTÓN LOGIN HERO (HEADER) === */
+.btn-login-hero {
+  font-family: 'Orbitron', 'Inter', sans-serif;
+  font-size: 1.08rem;
+  letter-spacing: 1.2px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(102,126,234,0.18), 0 0 0 2px var(--primary-gradient);
+  background: var(--primary-gradient);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  outline: none;
+}
+.btn-login-hero:focus {
+  box-shadow: 0 0 0 3px #00f5ff80, 0 4px 24px rgba(102,126,234,0.18);
+}
+.btn-login-hero .login-icon-wrapper {
+  background: rgba(255,255,255,0.13);
+  box-shadow: 0 0 12px rgba(102,126,234,0.13);
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  transition: background 0.3s;
+}
+.btn-login-hero .login-svg-icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 10px #00f5ff80);
+  transition: filter 0.3s;
+}
+.btn-login-hero:hover .login-icon-wrapper {
+  background: rgba(0,245,255,0.18);
+}
+.btn-login-hero:hover .login-svg-icon {
+  filter: drop-shadow(0 0 18px #00f5ffcc) brightness(1.2);
+}
+.btn-login-hero:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 32px #00f5ff33, 0 0 0 2px var(--primary-gradient);
+}
+.btn-login-hero:active {
+  transform: scale(0.98);
+}
+.btn-login-hero .font-orbitron {
+  font-family: 'Orbitron', 'Inter', sans-serif;
+  font-weight: 700;
+  text-shadow: 0 0 8px #00f5ff44;
+}
+
 /* ===== INPUTS FUTURISTAS ===== */
 input[type="text"],
 input[type="email"],
