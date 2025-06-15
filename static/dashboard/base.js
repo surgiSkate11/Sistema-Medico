@@ -1,103 +1,256 @@
-// Animación de aparición para tarjetas, módulos y secciones
-window.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".fade-in, .card-glass, .glassmorphism, .module-card").forEach((el, i) => {
-    el.style.opacity = 0;
-    el.style.transform = "scale(0.97) translateY(20px)";
-    setTimeout(() => {
-      el.style.transition = "opacity .7s cubic-bezier(.4,2,.3,1), transform .7s cubic-bezier(.4,2,.3,1)";
-      el.style.opacity = 1;
-      el.style.transform = "scale(1) translateY(0)";
-    }, 200 + i * 80);
-  });
-});
+// ===== SISTEMA MÉDICO FUTURISTA - CORE JS =====
 
-// Dropdown animado de usuario
-const userDropdown = document.getElementById('userDropdown');
-const userDropdownMenu = document.getElementById('userDropdownMenu');
-if (userDropdown && userDropdownMenu) {
-  userDropdown.addEventListener('click', function(e) {
-    e.stopPropagation();
-    userDropdownMenu.classList.toggle('opacity-0');
-    userDropdownMenu.classList.toggle('invisible');
-    userDropdownMenu.classList.toggle('scale-95');
-    userDropdownMenu.classList.toggle('scale-100');
-  });
-  document.addEventListener('click', function(e) {
-    if (!userDropdown.contains(e.target) && !userDropdownMenu.contains(e.target)) {
-      userDropdownMenu.classList.add('opacity-0','invisible','scale-95');
-      userDropdownMenu.classList.remove('scale-100');
+class MedicalSystemCore {
+    constructor() {
+        this.isInitialized = false;
+        this.notifications = [];
+        this.particles = [];
+        this.sidebarCollapsed = window.innerWidth < 768;
+        
+        this.init();
     }
-  });
+    
+    init() {
+        if (this.isInitialized) return;
+        
+        this.initEventListeners();
+        this.initFloatingElements();
+        this.initNotificationSystem();
+        this.initSidebar();
+        this.initSearchEnhancements();
+        this.initGlobalEffects();
+        this.initPerformanceOptimizations();
+        
+        this.isInitialized = true;
+        console.log('🚀 Sistema Médico Futurista Inicializado');
+    }
+    
+    // ===== EVENT LISTENERS =====
+    initEventListeners() {
+        // Resize handler
+        window.addEventListener('resize', this.handleResize.bind(this));
+        
+        // Mouse movement para efectos de parallax
+        document.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', this.handleKeyboard.bind(this));
+        
+        // Click effects
+        document.addEventListener('click', this.handleGlobalClick.bind(this));
+        
+        // Scroll effects
+        window.addEventListener('scroll', this.handleScroll.bind(this));
+    }
+    
+    // ===== EFECTOS FLOTANTES =====
+    initFloatingElements() {
+        const container = document.querySelector('.floating-elements');
+        if (!container) return;
+        
+        // Crear partículas médicas flotantes
+        this.createMedicalParticles(container);
+        
+        // Crear ondas de fondo
+        this.createBackgroundWaves(container);
+    }
+    
+    createMedicalParticles(container) {
+        const particleTypes = ['💊', '🧬', '⚕️', '🔬', '📊'];
+        
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'medical-particle';
+            particle.innerHTML = particleTypes[Math.floor(Math.random() * particleTypes.length)];
+            particle.style.cssText = `
+                position: absolute;
+                font-size: ${Math.random() * 20 + 15}px;
+                opacity: ${Math.random() * 0.3 + 0.1};
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                animation: medicalFloat ${Math.random() * 10 + 10}s infinite linear;
+                pointer-events: none;
+                z-index: 1;
+            `;
+            container.appendChild(particle);
+        }
+    }
+    
+    createBackgroundWaves(container) {
+        const wave = document.createElement('div');
+        wave.className = 'background-wave';
+        wave.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
+            animation: waveMove 20s infinite linear;
+            pointer-events: none;
+        `;
+        container.appendChild(wave);
+    }
+    
+    // ===== SISTEMA DE NOTIFICACIONES PREMIUM =====
+    initNotificationSystem() {
+        const container = document.createElement('div');
+        container.id = 'notification-container';
+        container.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        `;
+        document.body.appendChild(container);
+    }
+
+    // Mostrar notificación
+    notify(message, type = 'info', duration = 4000) {
+        const container = document.getElementById('notification-container');
+        if (!container) return;
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `<span>${message}</span>`;
+        container.appendChild(notification);
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 500);
+        }, duration);
+    }
+
+    // ===== SIDEBAR Y NAVEGACIÓN =====
+    initSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
+        // Ejemplo: toggle sidebar
+        const toggleBtn = document.querySelector('.sidebar-toggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
+    }
+
+    // ===== BUSCADOR AVANZADO =====
+    initSearchEnhancements() {
+        // Puedes agregar aquí lógica para autocompletar, filtros, etc.
+    }
+
+    // ===== EFECTOS GLOBALES =====
+    initGlobalEffects() {
+        // Loader global
+        this.createGlobalLoader();
+    }
+
+    createGlobalLoader() {
+        const loader = document.createElement('div');
+        loader.id = 'global-loader';
+        loader.style.cssText = `
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(255,255,255,0.7);
+            z-index: 2000;
+            align-items: center; justify-content: center;
+        `;
+        loader.innerHTML = '<div class="loader-spinner"></div>';
+        document.body.appendChild(loader);
+    }
+
+    showLoader() {
+        document.getElementById('global-loader').style.display = 'flex';
+    }
+    hideLoader() {
+        document.getElementById('global-loader').style.display = 'none';
+    }
+
+    // ===== OPTIMIZACIONES =====
+    initPerformanceOptimizations() {
+        // Lazy load imágenes, debounce, etc.
+    }
+
+    // ===== HANDLERS =====
+    handleResize() {
+        // Lógica para responsive
+    }
+    handleMouseMove(e) {
+        // Parallax o efectos visuales
+    }
+    handleKeyboard(e) {
+        // Atajos de teclado globales
+        if (e.ctrlKey && e.key === 'k') {
+            e.preventDefault();
+            this.notify('Atajo: Buscar (Ctrl+K)', 'info');
+        }
+    }
+    handleGlobalClick(e) {
+        // Cerrar menús, tooltips, etc.
+    }
+    handleScroll() {
+        // Efectos al hacer scroll
+    }
+
+    // ===== AJAX SEGURO CON CSRF (Django) =====
+    getCSRFToken() {
+        const name = 'csrftoken';
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                return decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        }
+        return '';
+    }
+    async ajax(url, options = {}) {
+        options.headers = options.headers || {};
+        if (!options.headers['X-CSRFToken']) {
+            options.headers['X-CSRFToken'] = this.getCSRFToken();
+        }
+        this.showLoader();
+        try {
+            const response = await fetch(url, options);
+            this.hideLoader();
+            if (!response.ok) throw new Error('Error en la petición');
+            return await response.json();
+        } catch (err) {
+            this.hideLoader();
+            this.notify('Error de red: ' + err.message, 'error');
+            throw err;
+        }
+    }
 }
 
-// Efecto ripple para botones y tarjetas
-function addRippleEffect() {
-  document.querySelectorAll('button, .btn-accent, .ripple-parent, .module-card').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      const ripple = document.createElement('span');
-      ripple.className = 'ripple';
-      const rect = btn.getBoundingClientRect();
-      ripple.style.left = `${e.clientX - rect.left}px`;
-      ripple.style.top = `${e.clientY - rect.top}px`;
-      ripple.style.width = ripple.style.height = `${Math.max(rect.width, rect.height)}px`;
-      btn.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 600);
-    });
-  });
-}
-addRippleEffect();
+// ===== INICIALIZACIÓN GLOBAL =====
+window.MedicalSystem = new MedicalSystemCore();
 
-// Notificaciones animadas
-function showNotification(message, type = "success", duration = 3500) {
-  const container = document.getElementById('notification-container');
-  const notif = document.createElement('div');
-  notif.className = `fade-in px-6 py-4 mb-3 rounded-xl shadow-xl font-medium ${type === "error" ? "bg-red-500 text-white" : "bg-green-500 text-white"}`;
-  notif.innerHTML = message;
-  container.appendChild(notif);
-  setTimeout(() => {
-    notif.style.opacity = 0;
-    notif.style.transform = "scale(.97)";
-    setTimeout(() => notif.remove(), 400);
-  }, duration);
-}
-
-// Animación para iconos interactivos
-function addIconHoverEffect() {
-  document.querySelectorAll('.lucide, .fa, .bi').forEach(icon => {
-    icon.addEventListener('mouseenter', () => {
-      icon.style.transition = 'color .2s, text-shadow .2s';
-      icon.style.color = '#8b5cf6';
-      icon.style.textShadow = '0 0 12px #8b5cf6cc';
-    });
-    icon.addEventListener('mouseleave', () => {
-      icon.style.color = '';
-      icon.style.textShadow = '';
-    });
-  });
-}
-addIconHoverEffect();
-
-// Sidebar expand/collapse en desktop
-const sidebar = document.querySelector('.sidebar');
-if (sidebar) {
-  sidebar.addEventListener('mouseenter', () => sidebar.classList.add('expanded'));
-  sidebar.addEventListener('mouseleave', () => sidebar.classList.remove('expanded'));
-}
-
-// Responsive: mostrar/ocultar sidebar en móvil (si implementas botón)
-const sidebarToggle = document.getElementById('sidebarToggle');
-if (sidebarToggle && sidebar) {
-  sidebarToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('hidden');
-  });
-}
-
-// Mostrar animación fade-in para el contenido principal
-window.addEventListener('DOMContentLoaded', () => {
-  const main = document.querySelector('main');
-  if (main) {
-    main.classList.add('fade-in');
-  }
+// ===== MANEJO DE ERRORES GLOBALES =====
+window.addEventListener('error', function(e) {
+    if (window.MedicalSystem) {
+        window.MedicalSystem.notify('Error JS: ' + e.message, 'error', 6000);
+    }
+});
+window.addEventListener('unhandledrejection', function(e) {
+    if (window.MedicalSystem) {
+        window.MedicalSystem.notify('Promesa no resuelta: ' + e.reason, 'error', 6000);
+    }
 });
 
-// Demo: puedes agregar aquí más efectos premium según lo que necesites
+// ===== ESTILOS DINÁMICOS PARA NOTIFICACIONES Y LOADER (opcional, puedes mover a CSS) =====
+(function(){
+    const style = document.createElement('style');
+    style.innerHTML = `
+    .notification { background: #fff; color: #222; border-left: 5px solid #007bff; padding: 12px 18px; margin-bottom: 10px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); opacity: 0.98; transition: opacity 0.5s; }
+    .notification-info { border-color: #007bff; }
+    .notification-success { border-color: #28a745; }
+    .notification-error { border-color: #dc3545; }
+    .notification-warning { border-color: #ffc107; }
+    .notification.fade-out { opacity: 0; }
+    #global-loader { display: none; align-items: center; justify-content: center; }
+    .loader-spinner { border: 6px solid #f3f3f3; border-top: 6px solid #007bff; border-radius: 50%; width: 48px; height: 48px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+    `;
+    document.head.appendChild(style);
+})();
