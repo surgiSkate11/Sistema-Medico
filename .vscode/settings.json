@@ -4,6 +4,7 @@
     "console-ninja.featureSet": "Community",
     "workbench.productIconTheme": "fluent-icons",
     "editor.cursorBlinking": "expand",
+    "editor.cursorStyle": "line",
     "terminal.integrated.altClickMovesCursor": false,
     "editor.linkedEditing": true,
     "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
