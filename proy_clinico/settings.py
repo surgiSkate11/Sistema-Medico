@@ -97,26 +97,26 @@ WSGI_APPLICATION = 'proy_clinico.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'danielito1101',
-        'HOST': 'db.fsmigyuizdujkpdquboj.supabase.co',
-        'PORT': '5432',
-    }
-}
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'medicos',
+#         'NAME': 'postgres',
 #         'USER': 'postgres',
-#         'PASSWORD': '123456789',
-#         'HOST': 'localhost',  # o la IP del servidor de base de datos
-#         'PORT': '5432',        # puerto por defecto de PostgreSQL
+#         'PASSWORD': 'danielito1101',
+#         'HOST': 'db.fsmigyuizdujkpdquboj.supabase.co',
+#         'PORT': '5432',
 #     }
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'medicos',
+        'USER': 'postgres',
+        'PASSWORD': '123456789',
+        'HOST': 'localhost',  # o la IP del servidor de base de datos
+        'PORT': '5432',        # puerto por defecto de PostgreSQL
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

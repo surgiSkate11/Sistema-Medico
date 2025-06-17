@@ -623,16 +623,16 @@ header .flex.items-center.space-x-4 > div:nth-child(2) {
 
                         <!-- User Dropdown -->
                         <div class="relative">
-                            <button id="userDropdown" class="flex items-center space-x-3 bg-white rounded-full shadow-lg px-4 py-2 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            <button id="userDropdown" class="flex items-center space-x-3 bg-white rounded-full shadow-lg px-4 py-2 hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative z-10">
                                 <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
                                     <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                                     </svg>
                                 </div>
-                                <div class="text-left">
-                                    <span class="text-gray-700 font-medium block">{{ user.username }}</span>
+                                <div class="text-left truncate max-w-[7rem]">
+                                    <span class="text-gray-700 font-medium block truncate">{{ user.username }}</span>
                                     {% if group_list.exists %}
-                                        <span class="text-xs text-gray-500">{{ group.name }}</span>
+                                        <span class="text-xs text-gray-500 truncate">{{ group.name }}</span>
                                     {% endif %}
                                 </div>
                                 <svg class="w-4 h-4 text-gray-500 transform transition-transform duration-200" id="userDropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -641,15 +641,15 @@ header .flex.items-center.space-x-4 > div:nth-child(2) {
                             </button>
                             
                             <!-- Dropdown Menu -->
-                            <div id="userDropdownMenu" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 opacity-0 invisible transform scale-95 transition-all duration-200 z-50">
+                            <div id="userDropdownMenu" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 opacity-0 invisible scale-95 origin-top-right transition-all duration-200 z-50 overflow-visible max-h-none p-0">
                                 <div class="py-2">
                                     <!-- User Info -->
                                     <div class="px-4 py-3 border-b border-gray-100">
-                                        <p class="text-sm font-medium text-gray-900">{{ user.username }}</p>
-                                        <p class="text-sm text-gray-500">{{ user.email|default:"Sin email" }}</p>
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ user.username }}</p>
+                                        <p class="text-sm text-gray-500 truncate">{{ user.email|default:"Sin email" }}</p>
                                         {% if user.group.exists %}
                                             <div class="mt-2">
-                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 truncate">
                                                     {{ user.group.name }}
                                                 </span>
                                             </div>
@@ -708,38 +708,38 @@ header .flex.items-center.space-x-4 > div:nth-child(2) {
     const userDropdownIcon = document.getElementById('userDropdownIcon');
     
     if (userDropdown && userDropdownMenu) {
+        function hideDropdown() {
+            userDropdownMenu.classList.add('opacity-0', 'invisible', 'scale-95');
+            userDropdownMenu.classList.remove('opacity-100', 'visible', 'scale-100');
+            if (userDropdownIcon) userDropdownIcon.classList.remove('rotate-180');
+        }
+        function showDropdown() {
+            userDropdownMenu.classList.remove('opacity-0', 'invisible', 'scale-95');
+            userDropdownMenu.classList.add('opacity-100', 'visible', 'scale-100');
+            if (userDropdownIcon) userDropdownIcon.classList.add('rotate-180');
+        }
+        function isDropdownOpen() {
+            return userDropdownMenu.classList.contains('opacity-100') && userDropdownMenu.classList.contains('visible') && userDropdownMenu.classList.contains('scale-100');
+        }
         userDropdown.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
-            const isVisible = !userDropdownMenu.classList.contains('opacity-0');
-            
-            if (isVisible) {
-                // Hide dropdown
-                userDropdownMenu.classList.add('opacity-0', 'invisible', 'scale-95');
-                userDropdownMenu.classList.remove('opacity-100', 'visible', 'scale-100');
-                userDropdownIcon.classList.remove('rotate-180');
+            if (isDropdownOpen()) {
+                hideDropdown();
             } else {
-                // Show dropdown
-                userDropdownMenu.classList.remove('opacity-0', 'invisible', 'scale-95');
-                userDropdownMenu.classList.add('opacity-100', 'visible', 'scale-100');
-                userDropdownIcon.classList.add('rotate-180');
+                showDropdown();
             }
         });
-
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (!userDropdown.contains(e.target) && !userDropdownMenu.contains(e.target)) {
-                userDropdownMenu.classList.add('opacity-0', 'invisible', 'scale-95');
-                userDropdownMenu.classList.remove('opacity-100', 'visible', 'scale-100');
-                userDropdownIcon.classList.remove('rotate-180');
+                hideDropdown();
             }
         });
-
-        // Prevent dropdown from closing when clicking inside
         userDropdownMenu.addEventListener('click', function(e) {
             e.stopPropagation();
         });
+        // Always start hidden
+        hideDropdown();
     }
 
     // Groups selector functionality
@@ -922,6 +922,46 @@ class MedicalLoader {
     });
 })();
  </script>
+<script>
+(function() {
+  const dropdownBtn = document.getElementById('userDropdown');
+  const dropdownMenu = document.getElementById('userDropdownMenu');
+  if (!dropdownBtn || !dropdownMenu) return;
+
+  // Si tu icono tiene una clase específica, ajústala aquí
+  const icon = dropdownBtn.querySelector('.dropdown-icon');
+
+  function showMenu() {
+    dropdownMenu.classList.remove('opacity-0', 'invisible', 'scale-95');
+    if (icon) icon.classList.add('rotate-180');
+  }
+
+  function hideMenu() {
+    dropdownMenu.classList.add('opacity-0', 'invisible', 'scale-95');
+    if (icon) icon.classList.remove('rotate-180');
+  }
+
+  function toggleMenu(e) {
+    e.stopPropagation();
+    const isHidden = dropdownMenu.classList.contains('invisible');
+    if (isHidden) {
+      showMenu();
+    } else {
+      hideMenu();
+    }
+  }
+
+  dropdownBtn.addEventListener('click', toggleMenu);
+
+  document.addEventListener('click', function(e) {
+    if (!dropdownMenu.classList.contains('invisible') && !dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+      hideMenu();
+    }
+  });
+
+  hideMenu();
+})();
+</script>
 {% endblock %}
 {% block extra_js %}{% endblock %}
 {% block content %}{% endblock content %}
