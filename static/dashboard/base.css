@@ -1,0 +1,1446 @@
+/* Variables globales y estilos base - HealthFlow Pro Futurista */
+:root {
+    /* Paleta Futurista Neón */
+    --bg-primary: #000a0e;
+    --bg-secondary: #0a1728;
+    --bg-tertiary: #1a2332;
+    --neon-cyan: #00ffff;
+    --neon-blue: #0080ff;
+    --neon-purple: #8000ff;
+    --neon-pink: #ff0080;
+    --neon-green: #00ff80;
+    --neon-orange: #ff8000;
+    --dark-cyan: #003333;
+    --dark-blue: #001a33;
+    --text-primary: #ffffff;
+    --text-secondary: #b3e0ff;
+    --text-accent: #00ffff;
+    
+    /* Glass morphism Futurista */
+    --glass-bg: rgba(0, 255, 255, 0.05);
+    --glass-border: rgba(0, 255, 255, 0.3);
+    --glass-shadow: 0 8px 32px rgba(0, 255, 255, 0.2), 0 0 50px rgba(0, 128, 255, 0.1);
+    
+    /* Gradientes futuristas */
+    --primary-gradient: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 50%, var(--neon-purple) 100%);
+    --secondary-gradient: linear-gradient(135deg, var(--neon-green) 0%, var(--neon-cyan) 100%);
+    --accent-gradient: linear-gradient(135deg, var(--neon-pink) 0%, var(--neon-purple) 100%);
+    --danger-gradient: linear-gradient(135deg, var(--neon-orange) 0%, var(--neon-pink) 100%);
+    --glass-gradient: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(128, 0, 255, 0.05) 100%);
+    
+    /* Efectos de glow futuristas */
+    --cyber-glow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan), 0 0 80px var(--neon-cyan);
+    --cyber-glow-hover: 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-cyan), 0 0 120px var(--neon-cyan);
+    --neon-glow-green: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+    --neon-glow-purple: 0 0 20px var(--neon-purple), 0 0 40px var(--neon-purple);
+    --neon-glow-pink: 0 0 20px var(--neon-pink), 0 0 40px var(--neon-pink);
+    
+    /* Compatibilidad */
+    --healthflow-blue: var(--neon-blue);
+    --healthflow-green: var(--neon-green);
+    --healthflow-neutral-light: var(--text-primary);
+    --healthflow-neutral: var(--text-secondary);
+    --premium-glow: var(--cyber-glow);
+    --premium-glow-hover: var(--cyber-glow-hover);
+}
+
+/* RESET GLOBAL AGRESIVO */
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ELEMENTOS QUE SÍ NECESITAN FONDO */
+html, body {
+  background: var(--bg-primary, #000a0e) !important;
+  background-color: var(--bg-primary, #000a0e) !important;
+}
+
+.glass-effect, .status-module, .module-card, .welcome-card, 
+.glass-header, .glass-footer, .search-input {
+  background: var(--glass-bg, rgba(0, 255, 255, 0.05)) !important;
+  background-color: var(--glass-bg, rgba(0, 255, 255, 0.05)) !important;
+}
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+}
+
+body {
+  background: var(--bg-primary, #000a0e) !important;
+  color: var(--text-primary, #ffffff) !important;
+  font-family: 'Inter', 'Orbitron', 'Segoe UI', sans-serif;
+  letter-spacing: 0.025em;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(128, 0, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255, 0, 128, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-primary, #000a0e) 0%, var(--bg-secondary, #0a1728) 100%) !important;
+  /* Asegurar que no se vea blanco nunca */
+  background-color: #000a0e !important;
+}
+
+/* Eliminar cualquier fondo blanco residual */
+html {
+  background: #000a0e !important;
+  color: #ffffff !important;
+}
+
+body::before,
+body::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+#medicalLoading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+#medicalLoading.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: float-particles 8s infinite linear;
+}
+.particle:nth-child(odd) {
+    background: rgba(102, 126, 234, 0.8);
+    animation-duration: 12s;
+}
+.particle:nth-child(3n) {
+    background: rgba(79, 172, 254, 0.6);
+    animation-duration: 10s;
+}
+@keyframes float-particles {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10%, 90% { opacity: 1; }
+    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
+.radar-container {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+.radar-wave {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 50%;
+    animation: radar-pulse 3s infinite ease-out;
+}
+.radar-wave:nth-child(2) { animation-delay: 1s; }
+.radar-wave:nth-child(3) { animation-delay: 2s; }
+@keyframes radar-pulse {
+    0% { transform: scale(0); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+}
+.glow-effect {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: glow-pulse 4s ease-in-out infinite;
+    z-index: -1;
+}
+@keyframes glow-pulse {
+    0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+}
+.loading-container {
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+.hexagon-container {
+    position: relative;
+    margin-bottom: 3rem;
+}
+.orbit {
+    position: absolute;
+    border: 1px solid rgba(79, 172, 254, 0.4);
+    border-radius: 50%;
+    animation: orbit-rotate 8s linear infinite;
+}
+.orbit-1 {
+    width: 220px;
+    height: 220px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.orbit-2 {
+    width: 280px;
+    height: 280px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-duration: 12s;
+    animation-direction: reverse;
+}
+@keyframes orbit-rotate {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+.orbit-item {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(135deg, #00f5ff 0%, #00d4aa 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(79, 172, 254, 0.8);
+}
+.orbit-1 .orbit-item { top: -6px; left: 50%; transform: translateX(-50%); }
+.orbit-2 .orbit-item { top: -6px; right: -6px; }
+.hexagon {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: hexagon-float 4s ease-in-out infinite;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+@keyframes hexagon-float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(3deg); }
+}
+.medical-icon {
+    font-size: 5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: icon-glow 2s ease-in-out infinite alternate;
+}
+@keyframes icon-glow {
+    0% { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5)); transform: scale(1); }
+    100% { filter: drop-shadow(0 0 30px rgba(102, 126, 234, 0.8)); transform: scale(1.05); }
+}
+.loading-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ffffff 0%, #4facfe 50%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    animation: title-pulse 3s ease-in-out infinite;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+}
+@keyframes title-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+}
+.loading-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 3rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+.progress-container {
+    width: 400px;
+    margin: 0 auto 2rem;
+    position: relative;
+}
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #00f5ff 0%, #00d4aa 100%);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 2.5s linear;
+    position: relative;
+    box-shadow: 0 0 20px rgba(79, 172, 254, 0.6);
+}
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 400px;
+    margin: 0 auto;
+}
+.status-item {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    animation: status-check 6s infinite;
+}
+.status-item:nth-child(1) { animation-delay: 0s; }
+.status-item:nth-child(2) { animation-delay: 2s; }
+.status-item:nth-child(3) { animation-delay: 4s; }
+@keyframes status-check {
+    0%, 80% { border-color: rgba(255, 255, 255, 0.2); box-shadow: none; }
+    85%, 95% { border-color: rgba(79, 172, 254, 0.8); box-shadow: 0 0 20px rgba(79, 172, 254, 0.4); background: rgba(79, 172, 254, 0.1); }
+    100% { border-color: rgba(86, 171, 47, 0.8); box-shadow: 0 0 20px rgba(86, 171, 47, 0.4); background: rgba(86, 171, 47, 0.1); }
+}
+.status-icon {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+.status-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+@media (max-width: 768px) {
+    .loading-title { font-size: 2rem; }
+    .progress-container, .status-grid { width: 90%; }
+    .hexagon { width: 150px; height: 150px; }
+    .medical-icon { font-size: 4rem; }
+    .orbit-1 { width: 190px; height: 190px; }
+    .orbit-2 { width: 240px; height: 240px; }
+}
+
+/* Encabezado y navegación */
+header {
+  background: linear-gradient(120deg, #18182f 80%, #00f5ff11 100%) !important;
+  border-bottom: 1.5px solid var(--glass-border) !important;
+  box-shadow: 0 2px 32px #00f5ff22, 0 1.5px 8px #667eea22;
+  backdrop-filter: blur(18px) !important;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+header .max-w-7xl {
+  position: relative;
+  z-index: 10;
+  padding-top: 1.2rem !important;
+  padding-bottom: 1.2rem !important;
+}
+header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #00f5ff22 0%, #764ba222 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+header h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: 2rem;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 18px #00f5ff88, 0 0 8px #764ba288;
+  letter-spacing: 1.2px;
+}
+header p {
+  color: #b6eaff;
+  font-family: 'Exo 2', monospace;
+  font-size: 1rem;
+  letter-spacing: 1.2px;
+}
+header .w-10.h-10 {
+  background: var(--primary-gradient) !important;
+  box-shadow: 0 0 18px #00f5ff55, 0 0 8px #764ba255;
+  border-radius: 10px !important;
+}
+header svg {
+  filter: drop-shadow(0 0 8px #00f5ff88);
+}
+#userDropdown, .dropdown-menu, #userDropdownMenu {
+  background: var(--hud-glass) !important;
+  border: 1.5px solid var(--hud-border) !important;
+  box-shadow: var(--hud-shadow) !important;
+  color: #eaf6ff !important;
+  backdrop-filter: blur(18px) !important;
+}
+#userDropdown {
+  transition: box-shadow 0.3s, border 0.3s, background 0.3s;
+  box-shadow: 0 2px 16px #00f5ff33, 0 0 0 2px var(--primary-gradient);
+  border-radius: 2rem !important;
+  background: var(--glass-bg) !important;
+}
+#userDropdown:hover, #userDropdown:focus {
+  box-shadow: 0 0 32px #00f5ffcc, 0 2px 8px #667eea55;
+  border: 1.5px solid #00f5ffcc;
+  background: var(--glass-bg) !important;
+}
+#userDropdownMenu {
+  background: var(--hud-glass) !important;
+  border: 1.5px solid var(--hud-border) !important;
+  box-shadow: 0 8px 32px #00f5ff33, 0 0 0 2px var(--primary-gradient);
+  border-radius: 1.2rem !important;
+  color: #eaf6ff !important;
+  margin-top: 0.7rem !important;
+}
+#userDropdownMenu a, #userDropdownMenu button {
+  color: #eaf6ff !important;
+  background: none !important;
+  border-radius: 0.7rem !important;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  font-family: 'Exo 2', monospace;
+}
+#userDropdownMenu a:hover, #userDropdownMenu button:hover {
+  background: linear-gradient(90deg, #00f5ff22 0%, #764ba222 100%) !important;
+  color: #00f5ff !important;
+  box-shadow: 0 0 18px #00f5ff55;
+}
+#userDropdownMenu .text-red-600, #userDropdownMenu .text-red-500 {
+  color: #ff6b6b !important;
+}
+#userDropdownMenu .hover\:bg-red-50:hover {
+  background: linear-gradient(90deg, #ff6b6b22 0%, #ffa72622 100%) !important;
+  color: #ff6b6b !important;
+}
+.main-content {
+  background: var(--hud-glass) !important;
+  border: 1.5px solid var(--hud-border) !important;
+  border-radius: 1.1rem !important;
+  box-shadow: 0 4px 24px #00f5ff18, 0 0 0 1.5px var(--primary-gradient), 0 1.5px 8px #667eea18 !important;
+  padding: 2.2rem 2rem 1.7rem 2rem !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 2.2rem !important;
+  position: relative;
+  z-index: 5;
+  backdrop-filter: blur(22px) !important;
+  overflow: visible;
+}
+.main-content::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(120deg, #00f5ff11 0%, #764ba211 100%);
+  z-index: -1;
+  border-radius: 1.1rem;
+  pointer-events: none;
+}
+header svg, #userDropdownMenu svg {
+  filter: drop-shadow(0 0 8px #00f5ff88) drop-shadow(0 0 4px #764ba288);
+}
+.hud-panel {
+  background: var(--hud-glass);
+  border: 1.5px solid var(--hud-border);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px #00f5ff22, 0 0 0 2px var(--primary-gradient);
+  backdrop-filter: blur(18px);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
+}
+.hud-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(120deg, #00f5ff11 0%, #764ba211 100%);
+  z-index: -1;
+  border-radius: 1.5rem;
+  pointer-events: none;
+}
+.hud-divider {
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, #00f5ff 0%, #764ba2 100%);
+  box-shadow: 0 0 12px #00f5ff88;
+  border-radius: 2px;
+  margin: 2rem 0;
+  opacity: 0.7;
+}
+.hud-holo {
+  background: linear-gradient(120deg, #00f5ff22 0%, #764ba222 100%);
+  border-radius: 1.2rem;
+  box-shadow: 0 0 32px #00f5ff33, 0 0 0 2px var(--primary-gradient);
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+  border: 1.5px solid var(--hud-border);
+  backdrop-filter: blur(12px);
+}
+#userDropdownMenu {
+    background: var(--bg-tertiary);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 0.5rem 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+#userDropdownMenu::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 255, 255, 0.05) 100%);
+    transform: translateX(-50%) rotate(2deg);
+    z-index: -1;
+}
+header .flex.items-center.space-x-4 > div:first-child {
+  margin-right: 1.5rem !important;
+}
+header .flex.items-center.space-x-4 > div:nth-child(2) {
+  margin-left: 0.5rem !important;
+}
+@media (max-width: 640px) {
+  .main-content, .glass-effect, .home-hud-panel {
+    padding: 1.2rem 0.7rem 1rem 0.7rem !important;
+    border-radius: 0.7rem !important;
+  }
+  .status-module, .module-card {
+    border-radius: 0.5rem !important;
+    padding: 0.7rem 0.5rem 0.5rem 0.5rem !important;
+  }
+}
+
+/* Fixes para evitar elementos gigantes y mejorar la responsividad */
+.glass-header .max-w-7xl {
+  min-height: 4rem;
+  align-items: center;
+}
+
+.glass-header .flex.items-center.gap-4 {
+  height: auto;
+  min-height: 2.5rem;
+}
+
+.user-dropdown-btn {
+  max-width: 16rem;
+  min-height: 2.5rem;
+  max-height: 3rem;
+  overflow: hidden;
+}
+
+.user-dropdown-btn .text-left {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.user-dropdown-btn .text-left span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 8rem;
+  display: block;
+}
+
+/* Mobile fixes */
+@media (max-width: 768px) {
+  .user-dropdown-btn .text-left {
+    display: none !important;
+  }
+  
+  .user-dropdown-btn {
+    min-width: 2.5rem;
+    max-width: 2.5rem;
+    padding: 0.5rem;
+    justify-content: center;
+  }
+  
+  .glass-header .max-w-7xl {
+    padding: 0.75rem 1rem;  }
+  
+  /* Responsive overrides for premium logo */
+  .premium-logo-container {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  
+  .premium-logo-svg {
+    width: 1.8rem !important;
+    height: 1.8rem !important;
+  }
+  
+  .premium-brand-title {
+    font-size: 1.4rem !important;
+  }
+  
+  .premium-brand-subtitle {
+    font-size: 0.55rem !important;
+  }
+}
+
+/* Tablet fixes */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .user-dropdown-btn .text-left span:first-child {
+    font-size: 0.8rem;
+  }
+  
+  .user-dropdown-btn .text-left span:last-child {
+    font-size: 0.7rem;
+  }
+}
+
+/* Asegurar que el dropdown no cause overflow */
+.relative {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  z-index: 9999;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Smooth scrollbar para el dropdown en caso de ser muy largo */
+.dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 3px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 3px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}
+
+/* Focus styles para accesibilidad */
+.dropdown-item:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: -2px;
+}
+
+.group-selector:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
+}
+
+.user-dropdown-btn:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
+}
+
+/* Loading state para el group selector */
+.group-selector:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24'%3e%3cpath stroke='%2300ffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'/%3e%3c/svg%3e");
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    background-position: right 0.5rem center;
+  }
+  to {
+    background-position: right 0.5rem center;
+    transform: rotate(360deg);
+  }
+}
+
+/* Header glassmórfico HealthFlow Pro */
+.glass-header {
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.15) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--glass-gradient);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ===== MEJORAS PREMIUM PARA EL HEADER ===== */
+
+/* Asegurar que el header tenga suficiente contraste */
+.glass-header {
+  backdrop-filter: blur(20px) saturate(150%) !important;
+  background: rgba(0, 10, 14, 0.85) !important;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
+  box-shadow: 
+    0 4px 32px rgba(0, 0, 0, 0.4), 
+    0 1px 0 rgba(0, 212, 255, 0.15) inset,
+    0 0 60px rgba(0, 212, 255, 0.1) !important;
+  position: relative;
+  z-index: 1000;
+}
+
+/* Efecto de glow adicional para el header */
+.glass-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(0, 212, 255, 0.6) 25%, 
+    rgba(139, 92, 246, 0.6) 50%, 
+    rgba(236, 72, 153, 0.6) 75%, 
+    transparent 100%);
+  animation: headerGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes headerGlow {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* Mejorar el contenedor del logo con mejor spacing */
+.logo-container {
+  position: relative;
+  z-index: 2;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.75rem 1rem !important;
+  border-radius: 1.25rem;
+  background: rgba(0, 212, 255, 0.02);
+  border: 1px solid transparent;
+}
+
+.logo-container:hover {
+  transform: translateY(-3px);
+  background: rgba(0, 212, 255, 0.08);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+/* Asegurar que el premium-logo-container tenga el tamaño correcto */
+.premium-logo-container {
+  width: 4rem !important;
+  height: 4rem !important;
+  min-width: 4rem !important;
+  min-height: 4rem !important;
+  border-radius: 1.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(59, 130, 246, 0.2) 25%, rgba(139, 92, 246, 0.2) 75%, rgba(236, 72, 153, 0.15) 100%) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(0, 212, 255, 0.25), 0 4px 16px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.premium-logo-container:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 12px 48px rgba(0, 212, 255, 0.35), 0 6px 24px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(59, 130, 246, 0.25) 25%, rgba(139, 92, 246, 0.25) 75%, rgba(236, 72, 153, 0.2) 100%) !important;
+}
+
+/* Mejorar el SVG del logo premium */
+.premium-logo-svg {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 212, 255, 0.3)) !important;
+  transition: all 0.3s ease !important;
+}
+
+.premium-logo-svg:hover {
+  filter: drop-shadow(0 6px 12px rgba(0, 212, 255, 0.5)) !important;
+  transform: scale(1.1) !important;
+}
+
+/* Mejorar el spacing del logo-container */
+.logo-container {
+  position: relative;
+  z-index: 2;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 1rem 1.5rem !important;
+  gap: 2rem !important;
+  padding-left: 2rem !important;
+  border-radius: 1.25rem;
+  background: rgba(0, 212, 255, 0.02);
+  border: 1px solid transparent;
+}
+
+/* ===== MEJORAS PREMIUM PARA LA TIPOGRAFÍA ===== */
+
+/* Asegurar que las fuentes premium se carguen */
+.premium-brand-title,
+.premium-brand-subtitle {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-feature-settings: "liga" 1, "kern" 1 !important;
+}
+
+/* Mejor espaciado del contenedor de marca */
+.premium-brand-container {
+  position: relative !important;
+  z-index: 2 !important;
+  margin-left: 1.25rem !important;
+  padding: 0.25rem 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+/* ===== RESPONSIVE PREMIUM ===== */
+@media (min-width: 768px) {
+  .premium-logo-container {
+    width: 4.5rem !important;
+    height: 4.5rem !important;
+  }
+  
+  .premium-logo-svg {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+  }
+  
+  .premium-brand-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .premium-brand-subtitle {
+    font-size: 0.875rem !important;
+    margin-top: 0.625rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .premium-logo-container {
+    width: 5rem !important;
+    height: 5rem !important;
+  }
+  
+  .premium-logo-svg {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+  }
+  
+  .premium-brand-title {
+    font-size: 2.75rem !important;
+  }
+  
+  .premium-brand-subtitle {
+    font-size: 0.925rem !important;
+  }
+  
+  .logo-container {
+    gap: 2rem !important;
+    padding-left: 2rem !important;
+    padding: 1rem 1.5rem !important;  }
+  
+  .premium-brand-container {
+    margin-left: 1.5rem !important;
+  }
+  
+  .logo-container {
+    gap: 1.5rem !important;
+    padding-left: 1.5rem !important;
+  }
+}
+
+/* ===== RESPONSIVE PREMIUM ===== */
+@media (max-width: 768px) {
+  .smart-search {
+    display: none;
+  }
+  
+  .group-selector {
+    min-width: 8rem;
+    font-size: 0.8rem;
+  }
+  
+  .user-dropdown-btn {
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .dropdown-menu {
+    min-width: 14rem;
+    right: -1rem;
+  }
+}
+
+/* Global anti-white background */
+* {
+  background-color: transparent !important;
+}
+
+/* Excepciones necesarias */
+.glass-effect, .status-module, .module-card, .welcome-card, 
+.glass-header, .glass-footer, .search-input, 
+body, html {
+  background-color: var(--bg-primary, #000a0e) !important;
+  background: var(--glass-bg, rgba(0, 255, 255, 0.08)) !important;
+}
+
+body, html {
+  background: var(--bg-primary, #000a0e) !important;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(128, 0, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255, 0, 128, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-primary, #000a0e) 0%, var(--bg-secondary, #0a1728) 100%) !important;
+}
+
+/* Toast Notifications Styles */
+.toast-notification {
+  position: relative;
+  overflow: hidden;
+}
+
+.toast-notification::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(128, 0, 255, 0.05) 100%);
+  pointer-events: none;
+}
+
+.toast-notification .flex {
+  position: relative;
+  z-index: 1;
+}
+
+.toast-close {
+  flex-shrink: 0;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s;
+}
+
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Animation classes for better performance */
+.toast-enter {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.toast-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast-exit {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-exit-active {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ajustes finales para el header */
+.glass-header {
+  height: 4.5rem;
+  min-height: 4.5rem;
+}
+
+.glass-header .max-w-7xl {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Asegurar que el contenido principal tenga el padding correcto */
+.content-wrapper {
+  padding-top: 5rem; /* Espacio para el header fijo */
+  min-height: calc(100vh - 5rem);
+}
+
+/* Footer adjustments */
+.glass-footer {
+  margin-top: 0;
+}
+
+/* Dark theme para los iconos SVG */
+.glass-header svg {
+  color: inherit;
+  fill: currentColor;
+}
+
+.glass-header .text-white svg {
+  color: #ffffff;
+}
+
+.glass-header .text-cyan-100 svg {
+  color: #a5f3fc;
+}
+
+.glass-header .text-cyan-400 svg {
+  color: #22d3ee;
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .toast-notification,
+  .dropdown-menu,
+  .user-dropdown-btn,
+  .group-selector {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .glass-header,
+  .dropdown-menu,
+  .user-dropdown-btn,
+  .group-selector {
+    border-width: 2px;
+    border-color: #ffffff !important;
+  }
+  
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
+
+/* Additional premium effects for logo */
+.logo-container {
+  position: relative;
+  z-index: 2;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.5rem;
+  border-radius: 1rem;
+}
+
+.logo-container:hover {
+  transform: translateY(-2px);
+  background: rgba(0, 212, 255, 0.05);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 212, 255, 0.15);
+}
+
+/* Hover effects for brand text */
+.premium-brand-title {
+  transition: all 0.3s ease;
+}
+
+.premium-brand-title:hover {
+  transform: translateX(2px);
+}
+
+.premium-brand-title:hover .health-text {
+  animation-duration: 1s;
+  filter: drop-shadow(0 4px 20px rgba(0, 212, 255, 0.8));
+}
+
+.premium-brand-title:hover .flow-text {
+  animation-duration: 1s;
+  filter: drop-shadow(0 4px 20px rgba(59, 130, 246, 0.8));
+}
+
+.premium-brand-title:hover .pro-text {
+  animation-duration: 1s;
+  filter: drop-shadow(0 4px 20px rgba(139, 92, 246, 0.8));
+}
+
+/* Subtle animation for subtitle on hover */
+.premium-brand-subtitle {
+  transition: all 0.3s ease;
+}
+
+.premium-brand-container:hover .premium-brand-subtitle {
+  transform: translateX(4px);
+  opacity: 1;
+}
+
+.premium-brand-container:hover .sistema-text {
+  color: #B8C5D1;
+  text-shadow: 0 2px 6px rgba(184, 197, 209, 0.5);
+}
+
+.premium-brand-container:hover .medico-text {
+  filter: drop-shadow(0 2px 6px rgba(0, 212, 255, 0.5));
+}
+
+.premium-brand-container:hover .avanzado-text {
+  filter: drop-shadow(0 2px 6px rgba(139, 92, 246, 0.5));
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .premium-logo-container {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+  }
+  
+  .premium-logo-svg {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+  
+  .premium-brand-title {
+    font-size: 1.5rem !important;
+    gap: 0.15rem !important;
+  }
+  
+  .premium-brand-subtitle {
+    font-size: 0.625rem !important;
+    gap: 0.25rem !important;
+    margin-top: 0.25rem !important;
+  }
+  
+  .premium-brand-container {
+    margin-left: 0.75rem !important;
+  }
+  
+  .logo-container {
+    gap: 1rem !important;
+    padding: 0.25rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .premium-logo-container {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  
+  .premium-logo-svg {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+  }
+  
+  .premium-brand-title {
+    font-size: 1.25rem !important;
+    gap: 0.1rem !important;
+  }
+  
+  .premium-brand-subtitle {
+    font-size: 0.55rem !important;
+    gap: 0.2rem !important;
+  }
+  
+  .premium-brand-container {
+    margin-left: 0.5rem !important;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .premium-logo-svg {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .premium-logo-container::before,
+  .health-text,
+  .flow-text,
+  .pro-text,
+  .pro-text::after {
+    animation: none !important;
+  }
+  
+  .premium-logo-container,
+  .premium-logo-svg {
+    transition: none !important;
+  }
+}
+
+/* Focus states for accessibility */
+.logo-container:focus-within .premium-logo-container {
+  outline: 2px solid rgba(0, 212, 255, 0.6);
+  outline-offset: 2px;
+}
+
+/* ===== PROTECCIÓN CONTRA RESETS CSS AGRESIVOS ===== */
+/* Esto protege el header de ser afectado por resets CSS de otras páginas */
+
+/* Proteger el header y sus elementos críticos */
+.glass-header,
+.glass-header * {
+  box-sizing: border-box !important;
+}
+
+/* Forzar que el header mantenga su estructura */
+.glass-header {
+  position: relative !important;
+  z-index: 9999 !important;
+  width: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* Forzar el espaciado del contenedor principal del header */
+.glass-header > div {
+  max-width: 80rem !important;
+  margin: 0 auto !important;
+  padding: 2rem 3rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+/* ===== SMART SEARCH BAR - ESTILOS PREMIUM ===== */
+.smart-search {
+  position: relative !important;
+  z-index: 10 !important;
+  flex: 1 !important;
+  max-width: 32rem !important;
+  margin: 0 2rem !important;
+}
+
+.smart-search .relative {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.search-icon {
+  position: absolute !important;
+  left: 1rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: rgba(0, 212, 255, 0.7) !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 212, 255, 0.4)) !important;
+  transition: all 0.3s ease !important;
+}
+
+.search-input {
+  width: 100% !important;
+  padding: 0.875rem 1rem 0.875rem 3rem !important;
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1.5px solid rgba(0, 212, 255, 0.25) !important;
+  border-radius: 1rem !important;
+  color: #ffffff !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  font-family: 'Inter', sans-serif !important;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 0 30px rgba(0, 212, 255, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  outline: none !important;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+  font-weight: 400 !important;
+}
+
+.search-input:focus {
+  border-color: rgba(0, 212, 255, 0.6) !important;
+  box-shadow: 
+    0 0 0 3px rgba(0, 212, 255, 0.15),
+    0 6px 32px rgba(0, 212, 255, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.15) inset !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+}
+
+.search-input:focus + .search-icon,
+.search-input:hover + .search-icon {
+  color: #00D4FF !important;
+  filter: drop-shadow(0 4px 12px rgba(0, 212, 255, 0.6)) !important;
+  transform: translateY(-50%) scale(1.1) !important;
+}
+
+/* Efectos hover para el contenedor de búsqueda */
+.smart-search:hover .search-input {
+  border-color: rgba(0, 212, 255, 0.4) !important;
+  box-shadow: 
+    0 6px 24px rgba(0, 212, 255, 0.2),
+    0 1px 0 rgba(255, 255, 255, 0.12) inset !important;
+}
+
+/* Responsive para el buscador */
+@media (max-width: 1024px) {
+  .smart-search {
+    max-width: 24rem !important;
+    margin: 0 1rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .smart-search {
+    display: none !important;
+  }
+}
+
+/* ===== HEADER ULTRA PREMIUM MEJORADO ===== */
+
+/* Header glass mejorado */
+.glass-header {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(25px) saturate(200%) !important;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.2) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  position: relative;
+  z-index: 100;
+}
+
+.glass-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(0, 255, 255, 0.03) 0%, 
+    rgba(59, 130, 246, 0.02) 25%,
+    rgba(139, 92, 246, 0.02) 50%,
+    rgba(236, 72, 153, 0.01) 75%,
+    rgba(0, 255, 255, 0.02) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Espaciado específico para página de login */
+@media (max-width: 1024px) {
+  .glass-header .max-w-7xl {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .glass-header .max-w-7xl {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+    min-height: 100px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .glass-header .max-w-7xl {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .glass-header .justify-between {
+    justify-content: center !important;
+    align-items: center !important;
+  }
+}
+
+/* Mejoras específicas para el contenedor del logo */
+.glass-header .flex.items-center.gap-4 {
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Asegurar que el texto no se corte */
+.premium-title-ultra {
+  white-space: nowrap;
+  overflow: visible;
+}
+
+@media (max-width: 480px) {
+  .premium-title-ultra {
+    white-space: normal;
+    text-align: center;
+  }
+}
