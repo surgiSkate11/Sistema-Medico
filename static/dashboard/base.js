@@ -9,6 +9,8 @@ function setupUserDropdown() {
         function hideDropdown() {
             userDropdownMenu.classList.add('opacity-0', 'invisible', 'scale-95');
             userDropdownMenu.classList.remove('opacity-100', 'visible', 'scale-100');
+            userDropdownMenu.style.zIndex = '50';
+            userDropdownMenu.style.display = '';
             if (userDropdownIcon) {
                 userDropdownIcon.classList.remove('rotate-180');
             }
@@ -18,6 +20,8 @@ function setupUserDropdown() {
         function showDropdown() {
             userDropdownMenu.classList.remove('opacity-0', 'invisible', 'scale-95');
             userDropdownMenu.classList.add('opacity-100', 'visible', 'scale-100');
+            userDropdownMenu.style.zIndex = '9999';
+            userDropdownMenu.style.display = 'block';
             if (userDropdownIcon) {
                 userDropdownIcon.classList.add('rotate-180');
             }
@@ -69,14 +73,14 @@ function setupUserDropdown() {
                 e.preventDefault();
                 showDropdown();
                 // Focus en el primer item del menu
-                const firstItem = userDropdownMenu.querySelector('.dropdown-item');
+                const firstItem = userDropdownMenu.querySelector('a,button');
                 if (firstItem) firstItem.focus();
             }
         });
         
         // Navegación dentro del dropdown
         userDropdownMenu.addEventListener('keydown', function(e) {
-            const items = Array.from(userDropdownMenu.querySelectorAll('.dropdown-item'));
+            const items = Array.from(userDropdownMenu.querySelectorAll('a,button'));
             const currentIndex = items.indexOf(document.activeElement);
             
             if (e.key === 'ArrowDown') {
@@ -101,85 +105,14 @@ function setupUserDropdown() {
 // Selector de grupos mejorado
 function setupGroupsSelector() {
     const groupSelectEl = document.getElementById('groupSelect');
-    
     if (groupSelectEl) {
-        // Mejorar el cambio de grupo con feedback visual
         groupSelectEl.addEventListener('change', function() {
             const selectedGroupId = this.value;
-            const selectedText = this.options[this.selectedIndex].text;
-            
-            // Agregar indicador de carga
-            this.style.opacity = '0.6';
-            this.disabled = true;
-            
-            // Mostrar notificación de cambio
             if (selectedGroupId) {
-                showToast(`Cambiando a grupo: ${selectedText}`, 'info', 2000);
-            } else {
-                showToast('Eliminando selección de grupo', 'info', 2000);
-            }
-            
-            // Crear URL con parámetro de grupo
-            const currentUrl = new URL(window.location);
-            if (selectedGroupId) {
+                // Redirigir con el parámetro gpid
+                const currentUrl = new URL(window.location.href);
                 currentUrl.searchParams.set('gpid', selectedGroupId);
-            } else {
-                currentUrl.searchParams.delete('gpid');
-            }
-            
-            // Mostrar mensaje de cambio de grupo en el selector
-            const originalText = this.options[this.selectedIndex].text;
-            this.options[this.selectedIndex].text = 'Cambiando...';
-            
-            // Redirigir después de un pequeño delay para mejor UX
-            setTimeout(() => {
                 window.location.href = currentUrl.toString();
-            }, 500);
-        });
-        
-        // Agregar efecto hover mejorado
-        groupSelectEl.addEventListener('mouseenter', function() {
-            if (!this.disabled) {
-                this.style.borderColor = 'var(--neon-cyan)';
-            }
-        });
-        
-        groupSelectEl.addEventListener('mouseleave', function() {
-            if (document.activeElement !== this && !this.disabled) {
-                this.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-            }
-        });
-        
-        // Mejorar el focus
-        groupSelectEl.addEventListener('focus', function() {
-            if (!this.disabled) {
-                this.style.borderColor = 'var(--neon-cyan)';
-                this.style.boxShadow = '0 0 0 3px rgba(0, 255, 255, 0.2)';
-            }
-        });
-        
-        groupSelectEl.addEventListener('blur', function() {
-            if (!this.disabled) {
-                this.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-                this.style.boxShadow = 'none';
-            }
-        });
-        
-        // Mostrar información del grupo actual si existe
-        const currentGroup = groupSelectEl.options[groupSelectEl.selectedIndex];
-        if (currentGroup && currentGroup.value) {
-            console.log('Grupo actual:', currentGroup.text);
-        }
-    }
-    
-    // Compatibilidad con el selector genérico anterior
-    const genericSelector = document.querySelector('select:not(#groupSelect)');
-    if (genericSelector && !document.getElementById('groupSelect')) {
-        genericSelector.addEventListener('change', function() {
-            const selectedGroup = this.value;
-            if (selectedGroup) {
-                console.log('Selected group:', selectedGroup);
-                showToast('Grupo seleccionado correctamente', 'success', 2000);
             }
         });
     }
@@ -286,14 +219,19 @@ class MedicalLoader {
     hideLoader() {
         if (!this.loader) return;
         this.loader.classList.add('hidden');
+        // Forzar ocultar y limpiar estilos después de la transición
         setTimeout(() => {
             this.loader.style.display = 'none';
+            this.loader.style.opacity = '0';
+            this.loader.style.visibility = 'hidden';
+            this.loader.style.pointerEvents = 'none';
+            // Restaurar el contenido principal si existe
             if (this.mainContent) {
                 this.mainContent.style.opacity = '1';
                 this.mainContent.style.pointerEvents = 'auto';
             }
             this.isLoading = false;
-        }, 500);
+        }, 600); // 600ms para asegurar la transición CSS
     }
     show() {
         this.isLoading = true;
@@ -631,13 +569,12 @@ document.addEventListener('DOMContentLoaded', function() {
             @keyframes spin {
                 from { transform: translateY(-50%) rotate(0deg); }
                 to { transform: translateY(-50%) rotate(360deg); }
-            }
-        `;
+            }        `;
         document.head.appendChild(style);
-    }    // Inicializar estilos
-    addSearchStyles();
-
-    // Inicialización principal
+    }
+    
+    // Inicializar estilos
+    addSearchStyles();    // Inicialización principal
     document.addEventListener('DOMContentLoaded', function() {
         setupUserDropdown();
         setupGroupsSelector();
@@ -646,5 +583,233 @@ document.addEventListener('DOMContentLoaded', function() {
         setupButtonRipples();
         setupModuleCardObserver();
         setupMedicalLoader();
+          // Inicializar efectos cyberpunk
+        const particles = new CyberpunkParticles();
+        setupCyberpunkEffects();
+        addCyberpunkAnimations();
+        
+        // Inicializar loader médico si no está presente
+        if (!window.medicalLoader) {
+            window.medicalLoader = new MedicalLoader();
+        }
     });
-})();
+});
+// Forzar inicialización inmediata y debug visual
+window.addEventListener('DOMContentLoaded', function() {
+    setupUserDropdown();
+    setupGroupsSelector();
+    // Debug visual para saber si los elementos existen
+    const userDropdown = document.getElementById('userDropdown');
+    const userDropdownMenu = document.getElementById('userDropdownMenu');
+    const groupSelect = document.getElementById('groupSelect');
+    if (!userDropdown) console.warn('No se encontró #userDropdown');
+    if (!userDropdownMenu) console.warn('No se encontró #userDropdownMenu');
+    if (!groupSelect) console.warn('No se encontró #groupSelect');
+});
+// ===== SISTEMA DE PARTÍCULAS CYBERPUNK MÉDICO =====
+class CyberpunkParticles {
+    constructor() {
+        this.container = document.getElementById('particlesBg');
+        this.particles = [];
+        this.particleCount = 50;
+        this.init();
+    }
+
+    init() {
+        if (!this.container) return;
+        
+        // Crear partículas iniciales
+        this.createParticles();
+        
+        // Iniciar sistema de generación continua
+        this.startParticleSystem();
+        
+        // Agregar eventos de interacción
+        this.setupInteractions();
+    }
+
+    createParticles() {
+        for (let i = 0; i < this.particleCount; i++) {
+            this.createParticle();
+        }
+    }
+
+    createParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Posición aleatoria
+        const startX = Math.random() * window.innerWidth;
+        const startY = window.innerHeight + 10;
+        
+        // Propiedades aleatorias
+        const size = Math.random() * 6 + 2; // 2-8px
+        const speed = Math.random() * 3 + 2; // 2-5s
+        const delay = Math.random() * 5; // 0-5s delay
+        
+        // Colores neón aleatorios
+        const colors = [
+            '#00ffff', // cyan
+            '#8000ff', // purple
+            '#ff0080', // pink
+            '#00ff80', // green
+            '#0080ff'  // blue
+        ];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        // Aplicar estilos
+        particle.style.cssText = `
+            left: ${startX}px;
+            top: ${startY}px;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            box-shadow: 0 0 ${size * 2}px ${color};
+            animation-duration: ${speed + 8}s;
+            animation-delay: ${delay}s;
+        `;
+        
+        // Agregar al contenedor
+        this.container.appendChild(particle);
+        this.particles.push(particle);
+        
+        // Remover después de la animación
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+                const index = this.particles.indexOf(particle);
+                if (index > -1) {
+                    this.particles.splice(index, 1);
+                }
+            }
+        }, (speed + 8 + delay) * 1000);
+    }
+
+    startParticleSystem() {
+        // Generar nuevas partículas cada cierto tiempo
+        setInterval(() => {
+            if (this.particles.length < this.particleCount * 2) {
+                this.createParticle();
+            }
+        }, 200); // Nueva partícula cada 200ms
+    }
+
+    setupInteractions() {
+        // Efectos al mover el mouse
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            
+            // Crear partícula en la posición del mouse ocasionalmente
+            if (Math.random() < 0.05) { // 5% de probabilidad
+                this.createMouseParticle(mouseX, mouseY);
+            }
+        });
+    }
+
+    createMouseParticle(x, y) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 4 + 2;
+        const colors = ['#00ffff', '#8000ff', '#ff0080'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        particle.style.cssText = `
+            left: ${x}px;
+            top: ${y}px;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            box-shadow: 0 0 ${size * 3}px ${color};
+            animation: mouse-particle 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 1000;
+        `;
+        
+        this.container.appendChild(particle);
+        
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        }, 1000);
+    }
+}
+
+// Efectos de pulsación para botones cyberpunk
+function setupCyberpunkEffects() {
+    // Agregar efectos a todos los botones
+    document.addEventListener('click', function(e) {
+        const button = e.target.closest('button, .cyber-btn, .btn');
+        if (button && !button.disabled) {
+            createClickEffect(e.clientX, e.clientY);
+        }
+    });
+}
+
+function createClickEffect(x, y) {
+    const effect = document.createElement('div');
+    effect.style.cssText = `
+        position: fixed;
+        left: ${x}px;
+        top: ${y}px;
+        width: 0;
+        height: 0;
+        border: 2px solid #00ffff;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10000;
+        animation: click-ripple 0.6s ease-out forwards;
+    `;
+    
+    document.body.appendChild(effect);
+    
+    setTimeout(() => {
+        if (effect.parentNode) {
+            effect.parentNode.removeChild(effect);
+        }
+    }, 600);
+}
+
+// Agregar animación de click ripple
+function addCyberpunkAnimations() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes mouse-particle {
+            0% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5) translateY(-50px);
+            }
+        }
+        
+        @keyframes click-ripple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+            100% {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        /* Efecto de glow para elementos interactivos */
+        .cyber-glow {
+            transition: all 0.3s ease;
+        }
+        
+        .cyber-glow:hover {
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+    `;
+    document.head.appendChild(style);
+}

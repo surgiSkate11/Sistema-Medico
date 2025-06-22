@@ -7,6 +7,9 @@ from applications.security.forms.group_module_permisos import GroupModulePermiss
 from applications.security.models import GroupModulePermission
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.db.models import Q
+from django.contrib.auth.models import Group, Permission
+from applications.security.models import Module
+import json
 
 
 class GroupModulePermissionListView(PermissionMixin, ListViewMixin, ListView):
@@ -37,9 +40,27 @@ class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateVi
     permission_required = 'add_groupmodulepermission'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         context['grabar'] = 'Grabar Grupo Módulo Permiso'
         context['back_url'] = self.success_url
+        # Relación grupo → módulos
+        group_modules = {}
+        for group in Group.objects.all():
+            modules = Module.objects.filter(
+                group_permissions__group=group
+            ).distinct()
+            group_modules[group.id] = [
+                {"id": m.id, "name": m.name} for m in modules
+            ]
+        # Relación módulo → permisos
+        module_permissions = {}
+        for module in Module.objects.all():
+            perms = module.permissions.all()
+            module_permissions[module.id] = [
+                {"id": p.id, "name": p.name, "codename": p.codename} for p in perms
+            ]
+        context["group_modules"] = json.dumps(group_modules)
+        context["module_permissions"] = json.dumps(module_permissions)
         return context
 
     def form_valid(self, form):
@@ -57,9 +78,27 @@ class GroupModulePermissionUpdateView(PermissionMixin, UpdateViewMixin, UpdateVi
     permission_required = 'change_groupmodulepermission'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         context['grabar'] = 'Actualizar Grupo Módulo Permiso'
         context['back_url'] = self.success_url
+        # Relación grupo → módulos
+        group_modules = {}
+        for group in Group.objects.all():
+            modules = Module.objects.filter(
+                group_permissions__group=group
+            ).distinct()
+            group_modules[group.id] = [
+                {"id": m.id, "name": m.name} for m in modules
+            ]
+        # Relación módulo → permisos
+        module_permissions = {}
+        for module in Module.objects.all():
+            perms = module.permissions.all()
+            module_permissions[module.id] = [
+                {"id": p.id, "name": p.name, "codename": p.codename} for p in perms
+            ]
+        context["group_modules"] = json.dumps(group_modules)
+        context["module_permissions"] = json.dumps(module_permissions)
         return context
 
     def form_valid(self, form):

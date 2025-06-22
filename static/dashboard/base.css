@@ -44,47 +44,77 @@
     --premium-glow-hover: var(--cyber-glow-hover);
 }
 
-/* RESET GLOBAL AGRESIVO */
-* { 
-  margin: 0; 
-  padding: 0; 
-  box-sizing: border-box; 
-  background: transparent !important;
-  background-color: transparent !important;
+/* RESET GLOBAL SOLO PARA ESPACIADO Y BOX-SIZING */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* ELEMENTOS QUE SÍ NECESITAN FONDO */
-html, body {
-  background: var(--bg-primary, #000a0e) !important;
-  background-color: var(--bg-primary, #000a0e) !important;
-}
-
-.glass-effect, .status-module, .module-card, .welcome-card, 
-.glass-header, .glass-footer, .search-input {
+/* SOLO elementos que realmente lo necesitan tendrán fondo transparente */
+.glass-effect, .status-module, .module-card, .welcome-card, .glass-header, .glass-footer, .search-input {
   background: var(--glass-bg, rgba(0, 255, 255, 0.05)) !important;
   background-color: var(--glass-bg, rgba(0, 255, 255, 0.05)) !important;
 }
-* { 
-  margin: 0; 
-  padding: 0; 
-  box-sizing: border-box; 
+
+/* HEADER SIEMPRE CON FONDO GLASS PREMIUM Y SIN BARRA NEGRA */
+header, header.glass-header {
+  background: linear-gradient(120deg, rgba(0,255,255,0.10) 0%, rgba(128,0,255,0.10) 100%), var(--glass-bg, rgba(0,255,255,0.08)) !important;
+  background-color: transparent !important;
+  border-bottom: 2px solid var(--neon-cyan) !important;
+  box-shadow: 0 4px 32px #00f5ff22, 0 0 0 2px var(--primary-gradient);
+  backdrop-filter: blur(18px) !important;
+  margin-top: 0 !important;
+  top: 0 !important;
 }
 
+/* Eliminar cualquier margen/padding superior global que empuje el header hacia abajo */
+body, html {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Fondo dinámico premium para todo el body (ADN partículas) */
 body {
-  background: var(--bg-primary, #000a0e) !important;
-  color: var(--text-primary, #ffffff) !important;
-  font-family: 'Inter', 'Orbitron', 'Segoe UI', sans-serif;
-  letter-spacing: 0.025em;
-  min-height: 100vh;
-  overflow-x: hidden;
-  position: relative;
+  background: linear-gradient(180deg, #000a0e 0%, #0a1728 100%) !important;
   background-image: 
-    radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(128, 0, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(255, 0, 128, 0.08) 0%, transparent 50%),
-    linear-gradient(180deg, var(--bg-primary, #000a0e) 0%, var(--bg-secondary, #0a1728) 100%) !important;
-  /* Asegurar que no se vea blanco nunca */
-  background-color: #000a0e !important;
+    radial-gradient(circle at 20% 80%, rgba(0,255,255,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(128,0,255,0.10) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255,0,128,0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #000a0e 0%, #0a1728 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  color: #ffffff !important;
+}
+
+/* Asegurar que las partículas de fondo estén siempre visibles y detrás del header */
+.particles-bg, #particlesBg {
+  position: fixed !important;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 0 !important;
+  pointer-events: none;
+  opacity: 1 !important;
+}
+
+header, header.glass-header {
+  z-index: 10 !important;
+  position: sticky !important;
+}
+
+/* HEADINGS Y [role=heading] SIN FILTROS NI BLUR */
+h1, h2, h3, h4, h5, h6, [role="heading"] {
+  filter: none !important;
+  backdrop-filter: none !important;
+  text-shadow: none !important;
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* html y body con fondo oscuro sólido */
+html, body {
+  background: var(--bg-primary, #000a0e) !important;
+  background-color: var(--bg-primary, #000a0e) !important;
+  color: var(--text-primary, #ffffff) !important;
 }
 
 /* Eliminar cualquier fondo blanco residual */
@@ -442,12 +472,27 @@ header svg {
   background: var(--glass-bg) !important;
 }
 #userDropdownMenu {
-  background: var(--hud-glass) !important;
-  border: 1.5px solid var(--hud-border) !important;
-  box-shadow: 0 8px 32px #00f5ff33, 0 0 0 2px var(--primary-gradient);
-  border-radius: 1.2rem !important;
-  color: #eaf6ff !important;
-  margin-top: 0.7rem !important;
+    background: var(--bg-tertiary) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 0.5rem 0 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(10px) !important;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95);
+    pointer-events: none;
+    transition: all 0.2s;
+    z-index: 9999 !important;
+    display: block !important;
+}
+#userDropdownMenu.opacity-100.visible.scale-100 {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: scale(1) !important;
+    pointer-events: auto !important;
+    z-index: 9999 !important;
+    display: block !important;
 }
 #userDropdownMenu a, #userDropdownMenu button {
   color: #eaf6ff !important;
@@ -534,22 +579,27 @@ header svg, #userDropdownMenu svg {
   backdrop-filter: blur(12px);
 }
 #userDropdownMenu {
-    background: var(--bg-tertiary);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 0.5rem 0;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
+    background: var(--bg-tertiary) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 0.5rem 0 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(10px) !important;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95);
+    pointer-events: none;
+    transition: all 0.2s;
+    z-index: 9999 !important;
+    display: block !important;
 }
-#userDropdownMenu::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 50%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 255, 255, 0.05) 100%);
-    transform: translateX(-50%) rotate(2deg);
-    z-index: -1;
+#userDropdownMenu.opacity-100.visible.scale-100 {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: scale(1) !important;
+    pointer-events: auto !important;
+    z-index: 9999 !important;
+    display: block !important;
 }
 header .flex.items-center.space-x-4 > div:first-child {
   margin-right: 1.5rem !important;
@@ -716,7 +766,7 @@ header .flex.items-center.space-x-4 > div:nth-child(2) {
 .glass-header {
   background: rgba(15, 23, 42, 0.85) !important;
   backdrop-filter: blur(20px) saturate(180%) !important;
-  border-bottom: 1px solid rgba(0, 245, 255, 0.15) !important;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.15) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
   position: fixed !important;
   top: 0;
@@ -1346,101 +1396,604 @@ body, html {
     0 1px 0 rgba(255, 255, 255, 0.12) inset !important;
 }
 
-/* Responsive para el buscador */
-@media (max-width: 1024px) {
-  .smart-search {
-    max-width: 24rem !important;
-    margin: 0 1rem !important;
-  }
+/* ===== CORRECCIONES PREMIUM PARA HEADER Y LOADER ===== */
+
+/* Asegurar que el body tenga el espacio correcto */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-@media (max-width: 768px) {
-  .smart-search {
-    display: none !important;
-  }
+body.loading {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
-/* ===== HEADER ULTRA PREMIUM MEJORADO ===== */
+body:not(.loading) {
+  margin-top: 140px !important;
+  padding-top: 0 !important;
+  position: relative !important;
+}
 
-/* Header glass mejorado */
+/* Reforzar los estilos del glass-header */
 .glass-header {
-  background: rgba(15, 23, 42, 0.95) !important;
-  backdrop-filter: blur(25px) saturate(200%) !important;
-  border-bottom: 1px solid rgba(0, 245, 255, 0.2) !important;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-  position: relative;
-  z-index: 100;
-}
-
-.glass-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  min-height: 140px !important;
   background: linear-gradient(135deg, 
-    rgba(0, 255, 255, 0.03) 0%, 
-    rgba(59, 130, 246, 0.02) 25%,
-    rgba(139, 92, 246, 0.02) 50%,
-    rgba(236, 72, 153, 0.01) 75%,
-    rgba(0, 255, 255, 0.02) 100%);
-  pointer-events: none;
-  z-index: -1;
+    rgba(15, 23, 42, 0.95) 0%, 
+    rgba(30, 41, 59, 0.85) 50%, 
+    rgba(15, 23, 42, 0.95) 100%) !important;
+  backdrop-filter: blur(25px) saturate(200%) !important;
+  border-bottom: 2px solid rgba(0, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 80px rgba(0, 255, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
 }
 
-/* Espaciado específico para página de login */
-@media (max-width: 1024px) {
-  .glass-header .max-w-7xl {
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
+/* Asegurar que el contenedor del header tenga suficiente espacio */
+.glass-header > div {
+  min-height: 120px !important;
+  align-items: center !important;
+  padding: 2rem 1rem !important;
+}
+
+/* Reforzar los colores premium del logo */
+.glass-header svg {
+  color: #00f5ff !important;
+  filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.8)) 
+          drop-shadow(0 0 40px rgba(0, 255, 255, 0.5)) 
+          drop-shadow(0 0 60px rgba(128, 0, 255, 0.3)) !important;
+}
+
+/* Asegurar que el loader tenga máxima prioridad */
+#medicalLoading {
+  z-index: 99999 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: linear-gradient(135deg, 
+    #0f172a 0%, 
+    #1e293b 25%, 
+    #334155 50%, 
+    #475569 75%, 
+    #0f172a 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+#medicalLoading.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* Reforzar los colores del icono médico en el loader */
+#medicalLoading .medical-icon {
+  color: #00f5ff !important;
+  filter: drop-shadow(0 0 20px #00f5ff) 
+          drop-shadow(0 0 40px #00f5ff) !important;
+  text-shadow: 0 0 30px #00f5ff !important;
+}
+
+/* Reforzar el hexágono del loader */
+#medicalLoading .hexagon {
+  background: linear-gradient(135deg, 
+    rgba(26, 26, 46, 0.9) 0%, 
+    rgba(0, 245, 255, 0.1) 100%) !important;
+  border: 3px solid #00f5ff !important;
+  box-shadow: 
+    0 0 40px rgba(0, 245, 255, 0.6),
+    0 0 80px rgba(0, 245, 255, 0.4),
+    inset 0 0 30px rgba(0, 245, 255, 0.2) !important;
+}
+
+/* Reforzar las partículas del loader */
+#medicalLoading .particle {
+  background: #00f5ff !important;
+  box-shadow: 
+    0 0 12px #00f5ff,
+    0 0 24px #00f5ff,
+    0 0 36px rgba(0, 245, 255, 0.5) !important;
+}
+
+/* Reforzar las ondas de radar */
+#medicalLoading .radar-wave {
+  border: 2px solid rgba(0, 245, 255, 0.6) !important;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.4) !important;
+}
+
+/* Reforzar el glow del radar */
+#medicalLoading .radar-glow {
+  background: radial-gradient(circle, 
+    rgba(0, 245, 255, 0.4) 0%, 
+    rgba(0, 245, 255, 0.2) 50%, 
+    transparent 80%) !important;
+}
+
+/* Asegurar que los textos del loader sean visibles */
+#medicalLoading .loading-title {
+  color: #00f5ff !important;
+  text-shadow: 0 0 20px #00f5ff !important;
+  font-weight: 900 !important;
+}
+
+#medicalLoading .loading-subtitle {
+  color: #b3e0ff !important;
+  text-shadow: 0 0 15px rgba(179, 224, 255, 0.5) !important;
+}
+
+/* Reforzar la barra de progreso */
+#medicalLoading .progress-fill {
+  background: linear-gradient(90deg, 
+    #00f5ff 0%, 
+    #0080ff 50%, 
+    #00f5ff 100%) !important;
+  box-shadow: 
+    0 0 20px #00f5ff,
+    0 0 40px rgba(0, 245, 255, 0.5) !important;
+}
+
+/* ===== FIN CORRECCIONES PREMIUM ===== */
+
+/* ===== ANIMACIONES PREMIUM PARA EL HEADER (REFUERZO) ===== */
+
+/* Animación para el icono médico premium */
+@keyframes medicalPulse {
+  0% { 
+    filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.8)) 
+            drop-shadow(0 0 25px rgba(0, 255, 255, 0.5)) 
+            drop-shadow(0 0 35px rgba(128, 0, 255, 0.3));
+  }
+  100% { 
+    filter: drop-shadow(0 0 20px rgba(0, 255, 255, 1)) 
+            drop-shadow(0 0 30px rgba(0, 255, 255, 0.7)) 
+            drop-shadow(0 0 45px rgba(128, 0, 255, 0.5));
   }
 }
 
-@media (max-width: 768px) {
-  .glass-header .max-w-7xl {
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
-    padding-top: 2rem !important;
-    padding-bottom: 2rem !important;
-    min-height: 100px !important;
+/* Animación para el título principal */
+@keyframes premiumTitleFlow {
+  0%, 100% { 
+    background-position: 0% 50%; 
+    filter: drop-shadow(0 2px 12px rgba(0, 255, 255, 0.6)) 
+            drop-shadow(0 0 25px rgba(128, 0, 255, 0.4));
+  }
+  50% { 
+    background-position: 100% 50%; 
+    filter: drop-shadow(0 2px 15px rgba(0, 255, 255, 0.8)) 
+            drop-shadow(0 0 30px rgba(128, 0, 255, 0.6));
   }
 }
 
-@media (max-width: 640px) {
-  .glass-header .max-w-7xl {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    flex-direction: column;
-    gap: 1.5rem;
-    text-align: center;
+/* Animaciones para cada palabra del título */
+@keyframes healthGlow {
+  0% { 
+    filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.8));
+    background-position: 0% 50%;
   }
-  
-  .glass-header .justify-between {
-    justify-content: center !important;
-    align-items: center !important;
+  100% { 
+    filter: drop-shadow(0 0 25px rgba(0, 255, 255, 1)) 
+            drop-shadow(0 0 35px rgba(0, 255, 255, 0.6));
+    background-position: 100% 50%;
   }
 }
 
-/* Mejoras específicas para el contenedor del logo */
-.glass-header .flex.items-center.gap-4 {
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-/* Asegurar que el texto no se corte */
-.premium-title-ultra {
-  white-space: nowrap;
-  overflow: visible;
-}
-
-@media (max-width: 480px) {
-  .premium-title-ultra {
-    white-space: normal;
-    text-align: center;
+@keyframes flowGlow {
+  0% { 
+    filter: drop-shadow(0 0 15px rgba(128, 0, 255, 0.8));
+    background-position: 0% 50%;
+  }
+  100% { 
+    filter: drop-shadow(0 0 25px rgba(128, 0, 255, 1)) 
+            drop-shadow(0 0 35px rgba(128, 0, 255, 0.6));
+    background-position: 100% 50%;
   }
 }
+
+@keyframes proGlow {
+  0% { 
+    filter: drop-shadow(0 0 15px rgba(255, 0, 128, 0.8));
+    background-position: 0% 50%;
+  }
+  100% { 
+    filter: drop-shadow(0 0 25px rgba(255, 0, 128, 1)) 
+            drop-shadow(0 0 35px rgba(255, 0, 128, 0.6));
+    background-position: 100% 50%;
+  }
+}
+
+/* Animación para el subtítulo premium */
+@keyframes subtitleFlow {
+  0% { 
+    background-position: 200% 0; 
+    filter: drop-shadow(0 1px 8px rgba(0, 255, 255, 0.4)) 
+            drop-shadow(0 0 15px rgba(139, 92, 246, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 1px 10px rgba(0, 255, 255, 0.6)) 
+            drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+  }
+  100% { 
+    background-position: -200% 0; 
+    filter: drop-shadow(0 1px 8px rgba(0, 255, 255, 0.4)) 
+            drop-shadow(0 0 15px rgba(139, 92, 246, 0.3));
+  }
+}
+
+/* Animaciones para cada palabra del subtítulo */
+@keyframes sistemaShine {
+  0%, 100% { 
+    filter: drop-shadow(0 0 10px rgba(0, 245, 255, 0.6)) 
+            drop-shadow(0 0 20px rgba(0, 245, 255, 0.3)); 
+  }
+  50% { 
+    filter: drop-shadow(0 0 20px rgba(0, 245, 255, 0.9)) 
+            drop-shadow(0 0 30px rgba(0, 245, 255, 0.5)); 
+  }
+}
+
+@keyframes medicoShine {
+  0%, 100% { 
+    filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.6)) 
+            drop-shadow(0 0 20px rgba(139, 92, 246, 0.3)); 
+  }
+  50% { 
+    filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.9)) 
+            drop-shadow(0 0 30px rgba(139, 92, 246, 0.5)); 
+  }
+}
+
+@keyframes avanzadoShine {
+  0%, 100% { 
+    filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.6)) 
+            drop-shadow(0 0 20px rgba(236, 72, 153, 0.3)); 
+  }
+  50% { 
+    filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.9)) 
+            drop-shadow(0 0 30px rgba(236, 72, 153, 0.5)); 
+  }
+}
+
+/* ===== FIN ANIMACIONES PREMIUM REFUERZO ===== */
+
+/* Ocultar el header cuando el loader está activo */
+body.loading .glass-header {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* Mostrar el header solo cuando el loader ha terminado */
+body:not(.loading) .glass-header {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: all !important;
+  z-index: 1000 !important;
+}
+
+/* Asegurar que el loader siempre esté por encima de todo */
+body.loading #medicalLoading {
+  z-index: 99999 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: all !important;
+}
+
+/* Ocultar el contenido principal cuando el loader está activo */
+body.loading .content-wrapper,
+body.loading footer,
+body.loading main {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* ===== FONDO DE PARTÍCULAS CYBERPUNK MÉDICO ===== */
+.particles-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Partículas flotantes neón */
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: float-particles 8s infinite linear;
+    box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.particle:nth-child(2n) {
+    background: var(--neon-purple);
+    box-shadow: 0 0 10px var(--neon-purple);
+    animation-duration: 12s;
+    width: 3px;
+    height: 3px;
+}
+
+.particle:nth-child(3n) {
+    background: var(--neon-pink);
+    box-shadow: 0 0 10px var(--neon-pink);
+    animation-duration: 15s;
+    width: 5px;
+    height: 5px;
+}
+
+.particle:nth-child(4n) {
+    background: var(--neon-green);
+    box-shadow: 0 0 10px var(--neon-green);
+    animation-duration: 10s;
+    width: 2px;
+    height: 2px;
+}
+
+@keyframes float-particles {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    5% {
+        opacity: 1;
+    }
+    95% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Grid cyberpunk de fondo */
+.particles-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: grid-pulse 4s ease-in-out infinite;
+}
+
+@keyframes grid-pulse {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.1;
+    }
+}
+
+/* Ondas de energía médica */
+.particles-bg::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 800px;
+    height: 800px;
+    border: 2px solid rgba(0, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: energy-wave 8s ease-in-out infinite;
+}
+
+@keyframes energy-wave {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.5;
+        border-color: rgba(0, 255, 255, 0.1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.2;
+        border-color: rgba(128, 0, 255, 0.1);
+    }
+}
+
+/* ===== MEJORAS PARA CARDS Y COMPONENTES CYBERPUNK ===== */
+
+/* Card base futurista */
+.cyber-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cyber-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.cyber-card:hover::before {
+    left: 100%;
+}
+
+.cyber-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        var(--glass-shadow),
+        0 20px 40px rgba(0, 255, 255, 0.2);
+    border-color: var(--neon-cyan);
+}
+
+/* Botón neón cyberpunk */
+.cyber-btn {
+    background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%);
+    border: none;
+    border-radius: 12px;
+    color: var(--bg-primary);
+    font-weight: 600;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cyber-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.3s ease;
+}
+
+.cyber-btn:hover::before {
+    left: 100%;
+}
+
+.cyber-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-purple) 100%);
+}
+
+.cyber-btn:active {
+    transform: translateY(0);
+}
+
+/* Botón secundario */
+.cyber-btn-secondary {
+    background: transparent;
+    border: 2px solid var(--neon-purple);
+    color: var(--neon-purple);
+    box-shadow: 0 0 20px rgba(128, 0, 255, 0.3);
+}
+
+.cyber-btn-secondary:hover {
+    background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-pink) 100%);
+    color: white;
+    box-shadow: 0 0 30px rgba(128, 0, 255, 0.5);
+}
+
+/* Input cyberpunk */
+.cyber-input {
+    background: rgba(0, 255, 255, 0.05);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 8px;
+    color: var(--text-primary);
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.cyber-input::placeholder {
+    color: rgba(179, 224, 255, 0.5);
+}
+
+.cyber-input:focus {
+    outline: none;
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    background: rgba(0, 255, 255, 0.1);
+}
+
+/* Badge de estado */
+.cyber-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cyber-badge.active {
+    background: linear-gradient(135deg, var(--neon-green) 0%, var(--neon-cyan) 100%);
+    color: var(--bg-primary);
+    box-shadow: 0 0 15px rgba(0, 255, 128, 0.4);
+}
+
+.cyber-badge.warning {
+    background: linear-gradient(135deg, var(--neon-orange) 0%, var(--neon-pink) 100%);
+    color: var(--bg-primary);
+    box-shadow: 0 0 15px rgba(255, 128, 0, 0.4);
+}
+
+.cyber-badge.inactive {
+    background: rgba(179, 224, 255, 0.1);
+    color: var(--text-secondary);
+    border: 1px solid rgba(179, 224, 255, 0.3);
+}
+
+/* ===== EFECTOS DE GLOW MEJORADOS ===== */
+
+.glow-text {
+    text-shadow: 0 0 10px currentColor;
+    animation: text-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes text-glow {
+    from {
+        text-shadow: 0 0 10px currentColor;
+    }
+    to {
+        text-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+    }
+}
+
+/* Líneas divisoras cyberpunk */
+.cyber-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+    margin: 24px 0;
+    position: relative;
+}
+
+.cyber-divider::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+/* ===== FIN ESTILOS CYBERPUNK ===== */

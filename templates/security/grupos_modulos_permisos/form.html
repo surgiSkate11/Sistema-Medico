@@ -143,5 +143,34 @@
             </div>
         </form>
     </div>
+    <script>
+    const groupModules = {{ group_modules|safe }};
+    const modulePermissions = {{ module_permissions|safe }};
+    const groupSelect = document.getElementById("id_group");
+    const moduleSelect = document.getElementById("id_module");
+    const permissionsSelect = document.getElementById("id_permissions");
+    function updateModules() {
+        const groupId = groupSelect.value;
+        const modules = groupModules[groupId] || [];
+        moduleSelect.innerHTML = '<option value="">---------</option>';
+        modules.forEach(m => {
+            moduleSelect.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+        });
+        updatePermissions();
+    }
+    function updatePermissions() {
+        const moduleId = moduleSelect.value;
+        const perms = modulePermissions[moduleId] || [];
+        permissionsSelect.innerHTML = '';
+        perms.forEach(p => {
+            permissionsSelect.innerHTML += `<option value="${p.id}">${p.name} (${p.codename})</option>`;
+        });
+    }
+    if (groupSelect && moduleSelect && permissionsSelect) {
+        groupSelect.addEventListener('change', updateModules);
+        moduleSelect.addEventListener('change', updatePermissions);
+        updateModules();
+    }
+    </script>
 </section>
 {% endblock %}
