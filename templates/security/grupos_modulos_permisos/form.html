@@ -151,27 +151,27 @@
 </section>
 <script>
 // module_permissions viene del contexto, es un dict: {module_id: [{id, name, codename}, ...], ...}
-const modulePermissions = {{ module_permissions|safe }};
+const permisosPorModulo = {{ module_permissions|safe }};
 window.addEventListener('DOMContentLoaded', function() {
-    const moduleSelect = document.getElementById('id_module');
-    const permissionsWrapper = document.getElementById('permissions-checkboxes-wrapper');
-    function updatePermissions() {
-        const selectedModule = moduleSelect.value;
+    const selectModulo = document.getElementById('id_module');
+    const contenedorPermisos = document.getElementById('permissions-checkboxes-wrapper');
+    function actualizarPermisos() {
+        const moduloSeleccionado = selectModulo.value;
         // Oculta todos los checkboxes
-        permissionsWrapper.querySelectorAll('.perm-checkbox').forEach(div => div.style.display = 'none');
-        if (selectedModule && modulePermissions[selectedModule]) {
+        contenedorPermisos.querySelectorAll('.perm-checkbox').forEach(div => div.style.display = 'none');
+        if (moduloSeleccionado && permisosPorModulo[moduloSeleccionado]) {
             // Muestra solo los checkboxes de los permisos de ese módulo
-            modulePermissions[selectedModule].forEach(perm => {
-                const checkbox = permissionsWrapper.querySelector('input[value="'+perm.id+'"]');
+            permisosPorModulo[moduloSeleccionado].forEach(permiso => {
+                const checkbox = contenedorPermisos.querySelector('input[value="'+permiso.id+'"]');
                 if (checkbox) {
                     checkbox.parentElement.parentElement.style.display = '';
                 }
             });
         }
     }
-    if (moduleSelect) {
-        moduleSelect.addEventListener('change', updatePermissions);
-        updatePermissions(); // Inicializa al cargar
+    if (selectModulo) {
+        selectModulo.addEventListener('change', actualizarPermisos);
+        actualizarPermisos(); // Inicializa al cargar
     }
 });
 </script>
