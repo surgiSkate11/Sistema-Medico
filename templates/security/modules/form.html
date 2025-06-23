@@ -4,15 +4,13 @@
 <title>{% block title %}{{ title1|default:"Módulo" }}{% endblock %}</title>
 {% load static %}
 {% block content %}
-<!-- Vincula el CSS de errores global -->
 <link rel="stylesheet" href="{% static 'forms/error_form.css' %}">
-<!-- Vincula el JS para vista previa de íconos -->
 <script src="{% static 'forms/error_form.js' %}"></script>
 
-<section class="dark:bg-principal">
-    <div class="text-center" data-aos="fade" data-aos-delay="200">
-        <div class="sm:pt-28 lg:pt-4">
-            <h1 class="rounded-2xl bg-indigo-500 px-2 py-1 text-white uppercase text-4xl">
+<section class="dark:bg-principal min-h-screen flex items-center justify-center py-8">
+    <div class="w-full max-w-5xl mx-auto text-center" data-aos="fade" data-aos-delay="200">
+        <div class="sm:pt-20 lg:pt-4">
+            <h1 class="rounded-2xl bg-gradient-to-r from-cyan-500 via-fuchsia-600 to-blue-700 px-2 py-1 text-white uppercase text-4xl font-orbitron tracking-widest shadow-lg">
                 {{ title1|default:"Módulo" }}
             </h1>
         </div>
@@ -26,7 +24,7 @@
                         <i class="fa-solid fa-exclamation-triangle text-red-500 text-lg"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-red-800 dark:text-red-200 font-medium">
+                        <h3 class="text-red-800 dark:text-red-200 font-medium font-orbitron">
                             Se encontraron errores en el formulario:
                         </h3>
                         <div class="mt-2 text-red-700 dark:text-red-300">
@@ -45,15 +43,15 @@
         <form method="post" class="space-y-6 py-4">
             <div class="mx-4 lg:mx-20" data-aos="fade">
                 <!-- Contenedor principal del formulario -->
-                <div class="bg-white dark:bg-secundario rounded-3xl p-8 max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-gradient-to-br from-[#0b1121] via-[#18182f] to-[#1e293b] border-4 border-fuchsia-500/30 shadow-2xl backdrop-blur-md rounded-3xl p-8 max-w-4xl mx-auto">
                     {% csrf_token %}
 
                     <!-- Vista previa del ícono -->
                     <div class="text-center mb-8">
-                        <div class="bg-gray-100 dark:bg-principal rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-4">
-                            <i id="iconPreview" class="bi bi-x-octagon text-3xl text-gray-400"></i>
+                        <div class="bg-cyan-900/60 border-2 border-cyan-400/30 rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-4 shadow-lg">
+                            <i id="iconPreview" class="bi bi-x-octagon text-3xl text-cyan-400 drop-shadow-glow"></i>
                         </div>
-                        <h2 class="dark:text-blue-300 text-2xl font-Pacifico">Vista previa del ícono</h2>
+                        <h2 class="text-fuchsia-300 text-2xl font-orbitron tracking-widest">Vista previa del ícono</h2>
                     </div>
 
                     <!-- Grid de campos principales -->
@@ -63,8 +61,8 @@
                             <!-- Campo Name -->
                             <div class="field-container {% if form.name.errors %}has-error{% endif %}">
                                 <label for="{{ form.name.id_for_label }}"
-                                    class="font-black uppercase text-lg block mb-2
-                                           {% if form.name.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
+                                    class="font-orbitron font-black uppercase text-lg block mb-2 tracking-widest
+                                           {% if form.name.errors %}text-red-600 dark:text-red-400{% else %}text-cyan-300{% endif %}">
                                     {{ form.name.label }}
                                     {% if form.name.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
@@ -91,8 +89,8 @@
                             <!-- Campo URL -->
                             <div class="field-container {% if form.url.errors %}has-error{% endif %}">
                                 <label for="{{ form.url.id_for_label }}"
-                                    class="font-black uppercase text-lg block mb-2
-                                           {% if form.url.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
+                                    class="font-orbitron font-black uppercase text-lg block mb-2 tracking-widest
+                                           {% if form.url.errors %}text-red-600 dark:text-red-400{% else %}text-cyan-300{% endif %}">
                                     {{ form.url.label }}
                                     {% if form.url.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
@@ -122,8 +120,8 @@
                             <!-- Campo Menu (ForeignKey) -->
                             <div class="field-container {% if form.menu.errors %}has-error{% endif %}">
                                 <label for="{{ form.menu.id_for_label }}"
-                                    class="font-black uppercase text-lg block mb-2
-                                           {% if form.menu.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
+                                    class="font-orbitron font-black uppercase text-lg block mb-2 tracking-widest
+                                           {% if form.menu.errors %}text-red-600 dark:text-red-400{% else %}text-cyan-300{% endif %}">
                                     {{ form.menu.label }}
                                     {% if form.menu.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
@@ -150,8 +148,8 @@
                             <!-- Campo Icon -->
                             <div class="field-container {% if form.icon.errors %}has-error{% endif %}">
                                 <label for="{{ form.icon.id_for_label }}"
-                                    class="font-black uppercase text-lg block mb-2
-                                           {% if form.icon.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
+                                    class="font-orbitron font-black uppercase text-lg block mb-2 tracking-widest
+                                           {% if form.icon.errors %}text-red-600 dark:text-red-400{% else %}text-cyan-300{% endif %}">
                                     {{ form.icon.label }}
                                     {% if form.icon.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
@@ -181,8 +179,8 @@
                             <!-- Campo Order -->
                             <div class="field-container {% if form.order.errors %}has-error{% endif %}">
                                 <label for="{{ form.order.id_for_label }}"
-                                    class="font-black uppercase text-lg block mb-2
-                                           {% if form.order.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
+                                    class="font-orbitron font-black uppercase text-lg block mb-2 tracking-widest
+                                           {% if form.order.errors %}text-red-600 dark:text-red-400{% else %}text-cyan-300{% endif %}">
                                     {{ form.order.label }}
                                     {% if form.order.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
@@ -211,8 +209,8 @@
                                 <div class="flex items-center space-x-3 {% if form.is_active.errors %}p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg{% endif %}">
                                     {{ form.is_active }}
                                     <label for="{{ form.is_active.id_for_label }}"
-                                        class="font-black uppercase text-lg
-                                               {% if form.is_active.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
+                                        class="font-orbitron font-black uppercase text-lg tracking-widest
+                                               {% if form.is_active.errors %}text-red-600 dark:text-red-400{% else %}text-cyan-300{% endif %}">
                                         {{ form.is_active.label }}
                                         {% if form.is_active.field.required %}<span class="text-red-500">*</span>{% endif %}
                                     </label>
@@ -236,8 +234,8 @@
                         <!-- Campo Description -->
                         <div class="field-container {% if form.description.errors %}has-error{% endif %}">
                             <label for="{{ form.description.id_for_label }}"
-                                class="font-black uppercase text-lg block mb-2
-                                       {% if form.description.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
+                                class="font-orbitron font-black uppercase text-lg block mb-2 tracking-widest
+                                       {% if form.description.errors %}text-red-600 dark:text-red-400{% else %}text-cyan-300{% endif %}">
                                 {{ form.description.label }}
                                 {% if form.description.field.required %}<span class="text-red-500">*</span>{% endif %}
                             </label>
@@ -264,8 +262,8 @@
                         <!-- Campo Permissions -->
                         <div class="field-container {% if form.permissions.errors %}has-error{% endif %}">
                             <label for="{{ form.permissions.id_for_label }}"
-                                class="font-black uppercase text-lg block mb-2
-                                       {% if form.permissions.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
+                                class="font-orbitron font-black uppercase text-lg block mb-2 tracking-widest
+                                       {% if form.permissions.errors %}text-red-600 dark:text-red-400{% else %}text-cyan-300{% endif %}">
                                 {{ form.permissions.label }}
                                 {% if form.permissions.field.required %}<span class="text-red-500">*</span>{% endif %}
                             </label>
@@ -293,10 +291,10 @@
                     <!-- Botones de acción -->
                     <div class="flex flex-col md:flex-row justify-center items-center mt-8 space-y-3 md:space-y-0 md:space-x-8">
                         <button type="submit"
-                            class="w-full md:w-auto bg-blue-700 hover:bg-blue-800 text-white py-3 px-8 rounded-lg flex items-center justify-center transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
+                            class="w-full md:w-auto bg-gradient-to-r from-cyan-600 via-blue-700 to-fuchsia-700 hover:from-cyan-400 hover:to-fuchsia-500 text-white py-3 px-8 rounded-lg flex items-center justify-center transition-all duration-300 font-orbitron shadow-lg hover:shadow-xl text-lg tracking-widest">
                             <i class="fa-solid fa-save mr-2"></i>Guardar Módulo
                         </button>
-                        <a class="w-full md:w-auto bg-red-700 hover:bg-red-800 text-white py-3 px-8 rounded-lg flex items-center justify-center transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                        <a class="w-full md:w-auto bg-gradient-to-r from-pink-600 via-fuchsia-700 to-cyan-700 hover:from-pink-400 hover:to-cyan-500 text-white py-3 px-8 rounded-lg flex items-center justify-center transition-all duration-300 font-orbitron shadow-lg hover:shadow-xl text-lg tracking-widest"
                             href="{% url 'security:module_list' %}">
                             <i class="fa-solid fa-xmark mr-2"></i>Cancelar
                         </a>

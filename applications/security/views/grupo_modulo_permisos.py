@@ -43,24 +43,31 @@ class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateVi
         context = super().get_context_data(**kwargs)
         context['grabar'] = 'Grabar Grupo Módulo Permiso'
         context['back_url'] = self.success_url
-        # Relación grupo → módulos
+        # Relación grupo → módulos (ahora TODOS los módulos, no solo los del grupo)
+        all_modules = Module.objects.all()
         group_modules = {}
         for group in Group.objects.all():
-            modules = Module.objects.filter(
-                group_permissions__group=group
-            ).distinct()
             group_modules[group.id] = [
-                {"id": m.id, "name": m.name} for m in modules
+                {"id": m.id, "name": m.name} for m in all_modules
             ]
         # Relación módulo → permisos
         module_permissions = {}
-        for module in Module.objects.all():
+        for module in all_modules:
             perms = module.permissions.all()
             module_permissions[module.id] = [
                 {"id": p.id, "name": p.name, "codename": p.codename} for p in perms
             ]
+        # Agregar nombres de grupo
+        group_names = {str(g.id): g.name for g in Group.objects.all()}
         context["group_modules"] = json.dumps(group_modules)
         context["module_permissions"] = json.dumps(module_permissions)
+        context["group_names"] = json.dumps(group_names)
+        # Permisos seleccionados para el template (para mantener checkboxes marcados tras error de validación)
+        if self.request.method == "POST":
+            context["selected_permissions"] = self.request.POST.getlist("permissions")
+        else:
+            context["selected_permissions"] = []
+        # También puedes pasar all_modules si lo necesitas en el template
         return context
 
     def form_valid(self, form):
@@ -81,24 +88,31 @@ class GroupModulePermissionUpdateView(PermissionMixin, UpdateViewMixin, UpdateVi
         context = super().get_context_data(**kwargs)
         context['grabar'] = 'Actualizar Grupo Módulo Permiso'
         context['back_url'] = self.success_url
-        # Relación grupo → módulos
+        # Relación grupo → módulos (ahora TODOS los módulos, no solo los del grupo)
+        all_modules = Module.objects.all()
         group_modules = {}
         for group in Group.objects.all():
-            modules = Module.objects.filter(
-                group_permissions__group=group
-            ).distinct()
             group_modules[group.id] = [
-                {"id": m.id, "name": m.name} for m in modules
+                {"id": m.id, "name": m.name} for m in all_modules
             ]
         # Relación módulo → permisos
         module_permissions = {}
-        for module in Module.objects.all():
+        for module in all_modules:
             perms = module.permissions.all()
             module_permissions[module.id] = [
                 {"id": p.id, "name": p.name, "codename": p.codename} for p in perms
             ]
+        # Agregar nombres de grupo
+        group_names = {str(g.id): g.name for g in Group.objects.all()}
         context["group_modules"] = json.dumps(group_modules)
         context["module_permissions"] = json.dumps(module_permissions)
+        context["group_names"] = json.dumps(group_names)
+        # Permisos seleccionados para el template (para mantener checkboxes marcados tras error de validación)
+        if self.request.method == "POST":
+            context["selected_permissions"] = self.request.POST.getlist("permissions")
+        else:
+            context["selected_permissions"] = []
+        # También puedes pasar all_modules si lo necesitas en el template
         return context
 
     def form_valid(self, form):

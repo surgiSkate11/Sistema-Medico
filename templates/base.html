@@ -1,6 +1,6 @@
 {% load static tailwind_tags %} 
 <!DOCTYPE html> 
-<html lang="es" style="background: #000a0e !important; background-color: #000a0e !important;"> 
+<html lang="es"> 
 <head> 
 <meta charset="UTF-8"> 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,54 +11,72 @@
 {% tailwind_css %}
 <link rel="stylesheet" href="/static/dashboard/loader.css">
 <link rel="stylesheet" href="/static/dashboard/base.css">
-<script src="/static/dashboard/loader.js"></script>
 {% block extra_head %}{% endblock %}
 </head>
 <body>
-<!-- Loading Animado Futurista Global -->
 {% include 'fragments/loader.html' %}
-<!-- Fin Loader -->
-
-<!-- Elimina el contenedor extra para evitar doble caja -->
 {% block navBar %}
-<header class="glass-header border-b border-cyan-400/20 sticky top-0 z-50 shadow-lg" style="
-  backdrop-filter: blur(18px) !important;
-  border-radius: 0.75rem !important;
-  padding: 0.5rem 2.5rem 0.5rem 1rem !important;
-  font-size: 0.875rem !important;
-  font-weight: 500 !important;
-  min-width: 10rem !important;
-  transition: all 0.3s ease !important;
-  appearance: none !important;
-  background-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"%3e%3cpath stroke="%2300f5ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 8l4 4 4-4"/%3e%3c/svg%3e') !important;
-  background-position: right 0.5rem center !important;
-  background-repeat: no-repeat !important;
-  background-size: 1.5rem 1.5rem !important;
-}">    <div class="max-w-7xl mx-auto px-6 py-4">
-        <div class="flex items-center justify-between">
+<header class="glass-header border-b border-cyan-400/20 shadow-lg">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between w-full">
             <!-- Logo y Título Neón -->
-            <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-r from-cyan-400 via-blue-600 to-purple-600 shadow-lg border border-cyan-400/30 cyber-glow">
-                    <svg class="w-7 h-7 text-cyan-200 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0l4-4m-4 4L8 8"></path>
+            <div class="flex items-center space-x-4 flex-1 min-w-0">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-r from-cyan-400 via-blue-600 to-purple-600 shadow-lg border border-cyan-400/30 cyber-glow p-0">
+                    <!-- SVG Hospital Premium -->
+                    <svg class="w-11 h-11 text-cyan-100 drop-shadow-lg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <radialGradient id="hospital-glow" cx="50%" cy="50%" r="60%">
+                          <stop offset="0%" stop-color="#00fff7" stop-opacity="0.7"/>
+                          <stop offset="100%" stop-color="#a259ff" stop-opacity="0.3"/>
+                        </radialGradient>
+                        <linearGradient id="hospital-building" x1="0" y1="40" x2="48" y2="40" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#00fff7"/>
+                          <stop offset="1" stop-color="#a259ff"/>
+                        </linearGradient>
+                        <linearGradient id="hospital-cross" x1="16" y1="16" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#ff1cf7"/>
+                          <stop offset="1" stop-color="#00fff7"/>
+                        </linearGradient>
+                      </defs>
+                      <!-- Glow background -->
+                      <ellipse cx="24" cy="24" rx="19" ry="15" fill="url(#hospital-glow)"/>
+                      <!-- Main building -->
+                      <rect x="12" y="18" width="24" height="16" rx="3" fill="url(#hospital-building)" stroke="#00fff7" stroke-width="1.5"/>
+                      <!-- Roof -->
+                      <rect x="16" y="14" width="16" height="6" rx="2" fill="#fff" stroke="#a259ff" stroke-width="1.2"/>
+                      <!-- Door -->
+                      <rect x="22" y="26" width="4" height="8" rx="1" fill="#fff" stroke="#00fff7" stroke-width="1.2"/>
+                      <!-- Windows -->
+                      <rect x="15" y="22" width="3" height="3" rx="0.7" fill="#fff" stroke="#00fff7" stroke-width="0.8"/>
+                      <rect x="30" y="22" width="3" height="3" rx="0.7" fill="#fff" stroke="#00fff7" stroke-width="0.8"/>
+                      <!-- Medical cross -->
+                      <rect x="21" y="17" width="6" height="2" rx="1" fill="url(#hospital-cross)"/>
+                      <rect x="23" y="15" width="2" height="6" rx="1" fill="url(#hospital-cross)"/>
                     </svg>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_2px_12px_rgba(0,255,255,0.6)] glow-text">SaludTotal</h1>
-                    <p class="text-sm text-cyan-200 cyber-glow">Sistema Médico Avanzado</p>
+                <div style="position:relative; z-index:9999;">
+                    <h1 class="premium-brand-title" style="font-family:'Lexend', 'Orbitron', 'Outfit', Arial, Helvetica, sans-serif; font-weight:900; letter-spacing:2.5px; color:#fff !important; background:none !important; -webkit-text-fill-color:unset !important; background-clip:unset !important;">
+                        SaludTotal
+                    </h1>
+                    <p class="text-sm text-cyan-200 cyber-glow" style="position:relative; z-index:99999; text-align:center; display:block; width:100%; margin:0 auto;">Sistema Médico Avanzado</p>
                 </div>
             </div>
             <!-- User Profile / Login -->
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-4 justify-end flex-shrink-0">
                 {% if user.is_authenticated %}                    <!-- Groups Selector -->
-                    <div class="relative">
-                        <select id="groupSelect" aria-label="Seleccionar grupo de trabajo" class="cyber-input bg-cyan-950/80 border border-cyan-400/30 rounded-lg px-4 py-2 text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300 shadow-md hover:shadow-cyan-500/20">
-                            <option value="">Seleccionar Grupo</option>
+                    <div class="relative w-56 max-w-full">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fa-solid fa-users text-cyan-400 text-lg drop-shadow-glow"></i>
+                        </div>
+                        <select id="groupSelect" aria-label="Seleccionar grupo de trabajo"
+                            class="cyber-input border border-cyan-400/40 rounded-xl pl-10 pr-10 py-2 w-full text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300 shadow-lg hover:shadow-cyan-500/30 premium-select"
+                            style="appearance:none; background-color:#101a2a !important; background-image:linear-gradient(120deg, #0a1728 70%, #18182f 100%) !important; color:#e0f7fa; font-weight:700; font-size:1.08rem; box-shadow:0 0 16px #00fff733, 0 1.5px 8px #764ba233; border-radius:0.9rem; text-shadow:0 0 6px #00fff7cc; letter-spacing:1.2px;"
+                        >
+                            <option value="" disabled selected style="background:#18182f; color:#fff; font-weight:800; font-size:1.08rem; letter-spacing:1.2px;">Seleccionar Grupo &#xf078;</option>
                             {% for group in group_list %}
-                                <option value="{{ group.id }}" {% if request.GET.gpid == group.id|stringformat:"s" %}selected{% endif %}>{{ group.name }}</option>
+                                <option value="{{ group.id }}" {% if request.GET.gpid == group.id|stringformat:"s" %}selected{% endif %} style="background:#101a2a; color:#00fff7; font-weight:700; font-size:1.08rem; letter-spacing:1.2px;">{{ group.name }}</option>
                             {% empty %}
-                                <option value="" disabled>Sin grupos asignados</option>
+                                <option value="" disabled style="background:#18182f; color:#ff0080; font-weight:700;">Sin grupos asignados</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -120,24 +138,32 @@
                                 </form>
                             </div>
                         </div>
-                    </div>                {% else %}
-                    <!-- Login Button -->
-                    <a href="{% url 'security:signin' %}" class="cyber-btn flex items-center space-x-2 bg-gradient-to-r from-cyan-400 to-purple-500 hover:from-cyan-500 hover:to-pink-500 text-white font-medium px-6 py-2 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-400/30">
-                        <i class="fa-solid fa-arrow-right-to-bracket w-4 h-4"></i>
-                        <span>Acceso Quantum</span>
+                    </div>                {% else %}                    <!-- Login Button -->
+                    <a href="{% url 'security:signin' %}" class="cyber-btn flex items-center space-x-2 px-6 py-2 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg border" 
+                       style="background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%) !important; 
+                              color: #ffffff !important; 
+                              font-weight: 700 !important;
+                              text-shadow: 0 0 8px rgba(255,255,255,0.8) !important;
+                              border: 2px solid #00ffff !important;
+                              box-shadow: 0 0 20px rgba(0,255,255,0.4), 0 4px 16px rgba(0,0,0,0.3) !important;"                       onmouseover="this.style.background='linear-gradient(135deg, #00ffbf 0%, #00e5a8 100%)'; this.style.color='#ffffff'; this.style.borderColor='#00ffbf'; this.style.boxShadow='0 0 30px rgba(0, 255, 191, 0.6), 0 6px 20px rgba(0,0,0,0.4)'; this.style.textShadow='0 0 15px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,1)';"
+                       onmouseout="this.style.background='linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%)'; this.style.color='#ffffff'; this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 20px rgba(0,255,255,0.4), 0 4px 16px rgba(0,0,0,0.3)'; this.style.textShadow='0 0 8px rgba(255,255,255,0.8)';">
+                        <i class="fa-solid fa-arrow-right-to-bracket w-4 h-4" style="color: inherit !important; text-shadow: inherit !important;"></i>
+                        <span style="color: inherit !important; font-weight: 700 !important; text-shadow: inherit !important;">Acceder Ahora</span>
                     </a>
                 {% endif %}
             </div>
         </div>
-    </header>
-    {% endblock navBar %} 
-
-    <!-- Particles background -->
-    <div class="particles-bg" id="particlesBg"></div>
-
-    {% block content %}{% endblock content %}
-    {% block js %}
-    <script src="{% static 'dashboard/base.js' %}"></script>
-    {% endblock %}
+    </div>
+</header>
+{% endblock navBar %}
+<!-- Particles background -->
+<div class="particles-bg" id="particlesBg"></div>
+<div class="content-wrapper">
+{% block content %}{% endblock content %}
+</div>
+{% block js %}
+<script src="{% static 'dashboard/loader.js' %}"></script>
+<script src="{% static 'dashboard/base.js' %}"></script>
+{% endblock %}
 </body> 
 </html>

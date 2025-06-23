@@ -17,6 +17,12 @@
     visibility: visible;
     pointer-events: all;
     transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+    padding: 4vh 0 !important;
+    min-height: 100vh !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
 }
 #medicalLoading.hidden {
     opacity: 0;
@@ -29,6 +35,7 @@
     height: 100%;
     overflow: hidden;
     pointer-events: none;
+    z-index: 1 !important; /* Asegura que los overlays estén por debajo del texto */
 }
 .particle {
     position: absolute;
@@ -65,6 +72,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
+    z-index: 1 !important; /* Asegura que los overlays estén por debajo del texto */
 }
 .radar-wave {
     position: absolute;
@@ -110,12 +118,30 @@
 }
 .loading-container {
     text-align: center;
-    position: relative;
-    z-index: 10;
+    position: fixed !important; /* Forzar fuera del stacking context de overlays */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2147483647 !important; /* Máximo z-index posible */
+    background: transparent !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: static !important;
+    min-height: 0 !important;
+    height: auto !important;
+    justify-content: flex-start !important;
+    padding-top: 0 !important;
+    padding-bottom: 0.2vh;
 }
 .hexagon-container {
     position: relative;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem !important; /* Aumenta el espacio debajo del hexágono */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 .orbit {
     position: absolute;
@@ -126,14 +152,14 @@
 .orbit-1 {
     width: 220px;
     height: 220px;
-    top: 50%;
+    top: 48%; /* Subir las órbitas para que no bajen tanto */
     left: 50%;
     transform: translate(-50%, -50%);
 }
 .orbit-2 {
     width: 280px;
     height: 280px;
-    top: 50%;
+    top: 48%; /* Subir las órbitas para que no bajen tanto */
     left: 50%;
     transform: translate(-50%, -50%);
     animation-duration: 12s;
@@ -154,25 +180,30 @@
 .orbit-1 .orbit-item { top: -6px; left: 50%; transform: translateX(-50%); }
 .orbit-2 .orbit-item { top: -6px; right: -6px; }
 .hexagon {
-    width: 180px;
-    height: 180px;
+    width: 120px;
+    height: 120px;
     margin: 0 auto;
-    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 2rem !important; /* Más espacio debajo del hexágono */
+    background: linear-gradient(135deg, #0f172a 60%, #00f5ff22 100%) !important;
+    /* Solo azul/cian, sin tonos rojos o púrpuras */
     backdrop-filter: blur(20px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(0,245,255,0.2) !important;
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     animation: hexagon-float 4s ease-in-out infinite;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 40px #00f5ff88, 0 0 80px #00f5ff44, inset 0 2px 0 rgba(255, 255, 255, 0.2) !important;
+    /* Eliminar cualquier sombra o borde rojizo */
+    z-index: 2 !important;
+    position: relative !important;
 }
 @keyframes hexagon-float {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
     50% { transform: translateY(-20px) rotate(3deg); }
 }
 .medical-icon {
-    font-size: 5rem;
+    font-size: 3.2rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -183,145 +214,203 @@
     0% { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5)); transform: scale(1); }
     100% { filter: drop-shadow(0 0 30px rgba(102, 126, 234, 0.8)); transform: scale(1.05); }
 }
+
+/* Unificar estilos premium para el loader title y eliminar reglas que lo sobrescriben */
+#medicalLoading .loading-title,
+#loaderTitle {
+    font-family: 'Orbitron', 'Inter', 'Arial', sans-serif !important;
+    font-size: 2.1rem !important;
+    font-weight: 800 !important;
+    color: #00fff7 !important;
+    letter-spacing: 2.5px !important;
+    line-height: 1.1 !important;
+    text-transform: uppercase !important;
+    background: linear-gradient(90deg, #0ff 0%, #764ba2 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: 0 0 12px #00fff7cc, 0 2px 8px #764ba288, 0 0 2px #fff;
+    filter: drop-shadow(0 0 8px #00fff7cc);
+    position: relative !important;
+    z-index: 10 !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    padding: 10px 0 10px 0 !important;
+    margin: 0 0 1.2rem 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    isolation: isolate !important;
+    will-change: auto !important;
+    pointer-events: auto !important;
+    border-radius: 0.7rem !important;
+    text-align: center !important;
+}
 .loading-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 2.5rem;
-    font-weight: 900;
-    background: linear-gradient(135deg, #ffffff 0%, #4facfe 50%, #00f2fe 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 1rem;
-    animation: title-pulse 3s ease-in-out infinite;
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    z-index: 2147483647 !important;
+    position: relative !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    color: #00fff7 !important;
+    display: block !important;
+    background: none !important;
+    padding-left: 1.2rem !important;
+    padding-right: 1.2rem !important;
+    border-radius: 0.7rem !important;
+    font-size: 2.1rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 2.5px !important;
+    text-shadow: 0 0 12px #00fff7cc, 0 2px 8px #764ba288, 0 0 2px #fff;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
 }
-@keyframes title-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.02); }
+#medicalLoading .loading-subtitle, #loadingSubtitle {
+    font-family: 'Inter', 'Orbitron', Arial, sans-serif !important;
+    font-size: 1.1rem !important;
+    color: #e0f7fa !important;
+    text-align: center !important;
+    margin-bottom: 1.2rem !important;
+    letter-spacing: 1.2px;
+    text-shadow: 0 0 8px #00fff7cc, 0 2px 8px #764ba288;
+    opacity: 0.95;
 }
-.loading-subtitle {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 3rem;
-    font-weight: 300;
-    letter-spacing: 1px;
-}
-.progress-container {
-    width: 400px;
-    margin: 0 auto 2rem;
-    position: relative;
-}
-.progress-bar {
+#medicalLoading .progress-container {
+    margin: 0 auto 1.2rem auto;
+    max-width: 340px;
     width: 100%;
+}
+#medicalLoading .progress-bar {
     height: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    background: #0f172a;
+    border-radius: 8px;
     overflow: hidden;
-    position: relative;
-    margin-bottom: 0.5rem;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 8px #00fff7cc;
 }
-.progress-percent {
-    display: block;
+#medicalLoading .progress-fill {
+    height: 8px;
+    background: linear-gradient(90deg, #00fff7 0%, #764ba2 100%);
+    border-radius: 8px;
+    transition: width 0.3s cubic-bezier(.4,2,.6,1);
+}
+#medicalLoading .progress-percent {
+    font-family: 'Orbitron', 'Inter', Arial, sans-serif !important;
+    font-size: 1rem !important;
+    color: #00fff7 !important;
+    margin-top: 0.2rem;
     text-align: right;
-    color: #00f5ff;
-    font-family: 'Orbitron', monospace;
-    font-size: 1.1rem;
-    font-weight: bold;
-    text-shadow: 0 0 8px #00f5ff88, 0 0 2px #18182f;
-    letter-spacing: 1px;
-    margin-top: -0.5rem;
-    margin-bottom: 0.5rem;
-    z-index: 2;
-    background: none;
-}
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(135deg, #00f5ff 0%, #00d4aa 100%);
-    border-radius: 10px;
-    width: 0%;
-    transition: width 2.5s linear;
-    position: relative;
-    box-shadow: 0 0 20px rgba(79, 172, 254, 0.6);
-}
-.progress-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    animation: shimmer 2s infinite;
-}
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-.status-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    width: 400px;
-    margin: 0 auto;
-}
-.status-item {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 1rem;
-    text-align: center;
-    animation: status-check 6s infinite;
-}
-.status-item:nth-child(1) { animation-delay: 0s; }
-.status-item:nth-child(2) { animation-delay: 2s; }
-.status-item:nth-child(3) { animation-delay: 4s; }
-@keyframes status-check {
-    0%, 80% { border-color: rgba(255, 255, 255, 0.2); box-shadow: none; }
-    85%, 95% { border-color: rgba(79, 172, 254, 0.8); box-shadow: 0 0 20px rgba(79, 172, 254, 0.4); background: rgba(79, 172, 254, 0.1); }
-    100% { border-color: rgba(86, 171, 47, 0.8); box-shadow: 0 0 20px rgba(86, 171, 47, 0.4); background: rgba(86, 171, 47, 0.1); }
-}
-.status-icon {
-    font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 0.5rem;
     display: block;
+    text-shadow: 0 0 8px #00fff7cc;
 }
-.status-text {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
+#medicalLoading .status-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2.2rem;
+    margin-top: 0.1rem;
 }
-.holo-hex {
-    position: relative;
-    box-shadow: 0 0 40px #00f5ff88, 0 0 80px #764ba288, 0 0 0 8px #00f5ff22;
-    background: linear-gradient(135deg, #1a1a2e 60%, #00f5ff22 100%);
-    overflow: visible;
+#medicalLoading .status-item {
+    background: rgba(0,255,255,0.10);
+    border: 2.5px solid #00fff7cc;
+    border-radius: 1.3rem;
+    padding: 1.1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 24px #00fff755, 0 2px 12px #764ba244;
+    min-width: 150px;
+    max-width: 200px;
+    min-height: 110px;
+    max-height: 150px;
+    transition: box-shadow 0.3s, border 0.3s;
+    word-break: break-word;
+    white-space: normal;
 }
-.holo-glow {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 180px; height: 180px;
-    background: radial-gradient(circle, #00f5ff55 0%, transparent 80%);
-    border-radius: 50%;
-    transform: translate(-50%, -50%) scale(1.1);
-    z-index: 0;
-    pointer-events: none;
-    animation: holo-glow-pulse 2.5s infinite alternate;
+#medicalLoading .status-item:hover {
+    box-shadow: 0 0 32px #00fff7cc, 0 4px 24px #764ba288;
+    border-color: #a259ff;
 }
-@keyframes holo-glow-pulse {
-    0% { opacity: 0.3; }
-    100% { opacity: 0.7; }
+#medicalLoading .status-icon {
+    font-size: 2.1rem;
+    color: #00fff7;
+    margin-bottom: 0.7rem;
+    text-shadow: 0 0 12px #00fff7cc;
 }
-@media (max-width: 768px) {
-    .loading-title { font-size: 2rem; }
-    .progress-container, .status-grid { width: 90%; }
-    .hexagon { width: 150px; height: 150px; }
-    .medical-icon { font-size: 4rem; }
-    .orbit-1 { width: 190px; height: 190px; }
-    .orbit-2 { width: 240px; height: 240px; }
+#medicalLoading .status-text {
+    font-family: 'Orbitron', 'Inter', Arial, sans-serif !important;
+    font-size: 1.08rem;
+    color: #e0f7fa;
+    margin-bottom: 0.3rem;
+    text-align: center;
+    letter-spacing: 1.1px;
+    padding: 0 0.2rem;
+}
+#medicalLoading .status-check {
+    color: #00ffbf;
+    font-size: 1.3rem;
+    margin-top: 0.2rem;
+    text-shadow: 0 0 10px #00fff7cc;
+}
+#medicalLoading .loading-container {
+    /* ...existing code... */
+    justify-content: flex-start !important;
+    padding-top: 0 !important;
+    padding-bottom: 0.2vh;
+}
+.loader-texts-wrapper {
+    margin-bottom: 0.2rem;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+#medicalLoading .status-grid {
+    margin-top: 0.1rem;
+}
+@media (max-width: 600px) {
+    #medicalLoading .loading-title, .loading-title {
+        font-size: 1.2rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    #medicalLoading .status-grid {
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+    #medicalLoading .status-item {
+        min-width: 0;
+        width: 100%;
+        padding: 0.7rem 0.5rem;
+    }
+}
+@media (max-width: 900px) {
+    #medicalLoading {
+        padding: 2vh 0 !important;
+    }
+    #medicalLoading .loading-container {
+        padding-top: 0 !important;
+    }
+    .hexagon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.2rem !important;
+    }
+    .medical-icon {
+        font-size: 2.1rem;
+    }
+    .loader-texts-wrapper {
+        margin-bottom: 0.1rem;
+        margin-top: 0;
+    }
+    #medicalLoading .status-grid {
+        margin-top: 0.05rem;
+    }
+    #medicalLoading .status-item {
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+        min-height: 90px;
+        max-height: 120px;
+        padding: 0.8rem 0.3rem;
+    }
 }

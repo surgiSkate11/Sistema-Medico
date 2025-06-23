@@ -112,15 +112,58 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 /* html y body con fondo oscuro sólido */
 html, body {
-  background: var(--bg-primary, #000a0e) !important;
-  background-color: var(--bg-primary, #000a0e) !important;
-  color: var(--text-primary, #ffffff) !important;
+  background: #000a0e !important;
+  background-color: #000a0e !important;
+  color: #fff;
+  min-height: 100vh;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-/* Eliminar cualquier fondo blanco residual */
-html {
-  background: #000a0e !important;
-  color: #ffffff !important;
+body {
+  /* Elimina fondo negro en header/footer, solo aplica al fondo general */
+  background-image: none !important;
+}
+
+header.glass-header, .glass-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100vw !important;
+  z-index: 1050 !important;
+  background: rgba(8, 30, 50, 0.85) !important;
+  backdrop-filter: blur(18px) !important;
+  border-radius: 0.75rem !important;
+  border-bottom: 1px solid rgba(0,245,255,0.2) !important;
+  box-shadow: 0 4px 32px 0 rgba(0,255,255,0.08), 0 1.5px 0 0 rgba(0,245,255,0.12);
+  transition: opacity 0.3s, visibility 0.3s;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  mix-blend-mode: normal !important;
+}
+
+body.loading .glass-header {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.content-wrapper {
+  padding-top: 110px !important;
+  background: transparent !important;
+}
+
+footer, .glass-footer {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Evita backgrounds heredados en header/footer */
+header.glass-header *, .glass-header * {
+  background: none !important;
+  background-color: transparent !important;
 }
 
 body::before,
@@ -132,277 +175,7 @@ body::after {
   box-shadow: none !important;
 }
 
-#medicalLoading {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 20000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
-    backdrop-filter: blur(20px);
-    overflow: hidden;
-    font-family: 'Inter', sans-serif;
-    opacity: 1;
-    visibility: visible;
-    pointer-events: all;
-    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-}
-#medicalLoading.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-}
-.particles {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-}
-.particle {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 50%;
-    animation: float-particles 8s infinite linear;
-}
-.particle:nth-child(odd) {
-    background: rgba(102, 126, 234, 0.8);
-    animation-duration: 12s;
-}
-.particle:nth-child(3n) {
-    background: rgba(79, 172, 254, 0.6);
-    animation-duration: 10s;
-}
-@keyframes float-particles {
-    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-    10%, 90% { opacity: 1; }
-    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
-}
-.radar-container {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-}
-.radar-wave {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: 2px solid rgba(102, 126, 234, 0.3);
-    border-radius: 50%;
-    animation: radar-pulse 3s infinite ease-out;
-}
-.radar-wave:nth-child(2) { animation-delay: 1s; }
-.radar-wave:nth-child(3) { animation-delay: 2s; }
-@keyframes radar-pulse {
-    0% { transform: scale(0); opacity: 1; }
-    100% { transform: scale(1); opacity: 0; }
-}
-.glow-effect {
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    animation: glow-pulse 4s ease-in-out infinite;
-    z-index: -1;
-}
-@keyframes glow-pulse {
-    0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-    50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
-}
-.loading-container {
-    text-align: center;
-    position: relative;
-    z-index: 10;
-}
-.hexagon-container {
-    position: relative;
-    margin-bottom: 3rem;
-}
-.orbit {
-    position: absolute;
-    border: 1px solid rgba(79, 172, 254, 0.4);
-    border-radius: 50%;
-    animation: orbit-rotate 8s linear infinite;
-}
-.orbit-1 {
-    width: 220px;
-    height: 220px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-.orbit-2 {
-    width: 280px;
-    height: 280px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    animation-duration: 12s;
-    animation-direction: reverse;
-}
-@keyframes orbit-rotate {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-.orbit-item {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    background: linear-gradient(135deg, #00f5ff 0%, #00d4aa 100%);
-    border-radius: 50%;
-    box-shadow: 0 0 15px rgba(79, 172, 254, 0.8);
-}
-.orbit-1 .orbit-item { top: -6px; left: 50%; transform: translateX(-50%); }
-.orbit-2 .orbit-item { top: -6px; right: -6px; }
-.hexagon {
-    width: 180px;
-    height: 180px;
-    margin: 0 auto;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: hexagon-float 4s ease-in-out infinite;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.2);
-}
-@keyframes hexagon-float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(3deg); }
-}
-.medical-icon {
-    font-size: 5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: icon-glow 2s ease-in-out infinite alternate;
-}
-@keyframes icon-glow {
-    0% { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5)); transform: scale(1); }
-    100% { filter: drop-shadow(0 0 30px rgba(102, 126, 234, 0.8)); transform: scale(1.05); }
-}
-.loading-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 2.5rem;
-    font-weight: 900;
-    background: linear-gradient(135deg, #ffffff 0%, #4facfe 50%, #00f2fe 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 1rem;
-    animation: title-pulse 3s ease-in-out infinite;
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-}
-@keyframes title-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.02); }
-}
-.loading-subtitle {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 3rem;
-    font-weight: 300;
-    letter-spacing: 1px;
-}
-.progress-container {
-    width: 400px;
-    margin: 0 auto 2rem;
-    position: relative;
-}
-.progress-bar {
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(135deg, #00f5ff 0%, #00d4aa 100%);
-    border-radius: 10px;
-    width: 0%;
-    transition: width 2.5s linear;
-    position: relative;
-    box-shadow: 0 0 20px rgba(79, 172, 254, 0.6);
-}
-.progress-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    animation: shimmer 2s infinite;
-}
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-.status-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    width: 400px;
-    margin: 0 auto;
-}
-.status-item {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 1rem;
-    text-align: center;
-    animation: status-check 6s infinite;
-}
-.status-item:nth-child(1) { animation-delay: 0s; }
-.status-item:nth-child(2) { animation-delay: 2s; }
-.status-item:nth-child(3) { animation-delay: 4s; }
-@keyframes status-check {
-    0%, 80% { border-color: rgba(255, 255, 255, 0.2); box-shadow: none; }
-    85%, 95% { border-color: rgba(79, 172, 254, 0.8); box-shadow: 0 0 20px rgba(79, 172, 254, 0.4); background: rgba(79, 172, 254, 0.1); }
-    100% { border-color: rgba(86, 171, 47, 0.8); box-shadow: 0 0 20px rgba(86, 171, 47, 0.4); background: rgba(86, 171, 47, 0.1); }
-}
-.status-icon {
-    font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 0.5rem;
-    display: block;
-}
-.status-text {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
-}
-@media (max-width: 768px) {
-    .loading-title { font-size: 2rem; }
-    .progress-container, .status-grid { width: 90%; }
-    .hexagon { width: 150px; height: 150px; }
-    .medical-icon { font-size: 4rem; }
-    .orbit-1 { width: 190px; height: 190px; }
-    .orbit-2 { width: 240px; height: 240px; }
-}
+/* RESET DE ESTILOS DE CARGA - AHORA SOLO EN loader.css */
 
 /* Encabezado y navegación */
 header {
@@ -1449,99 +1222,6 @@ body:not(.loading) {
           drop-shadow(0 0 60px rgba(128, 0, 255, 0.3)) !important;
 }
 
-/* Asegurar que el loader tenga máxima prioridad */
-#medicalLoading {
-  z-index: 99999 !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: linear-gradient(135deg, 
-    #0f172a 0%, 
-    #1e293b 25%, 
-    #334155 50%, 
-    #475569 75%, 
-    #0f172a 100%) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  overflow: hidden !important;
-}
-
-#medicalLoading.hidden {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  z-index: -1 !important;
-}
-
-/* Reforzar los colores del icono médico en el loader */
-#medicalLoading .medical-icon {
-  color: #00f5ff !important;
-  filter: drop-shadow(0 0 20px #00f5ff) 
-          drop-shadow(0 0 40px #00f5ff) !important;
-  text-shadow: 0 0 30px #00f5ff !important;
-}
-
-/* Reforzar el hexágono del loader */
-#medicalLoading .hexagon {
-  background: linear-gradient(135deg, 
-    rgba(26, 26, 46, 0.9) 0%, 
-    rgba(0, 245, 255, 0.1) 100%) !important;
-  border: 3px solid #00f5ff !important;
-  box-shadow: 
-    0 0 40px rgba(0, 245, 255, 0.6),
-    0 0 80px rgba(0, 245, 255, 0.4),
-    inset 0 0 30px rgba(0, 245, 255, 0.2) !important;
-}
-
-/* Reforzar las partículas del loader */
-#medicalLoading .particle {
-  background: #00f5ff !important;
-  box-shadow: 
-    0 0 12px #00f5ff,
-    0 0 24px #00f5ff,
-    0 0 36px rgba(0, 245, 255, 0.5) !important;
-}
-
-/* Reforzar las ondas de radar */
-#medicalLoading .radar-wave {
-  border: 2px solid rgba(0, 245, 255, 0.6) !important;
-  box-shadow: 0 0 20px rgba(0, 245, 255, 0.4) !important;
-}
-
-/* Reforzar el glow del radar */
-#medicalLoading .radar-glow {
-  background: radial-gradient(circle, 
-    rgba(0, 245, 255, 0.4) 0%, 
-    rgba(0, 245, 255, 0.2) 50%, 
-    transparent 80%) !important;
-}
-
-/* Asegurar que los textos del loader sean visibles */
-#medicalLoading .loading-title {
-  color: #00f5ff !important;
-  text-shadow: 0 0 20px #00f5ff !important;
-  font-weight: 900 !important;
-}
-
-#medicalLoading .loading-subtitle {
-  color: #b3e0ff !important;
-  text-shadow: 0 0 15px rgba(179, 224, 255, 0.5) !important;
-}
-
-/* Reforzar la barra de progreso */
-#medicalLoading .progress-fill {
-  background: linear-gradient(90deg, 
-    #00f5ff 0%, 
-    #0080ff 50%, 
-    #00f5ff 100%) !important;
-  box-shadow: 
-    0 0 20px #00f5ff,
-    0 0 40px rgba(0, 245, 255, 0.5) !important;
-}
-
 /* ===== FIN CORRECCIONES PREMIUM ===== */
 
 /* ===== ANIMACIONES PREMIUM PARA EL HEADER (REFUERZO) ===== */
@@ -1670,7 +1350,6 @@ body.loading .glass-header {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
-  z-index: -1 !important;
 }
 
 /* Mostrar el header solo cuando el loader ha terminado */
@@ -1853,19 +1532,20 @@ body.loading main {
 
 /* Botón neón cyberpunk */
 .cyber-btn {
-    background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%);
-    border: none;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%) !important;
+    border: 2px solid #00ffff !important;
     border-radius: 12px;
-    color: var(--bg-primary);
-    font-weight: 600;
+    color: #ffffff !important;
+    font-weight: 700 !important;
     padding: 12px 24px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 4px 16px rgba(0,0,0,0.3) !important;
     position: relative;
     overflow: hidden;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(255,255,255,0.8) !important;
 }
 
 .cyber-btn::before {
@@ -1885,12 +1565,32 @@ body.loading main {
 
 .cyber-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
-    background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-purple) 100%);
+    box-shadow: 0 0 30px rgba(0, 255, 191, 0.6), 0 6px 20px rgba(0,0,0,0.4) !important;
+    background: linear-gradient(135deg, #00ffbf 0%, #00e5a8 100%) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 15px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,1) !important;
+    border: 2px solid #00ffbf !important;
 }
 
 .cyber-btn:active {
     transform: translateY(0);
+}
+
+/* Asegurar que todo el contenido del botón sea blanco */
+.cyber-btn,
+.cyber-btn *,
+.cyber-btn i,
+.cyber-btn span {
+    color: #ffffff !important;
+    text-shadow: 0 0 8px rgba(255,255,255,0.8) !important;
+}
+
+.cyber-btn:hover,
+.cyber-btn:hover *,
+.cyber-btn:hover i,
+.cyber-btn:hover span {
+    color: #ffffff !important;
+    text-shadow: 0 0 15px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,1) !important;
 }
 
 /* Botón secundario */

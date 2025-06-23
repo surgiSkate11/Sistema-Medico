@@ -4,8 +4,25 @@ window.addEventListener('DOMContentLoaded', function() {
     const progressFill = document.getElementById('progressFill');
     const progressPercent = document.getElementById('progressPercent');
     const subtitle = document.getElementById('loadingSubtitle');
-    const statusDb = document.getElementById('status-db');
-    const statusServer = document.getElementById('status-server');
+    const statusDb = document.getElementById('status-db');      // Forzar estilo del título para eliminar borrosidad
+    const loaderTitle = document.getElementById('loaderTitle');
+    // Eliminar cualquier forzado de estilos visuales desde JS, dejar solo el texto
+    if (loaderTitle) {
+        loaderTitle.textContent = 'SISTEMA MÉDICO';
+        // Debug opcional
+        // console.log('Loader title element found:', loaderTitle);
+    } else {
+        console.error('Loader title element not found!');
+    }
+    
+    // El loader espera un status-server, pero no existe en loader.html, así que lo creamos virtualmente para la animación
+    let statusServer = document.getElementById('status-server');
+    if (!statusServer) {
+        // Crear un div temporal invisible para no romper la animación
+        statusServer = document.createElement('div');
+        statusServer.style.display = 'none';
+        document.body.appendChild(statusServer);
+    }
     const statusSec = document.getElementById('status-sec');
     const messages = [
         'Inicializando protocolo avanzado...',
@@ -56,17 +73,26 @@ window.addEventListener('DOMContentLoaded', function() {
                 subtitle.textContent = messages[3];
                 setStatusChecked(statusSec);
                 msgIndex = 3;
-            }            if (step > steps) {
+            }
+            // Cambia aquí: solo ocultar y eliminar el loader si la página ya está cargada
+            if (step > steps) {
                 subtitle.textContent = messages[4];
-                setTimeout(() => {
-                    if (loader) {
-                        loader.classList.add('hidden');
-                        loader.style.transition = 'opacity 0.6s cubic-bezier(.4,2,.6,1)';
-                        loader.style.opacity = '0';
-                        // Llamar función cuando el loader termine
-                        setTimeout(onLoaderComplete, 600);
+                function hideLoaderIfReady() {
+                    if (document.readyState === 'complete') {
+                        if (loader) {
+                            loader.classList.add('hidden');
+                            loader.style.transition = 'opacity 0.6s cubic-bezier(.4,2,.6,1)';
+                            loader.style.opacity = '0';
+                            document.body.classList.remove('loading');
+                            setTimeout(() => {
+                                if (loader.parentNode) loader.parentNode.removeChild(loader);
+                            }, 700);
+                        }
+                    } else {
+                        setTimeout(hideLoaderIfReady, 100);
                     }
-                }, 500);
+                }
+                setTimeout(hideLoaderIfReady, 500);
                 clearInterval(interval);
             }
         }, intervalMs);
@@ -110,4 +136,20 @@ window.addEventListener('DOMContentLoaded', function() {
 
     // Agregar clase loading al body inicialmente
     document.body.classList.add('loading');
+});
+
+window.addEventListener('load', function() {
+    // Solo forzar ocultar y eliminar el loader si sigue visible después de 7 segundos (por error)
+    const loader = document.getElementById('medicalLoading');
+    setTimeout(() => {
+        if (loader && !loader.classList.contains('hidden')) {
+            loader.classList.add('hidden');
+            loader.style.transition = 'opacity 0.6s cubic-bezier(.4,2,.6,1)';
+            loader.style.opacity = '0';
+            document.body.classList.remove('loading');
+            setTimeout(() => {
+                if (loader.parentNode) loader.parentNode.removeChild(loader);
+            }, 700);
+        }
+    }, 7000); // Solo si el loader sigue tras 7s
 });

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignación de Permisos a Grupos y Módulos</title>
+    <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 min-h-screen flex flex-col items-center py-10">
+    <div class="w-full max-w-2xl bg-slate-800 rounded-2xl shadow-2xl p-8">
+        <h1 class="text-3xl font-bold text-center text-cyan-300 mb-8 font-[Orbitron]">Asignar Permisos a Grupos y Módulos</h1>
+        <!-- Selector de Grupo -->
+        <div class="mb-6">
+            <label for="grupoSelect" class="block text-cyan-200 font-bold mb-2">Grupo</label>
+            <select id="grupoSelect" class="w-full p-3 rounded-lg bg-slate-900 text-cyan-100 border border-cyan-400 focus:outline-none">
+                <option value="">Seleccione un grupo</option>
+            </select>
+        </div>
+        <!-- Selector de Módulo -->
+        <div class="mb-6">
+            <label for="moduloSelect" class="block text-cyan-200 font-bold mb-2">Módulo</label>
+            <select id="moduloSelect" class="w-full p-3 rounded-lg bg-slate-900 text-cyan-100 border border-cyan-400 focus:outline-none">
+                <option value="">Seleccione un módulo</option>
+            </select>
+        </div>
+        <!-- Permisos dinámicos -->
+        <div id="permisosContainer" class="mb-6 hidden">
+            <label class="block text-cyan-200 font-bold mb-2">Permisos disponibles</label>
+            <div id="permisosCheckboxes" class="flex flex-wrap gap-4"></div>
+        </div>
+        <!-- Botones -->
+        <div class="flex flex-col md:flex-row gap-4 justify-center mb-8">
+            <button id="guardarBtn" class="bg-gradient-to-r from-cyan-600 via-blue-700 to-fuchsia-700 text-white py-3 px-8 rounded-xl font-bold font-[Orbitron] text-lg shadow-xl hover:from-cyan-400 hover:to-fuchsia-500 hover:scale-105 transition-all">Guardar Asignación</button>
+            <button id="cancelarBtn" class="bg-gradient-to-r from-pink-600 via-fuchsia-700 to-cyan-700 text-white py-3 px-8 rounded-xl font-bold font-[Orbitron] text-lg shadow-xl hover:from-pink-400 hover:to-cyan-500 hover:scale-105 transition-all">Cancelar</button>
+        </div>
+        <!-- Resumen de asignaciones -->
+        <div class="bg-slate-900 rounded-xl p-6 mt-6">
+            <h2 class="text-xl font-bold text-cyan-200 mb-4">Asignaciones realizadas</h2>
+            <ul id="resumenAsignaciones" class="space-y-3 text-cyan-100"></ul>
+        </div>
+    </div>
+    <script>
+    // Datos simulados (en una app real, estos vendrían del backend)
+    const grupos = [
+        { id: 1, nombre: 'Administradores' },
+        { id: 2, nombre: 'Vendedores' },
+        { id: 3, nombre: 'Contadores' }
+    ];
+    const modulos = [
+        { id: 1, nombre: 'Clientes', permisos: [
+            { id: 1, nombre: 'Ver' },
+            { id: 2, nombre: 'Crear' },
+            { id: 3, nombre: 'Editar' },
+            { id: 4, nombre: 'Eliminar' }
+        ]},
+        { id: 2, nombre: 'Facturación', permisos: [
+            { id: 5, nombre: 'Ver' },
+            { id: 6, nombre: 'Crear' },
+            { id: 7, nombre: 'Editar' },
+            { id: 8, nombre: 'Eliminar' }
+        ]},
+        { id: 3, nombre: 'Productos', permisos: [
+            { id: 9, nombre: 'Ver' },
+            { id: 10, nombre: 'Crear' },
+            { id: 11, nombre: 'Editar' },
+            { id: 12, nombre: 'Eliminar' }
+        ]}
+    ];
+
+    // Variable en memoria para guardar las asignaciones
+    let asignaciones = [];
+
+    // Referencias a elementos del DOM
+    const grupoSelect = document.getElementById('grupoSelect');
+    const moduloSelect = document.getElementById('moduloSelect');
+    const permisosContainer = document.getElementById('permisosContainer');
+    const permisosCheckboxes = document.getElementById('permisosCheckboxes');
+    const guardarBtn = document.getElementById('guardarBtn');
+    const cancelarBtn = document.getElementById('cancelarBtn');
+    const resumenAsignaciones = document.getElementById('resumenAsignaciones');
+
+    // Cargar opciones de grupos y módulos
+    function cargarOpciones() {
+        grupos.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.id;
+            opt.textContent = g.nombre;
+            grupoSelect.appendChild(opt);
+        });
+        modulos.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = m.nombre;
+            moduloSelect.appendChild(opt);
+        });
+    }
+
+    // Mostrar permisos según módulo seleccionado
+    moduloSelect.addEventListener('change', function() {
+        permisosCheckboxes.innerHTML = '';
+        const moduloId = parseInt(this.value);
+        if (!moduloId) {
+            permisosContainer.classList.add('hidden');
+            return;
+        }
+        const modulo = modulos.find(m => m.id === moduloId);
+        if (modulo && modulo.permisos.length > 0) {
+            modulo.permisos.forEach(p => {
+                const label = document.createElement('label');
+                label.className = 'inline-flex items-center gap-2 text-cyan-100 bg-slate-700 px-3 py-2 rounded-lg shadow';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = p.id;
+                checkbox.className = 'form-checkbox accent-cyan-500';
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(p.nombre));
+                permisosCheckboxes.appendChild(label);
+            });
+            permisosContainer.classList.remove('hidden');
+        } else {
+            permisosContainer.classList.add('hidden');
+        }
+    });
+
+    // Guardar asignación en memoria
+    guardarBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const grupoId = parseInt(grupoSelect.value);
+        const moduloId = parseInt(moduloSelect.value);
+        if (!grupoId || !moduloId) {
+            alert('Seleccione un grupo y un módulo.');
+            return;
+        }
+        const modulo = modulos.find(m => m.id === moduloId);
+        const permisosMarcados = Array.from(permisosCheckboxes.querySelectorAll('input[type=checkbox]:checked')).map(cb => parseInt(cb.value));
+        if (permisosMarcados.length === 0) {
+            alert('Seleccione al menos un permiso.');
+            return;
+        }
+        // Verificar si ya existe la asignación para ese grupo y módulo
+        const yaExiste = asignaciones.some(a => a.grupoId === grupoId && a.moduloId === moduloId);
+        if (yaExiste) {
+            alert('Ya existe una asignación para este grupo y módulo.');
+            return;
+        }
+        asignaciones.push({
+            grupoId,
+            grupoNombre: grupos.find(g => g.id === grupoId).nombre,
+            moduloId,
+            moduloNombre: modulo.nombre,
+            permisos: modulo.permisos.filter(p => permisosMarcados.includes(p.id))
+        });
+        mostrarResumen();
+        // Limpiar selección
+        moduloSelect.value = '';
+        permisosCheckboxes.innerHTML = '';
+        permisosContainer.classList.add('hidden');
+    });
+
+    // Cancelar: limpia selección actual
+    cancelarBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        grupoSelect.value = '';
+        moduloSelect.value = '';
+        permisosCheckboxes.innerHTML = '';
+        permisosContainer.classList.add('hidden');
+    });
+
+    // Mostrar resumen de asignaciones
+    function mostrarResumen() {
+        resumenAsignaciones.innerHTML = '';
+        if (asignaciones.length === 0) {
+            resumenAsignaciones.innerHTML = '<li class="text-slate-400">No hay asignaciones registradas.</li>';
+            return;
+        }
+        asignaciones.forEach((a, idx) => {
+            const li = document.createElement('li');
+            li.className = 'bg-slate-800 rounded-lg p-4 shadow flex flex-col md:flex-row md:items-center md:gap-4';
+            li.innerHTML = `<span class="font-bold text-cyan-300">${a.grupoNombre}</span> → <span class="font-bold text-fuchsia-300">${a.moduloNombre}</span> <span class="text-cyan-100">Permisos:</span> <span class="text-cyan-200">${a.permisos.map(p => p.nombre).join(', ')}</span>`;
+            resumenAsignaciones.appendChild(li);
+        });
+    }
+
+    // Inicializar opciones
+    cargarOpciones();
+    mostrarResumen();
+
+    // --- Aquí podrías hacer una petición AJAX para guardar en el backend ---
+    /*
+    fetch('/api/asignar-permisos/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(asignaciones)
+    })
+    .then(res => res.json())
+    .then(data => console.log('Guardado en backend', data));
+    */
+    // ---------------------------------------------------------------
+    </script>
+</body>
+</html>
