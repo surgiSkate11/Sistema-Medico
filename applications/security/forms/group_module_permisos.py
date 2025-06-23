@@ -34,3 +34,17 @@ class GroupModulePermissionForm(ModelForm):
             "module": "Módulo",
             "permissions": "Permisos",
         }
+
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     module = cleaned_data.get('module')
+    #     permissions = cleaned_data.get('permissions')
+    #     if module and permissions:
+    #         valid_permissions = module.permissions.all()
+    #         for perm in permissions:
+    #             if perm not in valid_permissions:
+    #                 raise forms.ValidationError(
+    #                     f"El permiso '{perm}' no pertenece al módulo '{module}'."
+    #                 )
+    #     return cleaned_data
+    

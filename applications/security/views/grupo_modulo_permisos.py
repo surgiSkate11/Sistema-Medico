@@ -45,7 +45,7 @@ class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateVi
         context = super().get_context_data(**kwargs)
         context['grabar'] = 'Grabar Grupo Módulo Permiso'
         context['back_url'] = self.success_url
-        # Relación grupo → módulos (ahora TODOS los módulos, no solo los del grupo)
+        # Relación grupo → módulos (TODOS los módulos, no solo los del grupo)
         all_modules = Module.objects.all()
         group_modules = {}
         for group in Group.objects.all():
