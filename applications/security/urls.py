@@ -5,7 +5,7 @@ from applications.security.views.menu import MenuCreateView, MenuDeleteView, Men
 from applications.security.views.module import ModuleCreateView, ModuleDeleteView, ModuleListView, ModuleUpdateView
 from applications.security.views.usuarios import UserCreateView, UserDeleteView, UserListView, UserUpdateView
 from applications.security.views.grupo import GroupListView, GroupUpdateView, GroupCreateView, GroupDeleteView
-from applications.security.views.grupo_modulo_permisos import GroupModulePermissionListView, GroupModulePermissionCreateView, GroupModulePermissionUpdateView, GroupModulePermissionDeleteView
+from applications.security.views.grupo_modulo_permisos import GroupModulePermissionListView, GroupModulePermissionCreateView, GroupModulePermissionUpdateView, GroupModulePermissionDeleteView, GroupModulePermissionCreateInteractiveView, ajax_guardar_asignacion
 
 app_name='security' # define un espacio de nombre para la aplicacion
 urlpatterns = [
@@ -46,4 +46,7 @@ path('group_module_permission_create/', GroupModulePermissionCreateView.as_view(
 path('group_module_permission_update/<int:pk>/', GroupModulePermissionUpdateView.as_view(), name='group_module_permission_update'),
 path('group_module_permission_delete/<int:pk>/', GroupModulePermissionDeleteView.as_view(), name='group_module_permission_delete'),
 
+path('group_module_permission_create_interactive/', GroupModulePermissionCreateInteractiveView.as_view(), name='group_module_permission_create_interactive'),
+
+path('ajax_guardar_asignacion/', ajax_guardar_asignacion, name='ajax_guardar_asignacion'),
 ]

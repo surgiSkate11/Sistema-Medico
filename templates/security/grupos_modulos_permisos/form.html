@@ -47,9 +47,13 @@
                     <div class="relative flex justify-center w-full">
                         <div class="w-full" style="max-width: 220px;">
                             <div class="relative">
-                                {{ form.group }}
-                                <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-400">
-                                    <i class="fa-solid fa-chevron-down"></i>
+                                <select name="group" id="{{ form.group.id_for_label }}" class="cyberpunk-select w-full px-4 py-2 bg-gradient-to-r from-cyan-900 via-fuchsia-900 to-blue-900 text-cyan-200 border-2 border-cyan-500 rounded-xl shadow-lg font-[Orbitron] text-base focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-300 outline-none appearance-none">
+                                    {% for option in form.group.field.choices %}
+                                        <option value="{{ option.0 }}" {% if option.0 == form.group.value %}selected{% endif %}>{{ option.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-fuchsia-400 text-xl">
+                                    <i class="fa-solid fa-chevron-down animate-pulse"></i>
                                 </span>
                             </div>
                         </div>
@@ -80,9 +84,13 @@
                     <div class="relative flex justify-center w-full">
                         <div class="w-full" style="max-width: 220px;">
                             <div class="relative">
-                                {{ form.module }}
-                                <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-400">
-                                    <i class="fa-solid fa-chevron-down"></i>
+                                <select name="module" id="{{ form.module.id_for_label }}" class="cyberpunk-select w-full px-4 py-2 bg-gradient-to-r from-cyan-900 via-fuchsia-900 to-blue-900 text-cyan-200 border-2 border-cyan-500 rounded-xl shadow-lg font-[Orbitron] text-base focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-300 outline-none appearance-none">
+                                    {% for option in form.module.field.choices %}
+                                        <option value="{{ option.0 }}" {% if option.0 == form.module.value %}selected{% endif %}>{{ option.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-fuchsia-400 text-xl">
+                                    <i class="fa-solid fa-chevron-down animate-pulse"></i>
                                 </span>
                             </div>
                         </div>
@@ -151,7 +159,7 @@
 </section>
 <script>
 // module_permissions viene del contexto, es un dict: {module_id: [{id, name, codename}, ...], ...}
-const permisosPorModulo = {{ module_permissions|safe }};
+const permisosPorModulo = JSON.parse('{{ module_permissions|safe|escapejs }}');
 window.addEventListener('DOMContentLoaded', function() {
     const selectModulo = document.getElementById('id_module');
     const contenedorPermisos = document.getElementById('permissions-checkboxes-wrapper');
@@ -175,4 +183,27 @@ window.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<style>
+.cyberpunk-select {
+    box-shadow: 0 0 0 2px #0ff, 0 0 12px 2px #f0f, 0 0 24px 4px #0ff2;
+    background: linear-gradient(90deg, #0ff2 0%, #f0f2 100%);
+    border: 2px solid #0ff;
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    letter-spacing: 1.5px;
+    transition: box-shadow 0.3s, border 0.3s, background 0.3s;
+}
+.cyberpunk-select:focus {
+    border-color: #f0f;
+    box-shadow: 0 0 0 3px #f0f, 0 0 16px 4px #0ff2;
+    background: linear-gradient(90deg, #0ff 0%, #f0f 100%);
+    color: #fff;
+}
+.cyberpunk-select option {
+    background: #18182f;
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    letter-spacing: 1.5px;
+}
+</style>
 {% endblock %}
