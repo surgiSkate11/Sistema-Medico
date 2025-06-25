@@ -17,7 +17,7 @@ import json
 
 
 class GroupModulePermissionListView(PermissionMixin, ListViewMixin, ListView):
-    template_name = 'security/grupos_modulos_permisos/list.html'
+    template_name = 'security/grupos_modulos_permisos/form.html'
     model = GroupModulePermission
     context_object_name = 'GroupModulePermissions'
     permission_required = 'view_groupmodulepermission'
@@ -27,13 +27,60 @@ class GroupModulePermissionListView(PermissionMixin, ListViewMixin, ListView):
         if q1 is not None:
             self.query.add(Q(group__name__icontains=q1), Q.OR)
             self.query.add(Q(module__name__icontains=q1), Q.OR)
-        return self.model.objects.filter(self.query).order_by('id')
+        # Ordenar por los más recientes primero
+        return self.model.objects.filter(self.query).order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['create_url'] = reverse_lazy('security:group_module_permission_create')
-        print(context['permissions'])
+        # --- INICIO: Datos para acordeones y permisos (igual que en CreateView) ---
+        import json
+        from django.contrib.auth.models import Group, Permission
+        from applications.security.models import Module, GroupModulePermission
+        all_groups = Group.objects.all()
+        all_modules = Module.objects.all()
+        existing_assignments = GroupModulePermission.objects.select_related('group', 'module').prefetch_related('permissions').all()
+        groups_data = []
+        for group in all_groups:
+            assigned_modules = set(existing_assignments.filter(group=group).values_list('module_id', flat=True))
+            available_modules = [
+                {"id": m.id, "name": m.name, "icon": m.icon}
+                for m in all_modules if m.id not in assigned_modules
+            ]
+            groups_data.append({
+                "id": group.id,
+                "name": group.name,
+                "available_modules": available_modules
+            })
+        module_permissions = {}
+        for module in all_modules:
+            perms = module.permissions.all()
+            module_permissions[module.id] = [
+                {"id": p.id, "name": p.name, "codename": p.codename} for p in perms
+            ]
+        context.update({
+            "groups_data": json.dumps(groups_data, ensure_ascii=False),
+            "module_permissions": json.dumps(module_permissions, ensure_ascii=False),
+        })
+        # --- FIN: Datos para acordeones y permisos ---
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        request = self.request
+        # Si es AJAX y refresh=1, devuelve los datos de grupos y módulos en JSON
+        if request.headers.get("x-requested-with") == "XMLHttpRequest" and request.GET.get('refresh') == '1':
+            return JsonResponse({
+                'groupsData': json.loads(context['groups_data']),
+                'modulePermissions': json.loads(context['module_permissions'])
+            })
+        # Si es AJAX normal, devuelve solo el fragmento de la tabla
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            from django.template.loader import render_to_string
+            from django.http import HttpResponse
+            table_html = render_to_string('security/grupos_modulos_permisos/_table_fragment.html', context, request=request)
+            return HttpResponse(table_html)
+        else:
+            return super().render_to_response(context, **response_kwargs)
 
 
 class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateView):

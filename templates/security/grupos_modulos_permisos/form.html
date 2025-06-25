@@ -1,4 +1,4 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 <title>{% block title %}{{title|default:"Gestión Dinámica de Permisos"}}{% endblock %}</title>
 {% load static %}
 {% block content %}
@@ -24,55 +24,62 @@
             <p class="text-cyan-300 text-xl font-['Rajdhani'] font-light tracking-wider">
                 Sistema Avanzado de Asignación de Permisos Cyberpunk
             </p>
-            <div class="w-32 h-1 bg-gradient-to-r from-cyan-500 to-purple-500 mx-auto mt-4 rounded-full"></div>        </div>
+            <div class="w-32 h-1 bg-gradient-to-r from-cyan-500 to-purple-500 mx-auto mt-4 rounded-full"></div>
+        </div>
 
         <!-- Grid principal -->
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-12">
-            
             <!-- Panel izquierdo: Acordeones de grupos -->
             <div class="space-y-8 slide-in-left">
                 <h2 class="text-3xl font-bold text-center font-['Orbitron'] mb-8 text-cyan-300">
                     <i class="fas fa-users-cog mr-3 text-purple-400"></i>
                     Configuración por Grupos
                 </h2>
-                
                 <div id="groups-container" class="space-y-6">
                     <!-- Los acordeones se generarán dinámicamente -->
                 </div>
+                <!-- Botón global para guardar todas las asignaciones -->
+                <div class="flex justify-center mt-12 fade-in-up">
+                    <button id="global-save-btn" class="cyber-btn-save w-full max-w-xl text-2xl" onclick="guardarTodasLasAsignaciones()">
+                        <i class="fas fa-save mr-3"></i>Guardar Todas las Asignaciones
+                    </button>
+                </div>
             </div>
 
-            <!-- Panel derecho: Tabla de asignaciones -->
+            <!-- Panel derecho: Tabla de asignaciones paginada -->
             <div class="space-y-8 slide-in-right">
                 <h2 class="text-3xl font-bold text-center font-['Orbitron'] mb-8 text-cyan-300">
                     <i class="fas fa-table mr-3 text-purple-400"></i>
-                    Asignaciones Recientes
+                    Asignaciones de Grupos-Módulos-Permisos
                 </h2>
-                
-                <!-- Tabla de asignaciones -->
-                <div class="cyber-table-container rounded-2xl overflow-hidden shadow-2xl">
-                    <table class="w-full text-center text-sm font-['Rajdhani'] text-cyan-100">
-                        <thead class="text-cyan-300 border-b-2 border-cyan-400/30">
-                            <tr>
-                                <th class="px-6 py-4 text-sm font-bold tracking-wider">GRUPO</th>
-                                <th class="px-6 py-4 text-sm font-bold tracking-wider">MÓDULO</th>
-                                <th class="px-6 py-4 text-sm font-bold tracking-wider">PERMISOS</th>
-                                <th class="px-6 py-4 text-sm font-bold tracking-wider">ACCIONES</th>
-                            </tr>
-                        </thead>
-                        <tbody id="assignments-table-body">
-                            <!-- Se llena dinámicamente -->
-                        </tbody>
-                    </table>
+                <!-- Barra de búsqueda -->
+                <div class="p-4 flex justify-center">
+                    <label for="table-search" class="sr-only">Buscar</label>
+                    <div class="relative mt-1">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            </svg>
+                        </div>
+                        <form method="GET">
+                            <input type="text" name="q" id="table-search"
+                                class="text-center pl-10 shadow-sm bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-12 dark:bg-principal dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
+                                placeholder="Buscar grupo-módulo-permiso..." value="{{ request.GET.q }}">
+                        </form>
+                    </div>
                 </div>
+                <!-- Tabla paginada y paginación (fragmento AJAX) -->
+                {% include 'security/grupos_modulos_permisos/_table_fragment.html' %}
+                <!-- Modal de eliminación -->
+                {% include 'fragments/delete.html' %}
             </div>
         </div>
 
         <!-- Botones de navegación -->
         <div class="flex justify-center mt-12 gap-6 fade-in-up">
-            <a class="cyber-btn py-4 px-8 rounded-2xl text-lg font-bold shadow-2xl flex items-center gap-3"
-                href="{% url 'security:group_module_permission_list' %}">
-                <i class="fas fa-list"></i>Ver Lista Completa
-            </a>
             <a class="cyber-btn py-4 px-8 rounded-2xl text-lg font-bold shadow-2xl flex items-center gap-3"
                 href="{% url 'home' %}">
                 <i class="fas fa-home"></i>Inicio
@@ -83,92 +90,85 @@
 
 <!-- Script principal -->
 <script>
-// Datos desde el backend
-const groupsData = JSON.parse('{{ groups_data|safe|escapejs }}');
-const modulePermissions = JSON.parse('{{ module_permissions|safe|escapejs }}');
-let assignmentsData = JSON.parse('{{ assignments_data|safe|escapejs }}');
+// =============================
+// VARIABLES GLOBALES DESDE BACKEND
+// =============================
+// Datos de grupos y módulos, enviados por Django como JSON
+window.datosGrupos = JSON.parse('{{ groups_data|safe|escapejs }}');
+window.permisosPorModulo = JSON.parse('{{ module_permissions|safe|escapejs }}');
 
-// Crear partículas flotantes
-function createParticles() {
-    const particlesContainer = document.getElementById('particles');
-    const particleCount = 30;
-
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
-        particle.style.animationDelay = Math.random() * 10 + 's';
-        
+// =============================
+// PARTÍCULAS DE FONDO CYBERPUNK
+// =============================
+function crearParticulas() {
+    const contenedorParticulas = document.getElementById('particles');
+    const cantidad = 30;
+    for (let i = 0; i < cantidad; i++) {
+        const particula = document.createElement('div');
+        particula.className = 'particle';
+        particula.style.left = Math.random() * 100 + '%';
+        particula.style.animationDuration = (Math.random() * 10 + 5) + 's';
+        particula.style.animationDelay = Math.random() * 10 + 's';
         // Alternar colores
         if (Math.random() > 0.5) {
-            particle.style.background = 'var(--cyber-secondary)';
-            particle.style.boxShadow = '0 0 10px var(--cyber-purple-glow)';
+            particula.style.background = 'var(--cyber-secondary)';
+            particula.style.boxShadow = '0 0 10px var(--cyber-purple-glow)';
         }
-        
-        particlesContainer.appendChild(particle);
+        contenedorParticulas.appendChild(particula);
     }
 }
 
-// Inicialización
+// =============================
+// INICIALIZACIÓN AL CARGAR LA PÁGINA
+// =============================
 document.addEventListener('DOMContentLoaded', function() {
-    createParticles();
-    initializeGroupAccordions();
-    renderAssignmentsTable();
-    
-    // Mostrar mensaje de bienvenida
+    crearParticulas();
+    inicializarAcordeonesGrupos();
+    // Mensaje de bienvenida
     setTimeout(() => {
-        showMessage('success', 'Sistema de permisos inicializado correctamente');
+        mostrarMensaje('success', 'Sistema de permisos inicializado correctamente');
     }, 1000);
+    habilitarNavegacionAjaxTabla();
 });
 
-// Generar acordeones por grupo con estilo premium
-function initializeGroupAccordions() {
-    const container = document.getElementById('groups-container');
-    container.innerHTML = '';
-    
-    groupsData.forEach(group => {
-        const accordionHTML = `
+// =============================
+// RENDERIZAR ACORDEONES DE GRUPOS
+// =============================
+function inicializarAcordeonesGrupos() {
+    const contenedor = document.getElementById('groups-container');
+    contenedor.innerHTML = '';
+    window.datosGrupos.forEach(grupo => {
+        // Renderiza cada grupo como un acordeón
+        const acordeonHTML = `
             <div class="cyber-accordion rounded-2xl overflow-hidden shadow-2xl">
-                <!-- Header del grupo -->
-                <div class="p-6 cursor-pointer bg-gradient-to-r from-cyan-900/40 via-purple-900/40 to-cyan-900/40 hover:from-cyan-800/60 hover:to-purple-800/60 transition-all duration-500" 
-                     onclick="toggleAccordion(${group.id})">
+                <div class="p-6 cursor-pointer bg-gradient-to-r from-cyan-900/40 via-purple-900/40 to-cyan-900/40 hover:from-cyan-800/60 hover:to-purple-800/60 transition-all duration-500" onclick="alternarAcordeon(${grupo.id})">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-4">
                             <i class="fas fa-users text-cyan-400 text-2xl"></i>
-                            <h3 class="text-xl font-bold text-white font-['Orbitron']">${group.name}</h3>
+                            <h3 class="text-xl font-bold text-white font-['Orbitron']">${grupo.name}</h3>
                             <span class="cyber-badge px-3 py-1 rounded-full text-sm font-semibold">
-                                ${group.available_modules.length} módulos disponibles
+                                ${grupo.available_modules.length} módulos disponibles
                             </span>
                         </div>
-                        <i id="accordion-icon-${group.id}" class="fas fa-chevron-down text-cyan-400 text-xl transition-transform duration-500"></i>
+                        <i id="accordion-icon-${grupo.id}" class="fas fa-chevron-down text-cyan-400 text-xl transition-transform duration-500"></i>
                     </div>
                 </div>
-                
-                <!-- Contenido del grupo -->
-                <div id="accordion-content-${group.id}" class="p-8 space-y-6 hidden" style="max-height: 0; overflow: hidden; transition: max-height 0.5s ease;">
-                    ${group.available_modules.length > 0 ? `
-                        <!-- Select de módulos -->
+                <div id="accordion-content-${grupo.id}" class="p-8 space-y-6 hidden" style="max-height: 0; overflow: hidden; transition: max-height 0.5s ease;">
+                    ${grupo.available_modules.length > 0 ? `
                         <div class="space-y-3">
                             <label class="block text-cyan-300 font-bold font-['Orbitron'] text-sm">
                                 <i class="fas fa-puzzle-piece mr-2"></i>Seleccionar Módulo
                             </label>
-                            <select id="module-select-${group.id}" 
-                                    class="cyber-select w-full px-4 py-3 rounded-xl font-['Rajdhani'] text-lg focus:ring-2 focus:ring-purple-500 transition-all duration-300"
-                                    onchange="loadPermissions(${group.id}, this.value)">
+                            <select id="module-select-${grupo.id}" class="cyber-select w-full px-4 py-3 rounded-xl font-['Rajdhani'] text-lg focus:ring-2 focus:ring-purple-500 transition-all duration-300" onchange="cargarPermisos(${grupo.id}, this.value)">
                                 <option value="">-- Seleccionar módulo --</option>
-                                ${group.available_modules.map(module => 
-                                    `<option value="${module.id}">${module.name}</option>`
-                                ).join('')}
+                                ${grupo.available_modules.map(modulo => `<option value="${modulo.id}">${modulo.name}</option>`).join('')}
                             </select>
                         </div>
-                        
-                        <!-- Container de permisos -->
-                        <div id="permissions-container-${group.id}" class="space-y-3 hidden">
+                        <div id="permissions-container-${grupo.id}" class="space-y-3 hidden">
                             <label class="block text-cyan-300 font-bold font-['Orbitron'] text-sm">
                                 <i class="fas fa-shield-alt mr-2"></i>Permisos del Módulo
                             </label>
-                            <div id="permissions-checkboxes-${group.id}" class="cyber-container rounded-xl p-6 space-y-3 max-h-64 overflow-y-auto">
+                            <div id="permissions-checkboxes-${grupo.id}" class="cyber-container rounded-xl p-6 space-y-3 max-h-64 overflow-y-auto">
                                 <!-- Se llenan dinámicamente -->
                             </div>
                         </div>
@@ -182,113 +182,125 @@ function initializeGroupAccordions() {
                 </div>
             </div>
         `;
-        container.insertAdjacentHTML('beforeend', accordionHTML);
+        contenedor.insertAdjacentHTML('beforeend', acordeonHTML);
     });
-    // Mueve el botón global justo después de los grupos
-    let saveBtnDiv = document.getElementById('global-save-btn-div');
-    if (saveBtnDiv) saveBtnDiv.remove();
-    saveBtnDiv = document.createElement('div');
-    saveBtnDiv.id = 'global-save-btn-div';
-    saveBtnDiv.className = 'flex justify-center mt-12 fade-in-up';
-    saveBtnDiv.innerHTML = `
-        <button id="global-save-btn" class="cyber-btn-save w-full max-w-xl text-2xl" onclick="saveAllAssignments()">
-            <i class="fas fa-save mr-3"></i>Guardar Todas las Asignaciones
-        </button>
-    `;
-    container.parentNode.insertBefore(saveBtnDiv, container.nextSibling);
 }
 
-// Toggle acordeón mejorado
-function toggleAccordion(groupId) {
-    const content = document.getElementById(`accordion-content-${groupId}`);
-    const icon = document.getElementById(`accordion-icon-${groupId}`);
-    
-    content.classList.toggle('hidden');
-    icon.classList.toggle('rotate-180');
-    
-    // Añadir efecto de slide
-    if (!content.classList.contains('hidden')) {
-        content.style.maxHeight = content.scrollHeight + 'px';
+// =============================
+// ABRIR/CERRAR ACORDEÓN DE GRUPO
+// =============================
+function alternarAcordeon(idGrupo) {
+    const contenido = document.getElementById(`accordion-content-${idGrupo}`);
+    const icono = document.getElementById(`accordion-icon-${idGrupo}`);
+    contenido.classList.toggle('hidden');
+    icono.classList.toggle('rotate-180');
+    // Efecto slide
+    if (!contenido.classList.contains('hidden')) {
+        contenido.style.maxHeight = contenido.scrollHeight + 'px';
     } else {
-        content.style.maxHeight = '0px';
+        contenido.style.maxHeight = '0px';
     }
 }
 
-// Validar que la asignación esté completa (debe estar definida antes de usarse)
-function validateAssignment(groupId) {
-    const moduleSelect = document.getElementById(`module-select-${groupId}`);
-    const checkboxes = document.querySelectorAll(`#permissions-checkboxes-${groupId} input[type="checkbox"]:checked`);
-    const saveBtn = document.getElementById(`save-btn-${groupId}`);
-    const isValid = moduleSelect.value && checkboxes.length > 0;
-    if (saveBtn) saveBtn.disabled = !isValid;
-}
-
-// Cargar permisos cuando se selecciona un módulo
-function loadPermissions(groupId, moduleId) {
-    const container = document.getElementById(`permissions-container-${groupId}`);
-    const checkboxContainer = document.getElementById(`permissions-checkboxes-${groupId}`);
-    if (!moduleId) {
-        container.classList.add('hidden');
-        container.style.display = 'none';
-        checkboxContainer.innerHTML = '';
+// =============================
+// CARGAR PERMISOS AL SELECCIONAR MÓDULO
+// =============================
+function cargarPermisos(idGrupo, idModulo) {
+    const contenedorPermisos = document.getElementById(`permissions-container-${idGrupo}`);
+    const checkboxesPermisos = document.getElementById(`permissions-checkboxes-${idGrupo}`);
+    if (!idModulo) {
+        contenedorPermisos.classList.add('hidden');
+        contenedorPermisos.style.display = 'none';
+        checkboxesPermisos.innerHTML = '';
         return;
     }
-    const permissions = modulePermissions[moduleId] || [];
-    if (permissions.length === 0) {
-        checkboxContainer.innerHTML = '<div class="text-cyan-400 italic py-4">Este módulo no tiene permisos configurados.</div>';
+    const permisos = window.permisosPorModulo[idModulo] || [];
+    if (permisos.length === 0) {
+        checkboxesPermisos.innerHTML = '<div class="text-cyan-400 italic py-4">Este módulo no tiene permisos configurados.</div>';
     } else {
-        checkboxContainer.innerHTML = `
+        checkboxesPermisos.innerHTML = `
             <div class="permissions-scroll single-row">
-                ${permissions.map(perm => `
+                ${permisos.map(permiso => `
                     <label class="permission-item" tabindex="0">
-                        <input type="checkbox" 
-                            class="cyber-checkbox" 
-                            value="${perm.id}" 
-                            checked
-                            onchange="validateAssignment(${groupId})">
-                        <span class="permission-text">${perm.name}</span>
+                        <input type="checkbox" class="cyber-checkbox" value="${permiso.id}" checked onchange="validarAsignacion(${idGrupo})">
+                        <span class="permission-text">${permiso.name}</span>
                         <div class="permission-glow"></div>
                     </label>
                 `).join('')}
             </div>
         `;
     }
-    // Quitar clase hidden y display: none de todos los padres
-    let parent = container;
-    while (parent) {
-        parent.classList && parent.classList.remove('hidden');
-        parent.style && (parent.style.display = 'block');
-        parent = parent.parentElement;
+    // Mostrar contenedor de permisos
+    let padre = contenedorPermisos;
+    while (padre) {
+        padre.classList && padre.classList.remove('hidden');
+        padre.style && (padre.style.display = 'block');
+        padre = padre.parentElement;
     }
     // Forzar acordeón abierto
-    const accordionContent = document.getElementById(`accordion-content-${groupId}`);
-    if (accordionContent) {
-        accordionContent.classList.remove('hidden');
-        accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px';
-    }
-    // Mensaje de depuración
-    if (checkboxContainer.innerHTML.trim() === '') {
-        console.warn('El HTML de permisos está vacío, revisa los datos de modulePermissions.');
+    const contenidoAcordeon = document.getElementById(`accordion-content-${idGrupo}`);
+    if (contenidoAcordeon) {
+        contenidoAcordeon.classList.remove('hidden');
+        contenidoAcordeon.style.maxHeight = contenidoAcordeon.scrollHeight + 'px';
     }
 }
 
-// Obtener CSRF token para AJAX seguro
-function getCookie(name) {
-    let cookieValue = null;
+// =============================
+// VALIDAR ASIGNACIÓN (habilita/deshabilita botón guardar individual)
+// =============================
+function validarAsignacion(idGrupo) {
+    const selectModulo = document.getElementById(`module-select-${idGrupo}`);
+    const checkboxes = document.querySelectorAll(`#permissions-checkboxes-${idGrupo} input[type="checkbox"]:checked`);
+    const btnGuardar = document.getElementById(`save-btn-${idGrupo}`);
+    const esValido = selectModulo.value && checkboxes.length > 0;
+    if (btnGuardar) btnGuardar.disabled = !esValido;
+}
+
+// =============================
+// OBTENER CSRF TOKEN PARA AJAX
+// =============================
+function obtenerCookie(nombre) {
+    let valor = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            if (cookie.substring(0, nombre.length + 1) === (nombre + '=')) {
+                valor = decodeURIComponent(cookie.substring(nombre.length + 1));
                 break;
             }
         }
     }
-    return cookieValue;
+    return valor;
 }
 
-// Guardar asignación (con CSRF seguro)
+// =============================
+// RECARGAR SOLO LA TABLA DE ASIGNACIONES (AJAX)
+// =============================
+function recargarTablaAsignaciones(forzarPrimeraPagina = false) {
+    let url = window.location.pathname + window.location.search;
+    if (forzarPrimeraPagina) {
+        const params = new URLSearchParams(window.location.search);
+        params.set('page', '1');
+        url = window.location.pathname + '?' + params.toString();
+    }
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(respuesta => respuesta.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const nuevaTabla = doc.querySelector('.cyber-table-container');
+            if (nuevaTabla) {
+                const contenedorTabla = document.querySelector('.cyber-table-container');
+                contenedorTabla.replaceWith(nuevaTabla);
+                habilitarNavegacionAjaxTabla();
+            }
+        });
+}
+
+// =============================
+// GUARDAR ASIGNACIÓN (CON CSRF SEGURO)
+// =============================
 function saveAssignment(groupId) {
     const moduleSelect = document.getElementById(`module-select-${groupId}`);
     const checkboxes = document.querySelectorAll(`#permissions-checkboxes-${groupId} input[type="checkbox"]:checked`);
@@ -299,9 +311,11 @@ function saveAssignment(groupId) {
         return;
     }
     const saveBtn = document.getElementById(`save-btn-${groupId}`);
-    const originalText = saveBtn.innerHTML;
-    saveBtn.innerHTML = '<div class="cyber-loader inline-block mr-3"></div>Guardando...';
-    saveBtn.disabled = true;
+    const originalText = saveBtn ? saveBtn.innerHTML : '';
+    if (saveBtn) {
+        saveBtn.innerHTML = '<div class="cyber-loader inline-block mr-3"></div>Guardando...';
+        saveBtn.disabled = true;
+    }
     fetch('{% url "security:group_module_permission_ajax" %}', {
         method: 'POST',
         headers: {
@@ -318,10 +332,26 @@ function saveAssignment(groupId) {
     .then(data => {
         if (data.success) {
             showMessage('success', data.message);
-            assignmentsData.push(data.assignment);
-            renderAssignmentsTable();
-            updateGroupsData(groupId, moduleId);
-            initializeGroupAccordions();
+            refreshGroupsData(() => {
+                resetAllAccordions();
+                reloadAssignmentsTable(true);
+            });
+            setTimeout(() => {
+                const moduleSelect = document.getElementById(`module-select-${groupId}`);
+                if (moduleSelect) moduleSelect.value = '';
+                const permissionsContainer = document.getElementById(`permissions-container-${groupId}`);
+                if (permissionsContainer) {
+                    permissionsContainer.classList.add('hidden');
+                    permissionsContainer.style.display = 'none';
+                }
+                const accordionContent = document.getElementById(`accordion-content-${groupId}`);
+                if (accordionContent) {
+                    accordionContent.classList.add('hidden');
+                    accordionContent.style.maxHeight = '0px';
+                }
+            }, 300);
+            // Espera 200ms antes de recargar la tabla para asegurar que el registro esté en la BD
+            setTimeout(reloadAssignmentsTable, 200);
         } else {
             showMessage('error', data.message);
         }
@@ -331,8 +361,10 @@ function saveAssignment(groupId) {
         showMessage('error', 'Error de conexión. Inténtalo de nuevo.');
     })
     .finally(() => {
-        saveBtn.innerHTML = originalText;
-        saveBtn.disabled = false;
+        if (saveBtn) {
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
     });
 }
 
@@ -341,7 +373,7 @@ function initializeGroupAccordions() {
     const container = document.getElementById('groups-container');
     container.innerHTML = '';
     
-    groupsData.forEach(group => {
+    window.groupsData.forEach(group => {
         const accordionHTML = `
             <div class="cyber-accordion rounded-2xl overflow-hidden shadow-2xl">
                 <!-- Header del grupo -->
@@ -362,6 +394,7 @@ function initializeGroupAccordions() {
                 <!-- Contenido del grupo -->
                 <div id="accordion-content-${group.id}" class="p-8 space-y-6 hidden" style="max-height: 0; overflow: hidden; transition: max-height 0.5s ease;">
                     ${group.available_modules.length > 0 ? `
+
                         <!-- Select de módulos -->
                         <div class="space-y-3">
                             <label class="block text-cyan-300 font-bold font-['Orbitron'] text-sm">
@@ -398,293 +431,243 @@ function initializeGroupAccordions() {
         `;
         container.insertAdjacentHTML('beforeend', accordionHTML);
     });
-    // Mueve el botón global justo después de los grupos
-    let saveBtnDiv = document.getElementById('global-save-btn-div');
-    if (saveBtnDiv) saveBtnDiv.remove();
-    saveBtnDiv = document.createElement('div');
-    saveBtnDiv.id = 'global-save-btn-div';
-    saveBtnDiv.className = 'flex justify-center mt-12 fade-in-up';
-    saveBtnDiv.innerHTML = `
-        <button id="global-save-btn" class="cyber-btn-save w-full max-w-xl text-2xl" onclick="saveAllAssignments()">
-            <i class="fas fa-save mr-3"></i>Guardar Todas las Asignaciones
-        </button>
-    `;
-    container.parentNode.insertBefore(saveBtnDiv, container.nextSibling);
 }
 
 // Nueva función para guardar todas las asignaciones seleccionadas
-function saveAllAssignments() {
+function guardarTodasLasAsignaciones() {
     // Recolectar todas las selecciones de todos los grupos
-    const assignments = [];
-    groupsData.forEach(group => {
-        const moduleSelect = document.getElementById(`module-select-${group.id}`);
-        if (moduleSelect && moduleSelect.value) {
-            const moduleId = moduleSelect.value;
-            const checkboxes = document.querySelectorAll(`#permissions-checkboxes-${group.id} input[type='checkbox']:checked`);
-            const permissionIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
-            if (permissionIds.length > 0) {
-                assignments.push({
-                    group_id: group.id,
-                    module_id: moduleId,
-                    permission_ids: permissionIds
+    const asignaciones = [];
+    window.datosGrupos.forEach(grupo => {
+        const selectModulo = document.getElementById(`module-select-${grupo.id}`);
+        if (selectModulo && selectModulo.value) {
+            const idModulo = selectModulo.value;
+            const checkboxes = document.querySelectorAll(`#permissions-checkboxes-${grupo.id} input[type='checkbox']:checked`);
+            const idsPermisos = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            if (idsPermisos.length > 0) {
+                asignaciones.push({
+                    group_id: grupo.id,
+                    module_id: idModulo,
+                    permission_ids: idsPermisos
                 });
             }
         }
     });
-    console.log('Asignaciones a guardar:', assignments); // Debug
-    if (assignments.length === 0) {
-        showMessage('error', 'Selecciona al menos un grupo con módulo y permisos.');
+    console.log('Asignaciones a guardar:', asignaciones); // Debug
+    if (asignaciones.length === 0) {
+        mostrarMensaje('error', 'Selecciona al menos un grupo con módulo y permisos.');
         return;
     }
-    const saveBtn = document.getElementById('global-save-btn');
-    const originalText = saveBtn.innerHTML;
-    saveBtn.innerHTML = '<div class="cyber-loader inline-block mr-3"></div>Guardando...';
-    saveBtn.disabled = true;
+    const btnGuardar = document.getElementById('global-save-btn');
+    const textoOriginal = btnGuardar.innerHTML;
+    btnGuardar.innerHTML = '<div class="cyber-loader inline-block mr-3"></div>Guardando...';
+    btnGuardar.disabled = true;
 
     // Enviar cada asignación por separado
-    let successCount = 0;
-    let errorCount = 0;
-    let lastMessage = '';
-    let lastAssignments = [];
-    const promises = assignments.map(assignment => {
+    let exitos = 0;
+    let errores = 0;
+    let ultimoMensaje = '';
+    let ultimasAsignaciones = [];
+    const promesas = asignaciones.map(asignacion => {
         return fetch('{% url "security:group_module_permission_ajax" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
+                'X-CSRFToken': obtenerCookie('csrftoken'),
             },
-            body: JSON.stringify(assignment)
+            body: JSON.stringify(asignacion)
         })
-        .then(response => response.json())
+        .then(respuesta => respuesta.json())
         .then(data => {
             console.log('Respuesta backend:', data);
             if (data.success) {
-                successCount++;
-                lastMessage = data.message;
-                if (data.assignment) lastAssignments.push(data.assignment);
+                exitos++;
+                ultimoMensaje = data.message;
+                if (data.assignment) ultimasAsignaciones.push(data.assignment);
             } else {
-                errorCount++;
-                lastMessage = data.message;
+                errores++;
+                ultimoMensaje = data.message;
             }
         })
         .catch(error => {
-            errorCount++;
-            lastMessage = 'Error de conexión.';
+            errores++;
+            ultimoMensaje = 'Error de conexión.';
             console.error('Error:', error);
         });
     });
-    Promise.all(promises).then(() => {
-        if (successCount > 0) {
-            // Agregar las nuevas asignaciones a la tabla sin recargar
-            assignmentsData = assignmentsData.concat(lastAssignments);
-            renderAssignmentsTable();
-            showMessage('success', lastMessage || 'Asignaciones guardadas correctamente.');
+    Promise.all(promesas).then(() => {
+        if (exitos > 0) {
+            mostrarMensaje('success', ultimoMensaje || 'Asignaciones guardadas correctamente.');
+            refrescarDatosGrupos(() => {
+                resetearTodosAcordeones();
+                recargarTablaAsignaciones(true);
+            });
         } else {
-            showMessage('error', lastMessage || 'No se pudo guardar ninguna asignación.');
+            mostrarMensaje('error', ultimoMensaje || 'No se pudo guardar ninguna asignación.');
         }
-        saveBtn.innerHTML = originalText;
-        saveBtn.disabled = false;
+        btnGuardar.innerHTML = textoOriginal;
+        btnGuardar.disabled = false;
     });
 }
 
-// Actualizar datos de grupos después de guardar
-function updateGroupsData(groupId, moduleId) {
-    const group = groupsData.find(g => g.id === groupId);
-    if (group) {
-        group.available_modules = group.available_modules.filter(m => m.id != moduleId);
-    }
-}
-
-// Renderizar tabla de asignaciones con estilo premium
-function renderAssignmentsTable() {
-    const tbody = document.getElementById('assignments-table-body');
-    if (assignmentsData.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" class="py-12 text-cyan-400/60 italic">
-                    <i class="fas fa-info-circle mr-2 text-2xl"></i>
-                    <br>No hay asignaciones recientes en esta sesión
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    tbody.innerHTML = assignmentsData.map(assignment => `
-        <tr class="table-row transition-all duration-300 hover:bg-cyan-900/20">
-            <td class="px-6 py-4 font-bold text-cyan-100">${assignment.group_name}</td>
-            <td class="px-6 py-4">
-                <i class="${assignment.module_icon} text-lg text-cyan-400 mr-2"></i>
-                ${assignment.module_name}
-            </td>
-            <td class="px-6 py-4">
-                <div class="flex flex-wrap gap-2 justify-center">
-                    ${assignment.permissions.map(perm => 
-                        `<span class="cyber-badge px-3 py-1 rounded-full text-xs">${perm.name}</span>`
-                    ).join('')}
-                </div>
-            </td>
-            <td class="px-6 py-4 flex gap-2 justify-center">
-                <button onclick="openEditAssignment(${assignment.id})" class="edit-btn">
-                    <i class="fas fa-edit text-sm"></i>
-                </button>
-                {% if permissions.delete_groupmodulepermission %}
-                <button onclick="deleteAssignment(${assignment.id})" class="delete-btn">
-                    <i class="fas fa-trash text-sm"></i>
-                </button>
-                {% endif %}
-            </td>
-        </tr>
-    `).join('');
-}
-
-// Modal de edición de asignación
-function openEditAssignment(assignmentId) {
-    const assignment = assignmentsData.find(a => a.id === assignmentId);
-    if (!assignment) return;
-    // Crear modal si no existe
-    let modal = document.getElementById('edit-assignment-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'edit-assignment-modal';
-        modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/60';
-        modal.innerHTML = `
-            <div class="bg-[#18182f] rounded-2xl p-8 shadow-2xl w-full max-w-lg relative">
-                <button class="absolute top-3 right-3 text-cyan-400 hover:text-fuchsia-400 text-2xl" onclick="closeEditAssignmentModal()"><i class="fas fa-times"></i></button>
-                <h2 class="text-2xl font-bold text-cyan-300 mb-6 text-center font-['Orbitron']"><i class="fas fa-edit mr-2"></i>Editar Asignación</h2>
-                <form id="edit-assignment-form" class="space-y-6">
-                    <div>
-                        <label class="block text-cyan-300 font-bold text-sm mb-1">Grupo</label>
-                        <input type="text" id="edit-group-name" class="w-full px-4 py-2 rounded-lg bg-cyan-950/40 text-cyan-200" disabled>
-                    </div>
-                    <div>
-                        <label class="block text-cyan-300 font-bold text-sm mb-1">Módulo</label>
-                        <input type="text" id="edit-module-name" class="w-full px-4 py-2 rounded-lg bg-cyan-950/40 text-cyan-200" disabled>
-                    </div>
-                    <div>
-                        <label class="block text-cyan-300 font-bold text-sm mb-1">Permisos</label>
-                        <div id="edit-permissions-checkboxes" class="permissions-scroll single-row"></div>
-                    </div>
-                    <div class="flex justify-end gap-4 mt-6">
-                        <button type="button" class="cyber-btn px-6 py-2 rounded-lg" onclick="closeEditAssignmentModal()">Cancelar</button>
-                        <button type="submit" class="cyber-btn-save px-6 py-2 rounded-lg"><i class="fas fa-save mr-2"></i>Guardar Cambios</button>
-                    </div>
-                </form>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    } else {
-        modal.style.display = 'flex';
-    }
-    // Llenar datos
-    document.getElementById('edit-group-name').value = assignment.group_name;
-    document.getElementById('edit-module-name').value = assignment.module_name;
-    // Cargar permisos del módulo
-    const allPerms = modulePermissions[assignment.module_id] || [];
-    const container = document.getElementById('edit-permissions-checkboxes');
-    container.innerHTML = allPerms.map(perm => `
-        <label class="permission-item" tabindex="0">
-            <input type="checkbox" class="cyber-checkbox" value="${perm.id}" ${assignment.permissions.some(p => p.id === perm.id) ? 'checked' : ''}>
-            <span class="permission-text">${perm.name}</span>
-            <div class="permission-glow"></div>
-        </label>
-    `).join('');
-    // Submit handler
-    const form = document.getElementById('edit-assignment-form');
-    form.onsubmit = function(e) {
-        e.preventDefault();
-        const checked = container.querySelectorAll('input[type="checkbox"]:checked');
-        const permissionIds = Array.from(checked).map(cb => parseInt(cb.value));
-        if (permissionIds.length === 0) {
-            showMessage('error', 'Selecciona al menos un permiso.');
-            return;
-        }
-        // Guardar cambios vía AJAX
-        fetch(`{% url "security:group_module_permission_ajax" %}${assignmentId}/`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: JSON.stringify({ permission_ids: permissionIds })
-        })
-        .then(response => response.json())
+// Refresca los datos de grupos y módulos desde el backend tras guardar
+function refrescarDatosGrupos(callback) {
+    fetch(window.location.pathname + '?refresh=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(respuesta => respuesta.json())
         .then(data => {
-            if (data.success && data.assignment) {
-                // Actualizar en assignmentsData
-                const idx = assignmentsData.findIndex(a => a.id === assignmentId);
-                if (idx !== -1) assignmentsData[idx] = data.assignment;
-                renderAssignmentsTable();
-                showMessage('success', data.message || 'Asignación actualizada.');
-                closeEditAssignmentModal();
-            } else {
-                showMessage('error', data.message || 'No se pudo actualizar.');
-            }
-        })
-        .catch(() => showMessage('error', 'Error de conexión.'));
-    };
-    modal.style.display = 'flex';
-}
-function closeEditAssignmentModal() {
-    const modal = document.getElementById('edit-assignment-modal');
-    if (modal) modal.style.display = 'none';
+            window.datosGrupos = data.groupsData;
+            window.permisosPorModulo = data.modulePermissions;
+            inicializarAcordeonesGrupos();
+            if (typeof callback === 'function') callback();
+        });
 }
 
-// Eliminar asignación
-function deleteAssignment(assignmentId) {
-    if (!confirm('¿Está seguro de eliminar esta asignación?')) return;
-    
-    fetch(`{% url "security:group_module_permission_ajax" %}${assignmentId}/`, {
-        method: 'DELETE',
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showMessage('success', data.message);
-            
-            // Remover de la tabla
-            assignmentsData = assignmentsData.filter(a => a.id !== assignmentId);
-            renderAssignmentsTable();
-            
-            // Recargar acordeones para mostrar módulos disponibles nuevamente
-            location.reload(); // Recarga para actualizar datos del backend
-            
-        } else {
-            showMessage('error', data.message);
+// Cierra todos los acordeones y resetea su estado visual
+function resetearTodosAcordeones() {
+    window.datosGrupos.forEach(grupo => {
+        const contenido = document.getElementById(`accordion-content-${grupo.id}`);
+        const icono = document.getElementById(`accordion-icon-${grupo.id}`);
+        if (contenido) {
+            contenido.classList.add('hidden');
+            contenido.style.maxHeight = '0px';
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showMessage('error', 'Error al eliminar la asignación.');
+        if (icono) {
+            icono.classList.remove('rotate-180');
+        }
     });
 }
 
 // Mostrar mensaje con estilo cyberpunk
-function showMessage(type, message) {
-    const container = document.getElementById('messages-container');
-    const messageClass = type === 'success' ? 'cyber-message' : 'cyber-message error';
-    const iconClass = type === 'success' ? 'fas fa-check-circle text-cyan-400' : 'fas fa-exclamation-triangle text-red-400';
-    
-    const messageHTML = `
-        <div class="${messageClass} p-6 rounded-xl mb-4 max-w-2xl mx-auto">
+function mostrarMensaje(tipo, mensaje) {
+    const contenedor = document.getElementById('messages-container');
+    const claseMensaje = tipo === 'success' ? 'cyber-message' : 'cyber-message error';
+    const icono = tipo === 'success' ? 'fas fa-check-circle text-cyan-400' : 'fas fa-exclamation-triangle text-red-400';
+    const htmlMensaje = `
+        <div class="${claseMensaje} p-6 rounded-xl mb-4 max-w-2xl mx-auto">
             <div class="flex items-center gap-4">
                 <div class="flex-shrink-0">
-                    <i class="${iconClass} text-2xl"></i>
+                    <i class="${icono} text-2xl"></i>
                 </div>
                 <div>
-                    <p class="text-white font-['Rajdhani'] text-lg font-semibold">${message}</p>
+                    <p class="text-white font-['Rajdhani'] text-lg font-semibold">${mensaje}</p>
                 </div>
             </div>
         </div>
     `;
-    
-    container.innerHTML = messageHTML;
-    
-    // Auto-hide después de 5 segundos
+    contenedor.innerHTML = htmlMensaje;
     setTimeout(() => {
-        container.innerHTML = '';
+        contenedor.innerHTML = '';
     }, 5000);
 }
 
+// Intercepta clicks en paginación y búsqueda para AJAX
+function habilitarNavegacionAjaxTabla() {
+    // Delegación de eventos para paginación
+    document.body.addEventListener('click', function(e) {
+        // Paginación
+        const link = e.target.closest('.cyber-table-container nav a');
+        if (link) {
+            e.preventDefault();
+            fetch(link.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(respuesta => respuesta.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const nuevaTabla = doc.querySelector('.cyber-table-container');
+                    if (nuevaTabla) {
+                        const contenedorTabla = document.querySelector('.cyber-table-container');
+                        contenedorTabla.replaceWith(nuevaTabla);
+                    }
+                });
+        }
+    });
+    // Búsqueda
+    const formularioBusqueda = document.querySelector('.cyber-table-container').closest('.slide-in-right').querySelector('form');
+    if (formularioBusqueda) {
+        formularioBusqueda.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const params = new URLSearchParams(new FormData(formularioBusqueda)).toString();
+            const url = window.location.pathname + (params ? '?' + params : '');
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(respuesta => respuesta.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const nuevaTabla = doc.querySelector('.cyber-table-container');
+                    if (nuevaTabla) {
+                        const contenedorTabla = document.querySelector('.cyber-table-container');
+                        contenedorTabla.replaceWith(nuevaTabla);
+                    }
+                });
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ...existing code...
+    habilitarNavegacionAjaxTabla();
+});
+
+// =============================
+// MODAL DE ELIMINACIÓN: ABRIR Y GESTIONAR
+// =============================
+// Esta función muestra el modal de confirmación y prepara el formulario para eliminar el registro seleccionado.
+function openDeleteModal(id, descripcion) {
+    // Mostrar el modal
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+    // Cambiar el texto de descripción
+    const desc = document.getElementById('Description');
+    if (desc) {
+        desc.textContent = `¿Eliminar: ${descripcion}?`;
+    }
+    // Guardar el id a eliminar en el formulario
+    const form = document.getElementById('deleteForm');
+    if (form) {
+        // Cambia la acción del form para que apunte al endpoint correcto
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            eliminarAsignacion(id);
+        };
+    }
+}
+
+// Cierra el modal de eliminación
+function closeModal() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+// Elimina la asignación vía AJAX y recarga la tabla y los acordeones
+function eliminarAsignacion(id) {
+    fetch(`/security/group-module-permission-ajax/${id}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': obtenerCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(respuesta => respuesta.json())
+    .then(data => {
+        if (data.success) {
+            mostrarMensaje('success', data.message);
+            closeModal();
+            refrescarDatosGrupos(() => {
+                resetearTodosAcordeones();
+                recargarTablaAsignaciones();
+            });
+        } else {
+            mostrarMensaje('error', data.message);
+        }
+    })
+    .catch(error => {
+        mostrarMensaje('error', 'Error al eliminar.');
+    });
+}
+// ...existing code...
 </script>
 
 <style>
