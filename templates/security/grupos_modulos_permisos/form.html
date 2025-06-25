@@ -1,209 +1,1137 @@
-{% extends 'home.html' %} 
-<title>{% block title %}{{title|default:"Grupos Módulos Permisos"}}{% endblock %}</title>
+{% extends 'base.html' %} 
+<title>{% block title %}{{title|default:"Gestión Dinámica de Permisos"}}{% endblock %}</title>
 {% load static %}
 {% block content %}
+<!-- Contenedor de mensajes para feedback visual -->
+<div id="messages-container"></div>
+
 <!-- Vincula el CSS de errores global -->
 <link rel="stylesheet" href="{% static 'forms/error_form.css' %}">
-<!-- Vincula el JS para vista previa de íconos -->
-<script src="{% static 'forms/error_form.js' %}"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<section class="dark:bg-principal min-h-screen flex items-start justify-center py-2">
-    <div class="w-full max-w-2xl bg-gradient-to-br from-[#0b1121] via-[#18182f] to-[#1e293b] border-4 border-cyan-500/30 shadow-2xl rounded-3xl px-6 py-6 flex flex-col items-center backdrop-blur-md gap-6 mt-4">
-        <h1 class="rounded-2xl bg-gradient-to-r from-cyan-500 via-fuchsia-600 to-blue-700 px-4 py-2 text-white uppercase text-3xl font-black tracking-widest shadow-lg font-[Orbitron] mb-1 text-center">
-            {{ grabar|default:'Grabar Grupo Módulo Permiso' }}
-        </h1>
-        <!-- Mensajes de error del formulario (no específicos de campo) -->
-        {% if form.non_field_errors %}
-        <div class="w-full mb-4" data-aos="fade-up">
-            <div class="bg-gradient-to-r from-pink-900/80 via-fuchsia-900/70 to-cyan-900/80 border-l-4 border-pink-500 p-4 rounded-xl max-w-xl mx-auto shadow-lg">
-                <div class="flex items-start gap-4">
-                    <div class="flex-shrink-0">
-                        <i class="fa-solid fa-exclamation-triangle text-pink-400 text-2xl animate-pulse"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-pink-300 font-bold font-[Orbitron] text-lg">Se encontraron errores en el formulario:</h3>
-                        <div class="mt-2 text-pink-200">
-                            <ul class="list-disc list-inside space-y-1">
-                                {% for error in form.non_field_errors %}
-                                <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
+<!-- Partículas flotantes -->
+<div class="particles" id="particles"></div>
+
+<section class="min-h-screen py-8 relative z-10">
+    <div class="container mx-auto px-4">
+        <!-- Header Premium -->
+        <div class="text-center mb-12 fade-in-up">
+            <h1 class="cyber-title text-4xl md:text-6xl font-black mb-6 bg-gradient-to-r from-cyan-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
+                <i class="fas fa-rocket mr-4"></i>
+                Gestión Dinámica de Permisos
+            </h1>
+            <p class="text-cyan-300 text-xl font-['Rajdhani'] font-light tracking-wider">
+                Sistema Avanzado de Asignación de Permisos Cyberpunk
+            </p>
+            <div class="w-32 h-1 bg-gradient-to-r from-cyan-500 to-purple-500 mx-auto mt-4 rounded-full"></div>        </div>
+
+        <!-- Grid principal -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-12">
+            
+            <!-- Panel izquierdo: Acordeones de grupos -->
+            <div class="space-y-8 slide-in-left">
+                <h2 class="text-3xl font-bold text-center font-['Orbitron'] mb-8 text-cyan-300">
+                    <i class="fas fa-users-cog mr-3 text-purple-400"></i>
+                    Configuración por Grupos
+                </h2>
+                
+                <div id="groups-container" class="space-y-6">
+                    <!-- Los acordeones se generarán dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Panel derecho: Tabla de asignaciones -->
+            <div class="space-y-8 slide-in-right">
+                <h2 class="text-3xl font-bold text-center font-['Orbitron'] mb-8 text-cyan-300">
+                    <i class="fas fa-table mr-3 text-purple-400"></i>
+                    Asignaciones Recientes
+                </h2>
+                
+                <!-- Tabla de asignaciones -->
+                <div class="cyber-table-container rounded-2xl overflow-hidden shadow-2xl">
+                    <table class="w-full text-center text-sm font-['Rajdhani'] text-cyan-100">
+                        <thead class="text-cyan-300 border-b-2 border-cyan-400/30">
+                            <tr>
+                                <th class="px-6 py-4 text-sm font-bold tracking-wider">GRUPO</th>
+                                <th class="px-6 py-4 text-sm font-bold tracking-wider">MÓDULO</th>
+                                <th class="px-6 py-4 text-sm font-bold tracking-wider">PERMISOS</th>
+                                <th class="px-6 py-4 text-sm font-bold tracking-wider">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assignments-table-body">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        {% endif %}
-        <form method="post" class="w-full flex flex-col gap-6">
-            {% csrf_token %}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                <!-- Campo Grupo -->
-                <div class="field-container w-full flex flex-col gap-2 items-center {% if form.group.errors %}has-error{% endif %}">
-                    <label for="{{ form.group.id_for_label }}"
-                        class="font-black uppercase text-base block tracking-widest text-cyan-300 text-center font-[Orbitron] mb-1">
-                        {{ form.group.label }}
-                        {% if form.group.field.required %}<span class="text-pink-400">*</span>{% endif %}
-                    </label>
-                    <div class="relative flex justify-center w-full">
-                        <div class="w-full" style="max-width: 220px;">
-                            <div class="relative">
-                                <select name="group" id="{{ form.group.id_for_label }}" class="cyberpunk-select w-full px-4 py-2 bg-gradient-to-r from-cyan-900 via-fuchsia-900 to-blue-900 text-cyan-200 border-2 border-cyan-500 rounded-xl shadow-lg font-[Orbitron] text-base focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-300 outline-none appearance-none">
-                                    {% for option in form.group.field.choices %}
-                                        <option value="{{ option.0 }}" {% if option.0 == form.group.value %}selected{% endif %}>{{ option.1 }}</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-fuchsia-400 text-xl">
-                                    <i class="fa-solid fa-chevron-down animate-pulse"></i>
-                                </span>
-                            </div>
-                        </div>
-                        {% if form.group.errors %}
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-exclamation-circle text-pink-400"></i>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% if form.group.errors %}
-                    <div class="mt-1 text-pink-400 text-xs text-center">
-                        {% for error in form.group.errors %}
-                        <div class="flex items-center mt-1 justify-center gap-2">
-                            <i class="fa-solid fa-circle-exclamation text-xs"></i>
-                            {{ error }}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-                <!-- Campo Módulo -->
-                <div class="field-container w-full flex flex-col gap-2 items-center {% if form.module.errors %}has-error{% endif %}">
-                    <label for="{{ form.module.id_for_label }}"
-                        class="font-black uppercase text-base block tracking-widest text-cyan-300 text-center font-[Orbitron] mb-1">
-                        {{ form.module.label }}
-                        {% if form.module.field.required %}<span class="text-pink-400">*</span>{% endif %}
-                    </label>
-                    <div class="relative flex justify-center w-full">
-                        <div class="w-full" style="max-width: 220px;">
-                            <div class="relative">
-                                <select name="module" id="{{ form.module.id_for_label }}" class="cyberpunk-select w-full px-4 py-2 bg-gradient-to-r from-cyan-900 via-fuchsia-900 to-blue-900 text-cyan-200 border-2 border-cyan-500 rounded-xl shadow-lg font-[Orbitron] text-base focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-300 outline-none appearance-none">
-                                    {% for option in form.module.field.choices %}
-                                        <option value="{{ option.0 }}" {% if option.0 == form.module.value %}selected{% endif %}>{{ option.1 }}</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-fuchsia-400 text-xl">
-                                    <i class="fa-solid fa-chevron-down animate-pulse"></i>
-                                </span>
-                            </div>
-                        </div>
-                        {% if form.module.errors %}
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-exclamation-circle text-pink-400"></i>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% if form.module.errors %}
-                    <div class="mt-1 text-pink-400 text-xs text-center">
-                        {% for error in form.module.errors %}
-                        <div class="flex items-center mt-1 justify-center gap-2">
-                            <i class="fa-solid fa-circle-exclamation text-xs"></i>
-                            {{ error }}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            <!-- Campo Permisos -->
-            <div class="w-full max-w-xl mx-auto flex flex-col gap-2">
-                <label for="{{ form.permissions.id_for_label }}"
-                    class="font-black uppercase text-base block tracking-widest text-cyan-300 text-center font-[Orbitron] mb-1">
-                    {{ form.permissions.label }}
-                    {% if form.permissions.field.required %}<span class="text-pink-400">*</span>{% endif %}
-                </label>
-                <div class="relative flex flex-col items-center">
-                    <div id="permissions-checkboxes-wrapper" class="w-full max-w-md mx-auto bg-slate-900 border-2 border-cyan-400 rounded-xl p-3 flex flex-wrap gap-3 overflow-x-hidden overflow-y-auto shadow-lg" style="max-height: 140px; min-height: 50px;">
-                        {# Renderizamos los checkboxes de permisos con un data-perm-module-id para filtrar con JS #}
-                        {% for perm in form.permissions.field.queryset %}
-                            <div class="perm-checkbox w-full md:w-1/2 flex items-center gap-2 bg-slate-800 rounded-lg px-2 py-1 shadow border border-cyan-700 mb-1" data-perm-module-ids="{{ perm.module_set.all|join:','|default:'' }}" style="display:none">
-                                <label class="flex items-center gap-2 w-full cursor-pointer">
-                                    <input type="checkbox" name="permissions" value="{{ perm.id }}" id="id_permissions_{{ forloop.counter0 }}" class="form-checkbox accent-cyan-500 scale-110">
-                                    <span class="text-cyan-100 font-semibold text-sm">{{ perm.name }}</span>
-                                </label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    {% if form.permissions.errors %}
-                    <div class="mt-1 text-pink-400 text-xs text-center w-full">
-                        {% for error in form.permissions.errors %}
-                        <div class="flex items-center mt-1 justify-center gap-2">
-                            <i class="fa-solid fa-circle-exclamation text-xs"></i>
-                            {{ error }}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            <!-- Botones de acción -->
-            <div class="flex flex-col md:flex-row justify-center items-center gap-4 w-full mt-4">
-                <button type="submit"
-                    class="cyber-btn w-auto max-w-[130px] min-w-[110px] px-4 bg-gradient-to-r from-cyan-600 via-blue-700 to-fuchsia-700 text-white py-2 rounded-xl flex items-center justify-center transition-all duration-300 font-black font-[Orbitron] text-base shadow-xl hover:from-cyan-400 hover:to-fuchsia-500 hover:scale-105 tracking-widest">
-                    <i class="fa-solid fa-save mr-2"></i>{{ grabar|default:'Guardar' }}
-                </button>
-                <a class="cyber-btn w-auto max-w-[130px] min-w-[110px] px-4 bg-gradient-to-r from-pink-600 via-fuchsia-700 to-cyan-700 text-white py-2 rounded-xl flex items-center justify-center transition-all duration-300 font-black font-[Orbitron] text-base shadow-xl hover:from-pink-400 hover:to-cyan-500 hover:scale-105 tracking-widest"
-                    href="{{ back_url|default:'#' }}">
-                    <i class="fa-solid fa-xmark mr-2"></i>Cancelar
-                </a>
-            </div>
-        </form>
+
+        <!-- Botones de navegación -->
+        <div class="flex justify-center mt-12 gap-6 fade-in-up">
+            <a class="cyber-btn py-4 px-8 rounded-2xl text-lg font-bold shadow-2xl flex items-center gap-3"
+                href="{% url 'security:group_module_permission_list' %}">
+                <i class="fas fa-list"></i>Ver Lista Completa
+            </a>
+            <a class="cyber-btn py-4 px-8 rounded-2xl text-lg font-bold shadow-2xl flex items-center gap-3"
+                href="{% url 'home' %}">
+                <i class="fas fa-home"></i>Inicio
+            </a>
+        </div>
     </div>
 </section>
+
+<!-- Script principal -->
 <script>
-// module_permissions viene del contexto, es un dict: {module_id: [{id, name, codename}, ...], ...}
-const permisosPorModulo = JSON.parse('{{ module_permissions|safe|escapejs }}');
-window.addEventListener('DOMContentLoaded', function() {
-    const selectModulo = document.getElementById('id_module');
-    const contenedorPermisos = document.getElementById('permissions-checkboxes-wrapper');
-    function actualizarPermisos() {
-        const moduloSeleccionado = selectModulo.value;
-        // Oculta todos los checkboxes
-        contenedorPermisos.querySelectorAll('.perm-checkbox').forEach(div => div.style.display = 'none');
-        if (moduloSeleccionado && permisosPorModulo[moduloSeleccionado]) {
-            // Muestra solo los checkboxes de los permisos de ese módulo
-            permisosPorModulo[moduloSeleccionado].forEach(permiso => {
-                const checkbox = contenedorPermisos.querySelector('input[value="'+permiso.id+'"]');
-                if (checkbox) {
-                    checkbox.parentElement.parentElement.style.display = '';
-                }
-            });
+// Datos desde el backend
+const groupsData = JSON.parse('{{ groups_data|safe|escapejs }}');
+const modulePermissions = JSON.parse('{{ module_permissions|safe|escapejs }}');
+let assignmentsData = JSON.parse('{{ assignments_data|safe|escapejs }}');
+
+// Crear partículas flotantes
+function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    const particleCount = 30;
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+        particle.style.animationDelay = Math.random() * 10 + 's';
+        
+        // Alternar colores
+        if (Math.random() > 0.5) {
+            particle.style.background = 'var(--cyber-secondary)';
+            particle.style.boxShadow = '0 0 10px var(--cyber-purple-glow)';
+        }
+        
+        particlesContainer.appendChild(particle);
+    }
+}
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    createParticles();
+    initializeGroupAccordions();
+    renderAssignmentsTable();
+    
+    // Mostrar mensaje de bienvenida
+    setTimeout(() => {
+        showMessage('success', 'Sistema de permisos inicializado correctamente');
+    }, 1000);
+});
+
+// Generar acordeones por grupo con estilo premium
+function initializeGroupAccordions() {
+    const container = document.getElementById('groups-container');
+    container.innerHTML = '';
+    
+    groupsData.forEach(group => {
+        const accordionHTML = `
+            <div class="cyber-accordion rounded-2xl overflow-hidden shadow-2xl">
+                <!-- Header del grupo -->
+                <div class="p-6 cursor-pointer bg-gradient-to-r from-cyan-900/40 via-purple-900/40 to-cyan-900/40 hover:from-cyan-800/60 hover:to-purple-800/60 transition-all duration-500" 
+                     onclick="toggleAccordion(${group.id})">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-users text-cyan-400 text-2xl"></i>
+                            <h3 class="text-xl font-bold text-white font-['Orbitron']">${group.name}</h3>
+                            <span class="cyber-badge px-3 py-1 rounded-full text-sm font-semibold">
+                                ${group.available_modules.length} módulos disponibles
+                            </span>
+                        </div>
+                        <i id="accordion-icon-${group.id}" class="fas fa-chevron-down text-cyan-400 text-xl transition-transform duration-500"></i>
+                    </div>
+                </div>
+                
+                <!-- Contenido del grupo -->
+                <div id="accordion-content-${group.id}" class="p-8 space-y-6 hidden" style="max-height: 0; overflow: hidden; transition: max-height 0.5s ease;">
+                    ${group.available_modules.length > 0 ? `
+                        <!-- Select de módulos -->
+                        <div class="space-y-3">
+                            <label class="block text-cyan-300 font-bold font-['Orbitron'] text-sm">
+                                <i class="fas fa-puzzle-piece mr-2"></i>Seleccionar Módulo
+                            </label>
+                            <select id="module-select-${group.id}" 
+                                    class="cyber-select w-full px-4 py-3 rounded-xl font-['Rajdhani'] text-lg focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                                    onchange="loadPermissions(${group.id}, this.value)">
+                                <option value="">-- Seleccionar módulo --</option>
+                                ${group.available_modules.map(module => 
+                                    `<option value="${module.id}">${module.name}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                        
+                        <!-- Container de permisos -->
+                        <div id="permissions-container-${group.id}" class="space-y-3 hidden">
+                            <label class="block text-cyan-300 font-bold font-['Orbitron'] text-sm">
+                                <i class="fas fa-shield-alt mr-2"></i>Permisos del Módulo
+                            </label>
+                            <div id="permissions-checkboxes-${group.id}" class="cyber-container rounded-xl p-6 space-y-3 max-h-64 overflow-y-auto">
+                                <!-- Se llenan dinámicamente -->
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="text-center py-12">
+                            <i class="fas fa-info-circle text-yellow-400 text-4xl mb-4"></i>
+                            <p class="text-yellow-300 font-['Orbitron'] text-lg">No hay módulos disponibles para este grupo</p>
+                            <p class="text-gray-400 text-sm mt-2">Todos los módulos ya han sido asignados</p>
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', accordionHTML);
+    });
+    // Mueve el botón global justo después de los grupos
+    let saveBtnDiv = document.getElementById('global-save-btn-div');
+    if (saveBtnDiv) saveBtnDiv.remove();
+    saveBtnDiv = document.createElement('div');
+    saveBtnDiv.id = 'global-save-btn-div';
+    saveBtnDiv.className = 'flex justify-center mt-12 fade-in-up';
+    saveBtnDiv.innerHTML = `
+        <button id="global-save-btn" class="cyber-btn-save w-full max-w-xl text-2xl" onclick="saveAllAssignments()">
+            <i class="fas fa-save mr-3"></i>Guardar Todas las Asignaciones
+        </button>
+    `;
+    container.parentNode.insertBefore(saveBtnDiv, container.nextSibling);
+}
+
+// Toggle acordeón mejorado
+function toggleAccordion(groupId) {
+    const content = document.getElementById(`accordion-content-${groupId}`);
+    const icon = document.getElementById(`accordion-icon-${groupId}`);
+    
+    content.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+    
+    // Añadir efecto de slide
+    if (!content.classList.contains('hidden')) {
+        content.style.maxHeight = content.scrollHeight + 'px';
+    } else {
+        content.style.maxHeight = '0px';
+    }
+}
+
+// Validar que la asignación esté completa (debe estar definida antes de usarse)
+function validateAssignment(groupId) {
+    const moduleSelect = document.getElementById(`module-select-${groupId}`);
+    const checkboxes = document.querySelectorAll(`#permissions-checkboxes-${groupId} input[type="checkbox"]:checked`);
+    const saveBtn = document.getElementById(`save-btn-${groupId}`);
+    const isValid = moduleSelect.value && checkboxes.length > 0;
+    if (saveBtn) saveBtn.disabled = !isValid;
+}
+
+// Cargar permisos cuando se selecciona un módulo
+function loadPermissions(groupId, moduleId) {
+    const container = document.getElementById(`permissions-container-${groupId}`);
+    const checkboxContainer = document.getElementById(`permissions-checkboxes-${groupId}`);
+    if (!moduleId) {
+        container.classList.add('hidden');
+        container.style.display = 'none';
+        checkboxContainer.innerHTML = '';
+        return;
+    }
+    const permissions = modulePermissions[moduleId] || [];
+    if (permissions.length === 0) {
+        checkboxContainer.innerHTML = '<div class="text-cyan-400 italic py-4">Este módulo no tiene permisos configurados.</div>';
+    } else {
+        checkboxContainer.innerHTML = `
+            <div class="permissions-scroll single-row">
+                ${permissions.map(perm => `
+                    <label class="permission-item" tabindex="0">
+                        <input type="checkbox" 
+                            class="cyber-checkbox" 
+                            value="${perm.id}" 
+                            checked
+                            onchange="validateAssignment(${groupId})">
+                        <span class="permission-text">${perm.name}</span>
+                        <div class="permission-glow"></div>
+                    </label>
+                `).join('')}
+            </div>
+        `;
+    }
+    // Quitar clase hidden y display: none de todos los padres
+    let parent = container;
+    while (parent) {
+        parent.classList && parent.classList.remove('hidden');
+        parent.style && (parent.style.display = 'block');
+        parent = parent.parentElement;
+    }
+    // Forzar acordeón abierto
+    const accordionContent = document.getElementById(`accordion-content-${groupId}`);
+    if (accordionContent) {
+        accordionContent.classList.remove('hidden');
+        accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px';
+    }
+    // Mensaje de depuración
+    if (checkboxContainer.innerHTML.trim() === '') {
+        console.warn('El HTML de permisos está vacío, revisa los datos de modulePermissions.');
+    }
+}
+
+// Obtener CSRF token para AJAX seguro
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
         }
     }
-    if (selectModulo) {
-        selectModulo.addEventListener('change', actualizarPermisos);
-        actualizarPermisos(); // Inicializa al cargar
+    return cookieValue;
+}
+
+// Guardar asignación (con CSRF seguro)
+function saveAssignment(groupId) {
+    const moduleSelect = document.getElementById(`module-select-${groupId}`);
+    const checkboxes = document.querySelectorAll(`#permissions-checkboxes-${groupId} input[type="checkbox"]:checked`);
+    const moduleId = moduleSelect.value;
+    const permissionIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    if (!moduleId || permissionIds.length === 0) {
+        showMessage('error', 'Por favor selecciona un módulo y al menos un permiso.');
+        return;
     }
-});
+    const saveBtn = document.getElementById(`save-btn-${groupId}`);
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<div class="cyber-loader inline-block mr-3"></div>Guardando...';
+    saveBtn.disabled = true;
+    fetch('{% url "security:group_module_permission_ajax" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            group_id: groupId,
+            module_id: moduleId,
+            permission_ids: permissionIds
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('success', data.message);
+            assignmentsData.push(data.assignment);
+            renderAssignmentsTable();
+            updateGroupsData(groupId, moduleId);
+            initializeGroupAccordions();
+        } else {
+            showMessage('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('error', 'Error de conexión. Inténtalo de nuevo.');
+    })
+    .finally(() => {
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    });
+}
+
+// Reemplaza el renderizado de los grupos para NO incluir el botón de guardar individual
+function initializeGroupAccordions() {
+    const container = document.getElementById('groups-container');
+    container.innerHTML = '';
+    
+    groupsData.forEach(group => {
+        const accordionHTML = `
+            <div class="cyber-accordion rounded-2xl overflow-hidden shadow-2xl">
+                <!-- Header del grupo -->
+                <div class="p-6 cursor-pointer bg-gradient-to-r from-cyan-900/40 via-purple-900/40 to-cyan-900/40 hover:from-cyan-800/60 hover:to-purple-800/60 transition-all duration-500" 
+                     onclick="toggleAccordion(${group.id})">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-users text-cyan-400 text-2xl"></i>
+                            <h3 class="text-xl font-bold text-white font-['Orbitron']">${group.name}</h3>
+                            <span class="cyber-badge px-3 py-1 rounded-full text-sm font-semibold">
+                                ${group.available_modules.length} módulos disponibles
+                            </span>
+                        </div>
+                        <i id="accordion-icon-${group.id}" class="fas fa-chevron-down text-cyan-400 text-xl transition-transform duration-500"></i>
+                    </div>
+                </div>
+                
+                <!-- Contenido del grupo -->
+                <div id="accordion-content-${group.id}" class="p-8 space-y-6 hidden" style="max-height: 0; overflow: hidden; transition: max-height 0.5s ease;">
+                    ${group.available_modules.length > 0 ? `
+                        <!-- Select de módulos -->
+                        <div class="space-y-3">
+                            <label class="block text-cyan-300 font-bold font-['Orbitron'] text-sm">
+                                <i class="fas fa-puzzle-piece mr-2"></i>Seleccionar Módulo
+                            </label>
+                            <select id="module-select-${group.id}" 
+                                    class="cyber-select w-full px-4 py-3 rounded-xl font-['Rajdhani'] text-lg focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                                    onchange="loadPermissions(${group.id}, this.value)">
+                                <option value="">-- Seleccionar módulo --</option>
+                                ${group.available_modules.map(module => 
+                                    `<option value="${module.id}">${module.name}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                        
+                        <!-- Container de permisos -->
+                        <div id="permissions-container-${group.id}" class="space-y-3 hidden">
+                            <label class="block text-cyan-300 font-bold font-['Orbitron'] text-sm">
+                                <i class="fas fa-shield-alt mr-2"></i>Permisos del Módulo
+                            </label>
+                            <div id="permissions-checkboxes-${group.id}" class="cyber-container rounded-xl p-6 space-y-3 max-h-64 overflow-y-auto">
+                                <!-- Se llenan dinámicamente -->
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="text-center py-12">
+                            <i class="fas fa-info-circle text-yellow-400 text-4xl mb-4"></i>
+                            <p class="text-yellow-300 font-['Orbitron'] text-lg">No hay módulos disponibles para este grupo</p>
+                            <p class="text-gray-400 text-sm mt-2">Todos los módulos ya han sido asignados</p>
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', accordionHTML);
+    });
+    // Mueve el botón global justo después de los grupos
+    let saveBtnDiv = document.getElementById('global-save-btn-div');
+    if (saveBtnDiv) saveBtnDiv.remove();
+    saveBtnDiv = document.createElement('div');
+    saveBtnDiv.id = 'global-save-btn-div';
+    saveBtnDiv.className = 'flex justify-center mt-12 fade-in-up';
+    saveBtnDiv.innerHTML = `
+        <button id="global-save-btn" class="cyber-btn-save w-full max-w-xl text-2xl" onclick="saveAllAssignments()">
+            <i class="fas fa-save mr-3"></i>Guardar Todas las Asignaciones
+        </button>
+    `;
+    container.parentNode.insertBefore(saveBtnDiv, container.nextSibling);
+}
+
+// Nueva función para guardar todas las asignaciones seleccionadas
+function saveAllAssignments() {
+    // Recolectar todas las selecciones de todos los grupos
+    const assignments = [];
+    groupsData.forEach(group => {
+        const moduleSelect = document.getElementById(`module-select-${group.id}`);
+        if (moduleSelect && moduleSelect.value) {
+            const moduleId = moduleSelect.value;
+            const checkboxes = document.querySelectorAll(`#permissions-checkboxes-${group.id} input[type='checkbox']:checked`);
+            const permissionIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            if (permissionIds.length > 0) {
+                assignments.push({
+                    group_id: group.id,
+                    module_id: moduleId,
+                    permission_ids: permissionIds
+                });
+            }
+        }
+    });
+    console.log('Asignaciones a guardar:', assignments); // Debug
+    if (assignments.length === 0) {
+        showMessage('error', 'Selecciona al menos un grupo con módulo y permisos.');
+        return;
+    }
+    const saveBtn = document.getElementById('global-save-btn');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<div class="cyber-loader inline-block mr-3"></div>Guardando...';
+    saveBtn.disabled = true;
+
+    // Enviar cada asignación por separado
+    let successCount = 0;
+    let errorCount = 0;
+    let lastMessage = '';
+    let lastAssignments = [];
+    const promises = assignments.map(assignment => {
+        return fetch('{% url "security:group_module_permission_ajax" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify(assignment)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Respuesta backend:', data);
+            if (data.success) {
+                successCount++;
+                lastMessage = data.message;
+                if (data.assignment) lastAssignments.push(data.assignment);
+            } else {
+                errorCount++;
+                lastMessage = data.message;
+            }
+        })
+        .catch(error => {
+            errorCount++;
+            lastMessage = 'Error de conexión.';
+            console.error('Error:', error);
+        });
+    });
+    Promise.all(promises).then(() => {
+        if (successCount > 0) {
+            // Agregar las nuevas asignaciones a la tabla sin recargar
+            assignmentsData = assignmentsData.concat(lastAssignments);
+            renderAssignmentsTable();
+            showMessage('success', lastMessage || 'Asignaciones guardadas correctamente.');
+        } else {
+            showMessage('error', lastMessage || 'No se pudo guardar ninguna asignación.');
+        }
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    });
+}
+
+// Actualizar datos de grupos después de guardar
+function updateGroupsData(groupId, moduleId) {
+    const group = groupsData.find(g => g.id === groupId);
+    if (group) {
+        group.available_modules = group.available_modules.filter(m => m.id != moduleId);
+    }
+}
+
+// Renderizar tabla de asignaciones con estilo premium
+function renderAssignmentsTable() {
+    const tbody = document.getElementById('assignments-table-body');
+    if (assignmentsData.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="py-12 text-cyan-400/60 italic">
+                    <i class="fas fa-info-circle mr-2 text-2xl"></i>
+                    <br>No hay asignaciones recientes en esta sesión
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    tbody.innerHTML = assignmentsData.map(assignment => `
+        <tr class="table-row transition-all duration-300 hover:bg-cyan-900/20">
+            <td class="px-6 py-4 font-bold text-cyan-100">${assignment.group_name}</td>
+            <td class="px-6 py-4">
+                <i class="${assignment.module_icon} text-lg text-cyan-400 mr-2"></i>
+                ${assignment.module_name}
+            </td>
+            <td class="px-6 py-4">
+                <div class="flex flex-wrap gap-2 justify-center">
+                    ${assignment.permissions.map(perm => 
+                        `<span class="cyber-badge px-3 py-1 rounded-full text-xs">${perm.name}</span>`
+                    ).join('')}
+                </div>
+            </td>
+            <td class="px-6 py-4 flex gap-2 justify-center">
+                <button onclick="openEditAssignment(${assignment.id})" class="edit-btn">
+                    <i class="fas fa-edit text-sm"></i>
+                </button>
+                {% if permissions.delete_groupmodulepermission %}
+                <button onclick="deleteAssignment(${assignment.id})" class="delete-btn">
+                    <i class="fas fa-trash text-sm"></i>
+                </button>
+                {% endif %}
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Modal de edición de asignación
+function openEditAssignment(assignmentId) {
+    const assignment = assignmentsData.find(a => a.id === assignmentId);
+    if (!assignment) return;
+    // Crear modal si no existe
+    let modal = document.getElementById('edit-assignment-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'edit-assignment-modal';
+        modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/60';
+        modal.innerHTML = `
+            <div class="bg-[#18182f] rounded-2xl p-8 shadow-2xl w-full max-w-lg relative">
+                <button class="absolute top-3 right-3 text-cyan-400 hover:text-fuchsia-400 text-2xl" onclick="closeEditAssignmentModal()"><i class="fas fa-times"></i></button>
+                <h2 class="text-2xl font-bold text-cyan-300 mb-6 text-center font-['Orbitron']"><i class="fas fa-edit mr-2"></i>Editar Asignación</h2>
+                <form id="edit-assignment-form" class="space-y-6">
+                    <div>
+                        <label class="block text-cyan-300 font-bold text-sm mb-1">Grupo</label>
+                        <input type="text" id="edit-group-name" class="w-full px-4 py-2 rounded-lg bg-cyan-950/40 text-cyan-200" disabled>
+                    </div>
+                    <div>
+                        <label class="block text-cyan-300 font-bold text-sm mb-1">Módulo</label>
+                        <input type="text" id="edit-module-name" class="w-full px-4 py-2 rounded-lg bg-cyan-950/40 text-cyan-200" disabled>
+                    </div>
+                    <div>
+                        <label class="block text-cyan-300 font-bold text-sm mb-1">Permisos</label>
+                        <div id="edit-permissions-checkboxes" class="permissions-scroll single-row"></div>
+                    </div>
+                    <div class="flex justify-end gap-4 mt-6">
+                        <button type="button" class="cyber-btn px-6 py-2 rounded-lg" onclick="closeEditAssignmentModal()">Cancelar</button>
+                        <button type="submit" class="cyber-btn-save px-6 py-2 rounded-lg"><i class="fas fa-save mr-2"></i>Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } else {
+        modal.style.display = 'flex';
+    }
+    // Llenar datos
+    document.getElementById('edit-group-name').value = assignment.group_name;
+    document.getElementById('edit-module-name').value = assignment.module_name;
+    // Cargar permisos del módulo
+    const allPerms = modulePermissions[assignment.module_id] || [];
+    const container = document.getElementById('edit-permissions-checkboxes');
+    container.innerHTML = allPerms.map(perm => `
+        <label class="permission-item" tabindex="0">
+            <input type="checkbox" class="cyber-checkbox" value="${perm.id}" ${assignment.permissions.some(p => p.id === perm.id) ? 'checked' : ''}>
+            <span class="permission-text">${perm.name}</span>
+            <div class="permission-glow"></div>
+        </label>
+    `).join('');
+    // Submit handler
+    const form = document.getElementById('edit-assignment-form');
+    form.onsubmit = function(e) {
+        e.preventDefault();
+        const checked = container.querySelectorAll('input[type="checkbox"]:checked');
+        const permissionIds = Array.from(checked).map(cb => parseInt(cb.value));
+        if (permissionIds.length === 0) {
+            showMessage('error', 'Selecciona al menos un permiso.');
+            return;
+        }
+        // Guardar cambios vía AJAX
+        fetch(`{% url "security:group_module_permission_ajax" %}${assignmentId}/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ permission_ids: permissionIds })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.assignment) {
+                // Actualizar en assignmentsData
+                const idx = assignmentsData.findIndex(a => a.id === assignmentId);
+                if (idx !== -1) assignmentsData[idx] = data.assignment;
+                renderAssignmentsTable();
+                showMessage('success', data.message || 'Asignación actualizada.');
+                closeEditAssignmentModal();
+            } else {
+                showMessage('error', data.message || 'No se pudo actualizar.');
+            }
+        })
+        .catch(() => showMessage('error', 'Error de conexión.'));
+    };
+    modal.style.display = 'flex';
+}
+function closeEditAssignmentModal() {
+    const modal = document.getElementById('edit-assignment-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Eliminar asignación
+function deleteAssignment(assignmentId) {
+    if (!confirm('¿Está seguro de eliminar esta asignación?')) return;
+    
+    fetch(`{% url "security:group_module_permission_ajax" %}${assignmentId}/`, {
+        method: 'DELETE',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('success', data.message);
+            
+            // Remover de la tabla
+            assignmentsData = assignmentsData.filter(a => a.id !== assignmentId);
+            renderAssignmentsTable();
+            
+            // Recargar acordeones para mostrar módulos disponibles nuevamente
+            location.reload(); // Recarga para actualizar datos del backend
+            
+        } else {
+            showMessage('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('error', 'Error al eliminar la asignación.');
+    });
+}
+
+// Mostrar mensaje con estilo cyberpunk
+function showMessage(type, message) {
+    const container = document.getElementById('messages-container');
+    const messageClass = type === 'success' ? 'cyber-message' : 'cyber-message error';
+    const iconClass = type === 'success' ? 'fas fa-check-circle text-cyan-400' : 'fas fa-exclamation-triangle text-red-400';
+    
+    const messageHTML = `
+        <div class="${messageClass} p-6 rounded-xl mb-4 max-w-2xl mx-auto">
+            <div class="flex items-center gap-4">
+                <div class="flex-shrink-0">
+                    <i class="${iconClass} text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-white font-['Rajdhani'] text-lg font-semibold">${message}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = messageHTML;
+    
+    // Auto-hide después de 5 segundos
+    setTimeout(() => {
+        container.innerHTML = '';
+    }, 5000);
+}
+
 </script>
+
 <style>
-.cyberpunk-select {
-    box-shadow: 0 0 0 2px #0ff, 0 0 12px 2px #f0f, 0 0 24px 4px #0ff2;
-    background: linear-gradient(90deg, #0ff2 0%, #f0f2 100%);
-    border: 2px solid #0ff;
-    color: #fff;
+/* =====================
+   CYBERPUNK FORM STYLES
+   ===================== */
+/* Variables CSS para el tema cyberpunk */
+:root {
+    --cyber-primary: #00ffff;
+    --cyber-secondary: #ff00ff;
+    --cyber-accent: #ffff00;
+    --cyber-dark: #0a0a0f;
+    --cyber-darker: #050507;
+    --cyber-grid: #1a1a2e;
+    --cyber-glow: rgba(0, 255, 255, 0.5);
+    --cyber-purple-glow: rgba(255, 0, 255, 0.5);
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridMove 20s linear infinite;
+}
+@keyframes gridMove {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 50px 50px, 50px 50px; }
+}
+
+.particles {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+.particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--cyber-primary);
+    border-radius: 50%;
+    animation: float 10s linear infinite;
+    box-shadow: 0 0 10px var(--cyber-glow);
+}
+@keyframes float {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10%,90% { opacity: 1; }
+    100% { transform: translateY(-10vh) translateX(50px); opacity: 0; }
+}
+
+.cyber-title {
     font-family: 'Orbitron', monospace;
-    letter-spacing: 1.5px;
-    transition: box-shadow 0.3s, border 0.3s, background 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary);
+    animation: titleGlow 2s ease-in-out infinite alternate;
 }
-.cyberpunk-select:focus {
-    border-color: #f0f;
-    box-shadow: 0 0 0 3px #f0f, 0 0 16px 4px #0ff2;
-    background: linear-gradient(90deg, #0ff 0%, #f0f 100%);
-    color: #fff;
+@keyframes titleGlow {
+    from { text-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary); }
+    to { text-shadow: 0 0 15px var(--cyber-secondary), 0 0 25px var(--cyber-secondary), 0 0 40px var(--cyber-secondary); }
 }
-.cyberpunk-select option {
+
+/* ========== ACCORDION ========== */
+.cyber-accordion {
+    background: linear-gradient(135deg, rgba(0,255,255,0.05), rgba(255,0,255,0.03) 50%, rgba(0,255,255,0.05));
+    border: 1.5px solid rgba(0,255,255,0.18);
+    border-radius: 1.25rem;
+    box-shadow: 0 0 24px rgba(0,255,255,0.10);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    position: relative;
+}
+.cyber-accordion .accordion-header {
+    padding: 1.5rem 2rem;
+    background: linear-gradient(90deg, rgba(0,255,255,0.08), rgba(255,0,255,0.05));
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.cyber-accordion .accordion-header:hover {
+    background: linear-gradient(90deg, rgba(0,255,255,0.15), rgba(255,0,255,0.10));
+}
+.accordion-content {
+    transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
+    background: transparent;
+}
+.accordion-inner {
+    padding: 2rem 2.5rem 2.5rem 2.5rem;
+    background: linear-gradient(135deg, rgba(0,255,255,0.07), rgba(255,0,255,0.04));
+    border-radius: 1.25rem;
+    box-shadow: 0 0 24px rgba(0,255,255,0.10);
+}
+@media (max-width: 1024px) {
+    .accordion-inner { padding: 1.25rem 0.75rem 1.5rem 0.75rem; }
+}
+@media (max-width: 768px) {
+    .accordion-inner { padding: 0.75rem 0.25rem 1rem 0.25rem; }
+}
+
+/* ========== FORMULARIO MEJORADO ========== */
+.form-group { 
+    margin-bottom: 2rem; /* Más espacio entre elementos */
+}
+
+.form-label {
+    display: block;
+    color: #67e8f9;
+    font-weight: bold;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cyber-select {
+    background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,255,255,0.05));
+    border: 2px solid rgba(0,255,255,0.3);
+    color: white;
+    transition: all 0.3s;
+}
+.cyber-select:focus {
+    border-color: var(--cyber-primary);
+    box-shadow: 0 0 20px rgba(0,255,255,0.3);
+    outline: none;
+}
+.cyber-select option {
+    background: #1a1a2e;
+    color: white;
+}
+
+/* ========== PERMISOS CONTAINER MEJORADO ========== */
+.permissions-wrapper {
+    background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,255,255,0.05));
+    border: 1.5px solid rgba(0,255,255,0.18);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 10px rgba(0,255,255,0.08);
+    position: relative;
+}
+
+.permissions-scroll {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.7rem 1.2rem;
+    max-height: none; /* Permite crecer según el contenido */
+    overflow-y: visible; /* Sin scroll por defecto */
+    padding: 0.5rem 0.25rem 0.5rem 0.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--cyber-primary) transparent;
+    align-items: flex-start;
+    margin-bottom: 1.2rem;
+}
+/* Si hay más de 6 permisos, aplica scroll solo a la lista */
+.permissions-scroll.too-many {
+    max-height: 320px;
+    overflow-y: auto;
+}
+@media (max-width: 900px) {
+    .permissions-scroll, .permissions-scroll.too-many {
+        grid-template-columns: 1fr;
+        max-height: none;
+        overflow-y: visible;
+        gap: 0.5rem 0.5rem;
+    }
+}
+@media (max-width: 600px) {
+    .permissions-scroll, .permissions-scroll.too-many {
+        grid-template-columns: 1fr;
+        max-height: none;
+        overflow-y: visible;
+        gap: 0.2rem 0.2rem;
+    }
+}
+
+.permission-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.9rem;
+    background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,255,255,0.02));
+    border: 1px solid rgba(0,255,255,0.1);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+.permission-item:hover {
+    background: linear-gradient(135deg, rgba(0,255,255,0.1), rgba(255,0,255,0.05));
+    border-color: rgba(0,255,255,0.3);
+    transform: translateY(-2px) scale(1.03);
+    z-index: 2;
+}
+.permission-item:hover .permission-glow { opacity: 1; }
+.permission-glow {
+    position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0,255,255,0.2), transparent);
+    transition: all 0.5s; opacity: 0;
+}
+
+.cyber-checkbox {
+    width: 1.4rem; height: 1.4rem;
+    background: transparent;
+    border: 2px solid var(--cyber-primary);
+    border-radius: 0.25rem;
+    position: relative;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(0,255,255,0.08);
+    outline: none;
+}
+.cyber-checkbox:checked {
+    background: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
+    border-color: var(--cyber-secondary);
+    box-shadow: 0 0 10px var(--cyber-glow), 0 0 0 2px var(--cyber-secondary);
+}
+.cyber-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #18181b;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-shadow: 0 0 6px var(--cyber-accent);
+}
+.cyber-checkbox:focus {
+    outline: 2px solid var(--cyber-accent);
+    outline-offset: 2px;
+}
+
+.permission-text {
+    color: #e2e8f0;
+    font-weight: 600;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    flex: 1;
+    line-height: 1.4;
+    user-select: none;
+}
+
+.form-actions {
+    margin-top: 1.2rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(0,255,255,0.1);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.cyber-btn-save {
+    background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(255,0,255,0.1) 50%, rgba(0,255,255,0.2));
+    border: 2px solid var(--cyber-primary);
+    color: white;
+    font-family: 'Orbitron', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    font-size: 1.15rem;
+    font-weight: bold;
+    border-radius: 1rem;
+    padding: 1.3rem 0; /* Más padding para mayor visibilidad */
+    margin-top: 0.7rem;
+    margin-bottom: 0.7rem;
+    box-shadow: 0 0 24px rgba(0,255,255,0.25), 0 0 0 rgba(255,0,255,0.1);
+    z-index: 10;
+}
+
+@media (max-width: 1024px) {
+    .permissions-scroll {
+        max-height: 120px;
+        gap: 0.2rem 0.4rem;
+    }
+    .permission-item {
+        min-width: 100px;
+        max-width: 150px;
+        font-size: 0.95rem;
+        padding: 0.5rem 0.5rem;
+    }
+    .cyber-btn-save {
+        font-size: 1rem;
+        padding: 1rem 0;
+    }
+}
+@media (max-width: 768px) {
+    .permissions-scroll {
+        max-height: 70px;
+        gap: 0.15rem 0.2rem;
+    }
+    .permission-item {
+        min-width: 80px;
+        max-width: 120px;
+        font-size: 0.85rem;
+        padding: 0.4rem 0.3rem;
+    }
+    .cyber-btn-save {
+        font-size: 0.95rem;
+        padding: 0.8rem 0;
+    }
+}
+@media (max-width: 480px) {
+    .permissions-scroll {
+        max-height: 40px;
+        gap: 0.1rem 0.1rem;
+    }
+    .permission-item {
+        min-width: 60px;
+        max-width: 90px;
+        font-size: 0.75rem;
+        padding: 0.2rem 0.2rem;
+    }
+    .cyber-btn-save {
+        font-size: 0.85rem;
+        padding: 0.6rem 0;
+    }
+}
+
+.permissions-scroll.single-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.7rem 1.2rem;
+    max-height: none !important;
+    overflow-y: visible !important;
+    padding: 0.5rem 0.25rem 0.5rem 0.25rem;
+    align-items: center;
+    margin-bottom: 1.2rem;
+}
+
+/* ========== MODAL ========== */
+#edit-assignment-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+#edit-assignment-modal .modal-content {
     background: #18182f;
-    color: #fff;
-    font-family: 'Orbitron', monospace;
-    letter-spacing: 1.5px;
+    border-radius: 1rem;
+    padding: 2rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    position: relative;
 }
+#edit-assignment-modal h3 {
+    color: #00ffff;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+#edit-assignment-modal h3 i {
+    margin-right: 0.5rem;
+}
+#edit-assignment-modal label {
+    color: #67e8f9;
+    font-weight: bold;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+#edit-assignment-modal .permission-item {
+    padding: 0.8rem 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s;
+}
+#edit-assignment-modal .permission-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 255, 255, 0.2);
+}
+#edit-assignment-modal .cyber-checkbox {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+#edit-assignment-modal .modal-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+#edit-assignment-modal .modal-actions button {
+    flex: 1;
+    padding: 0.8rem 0;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+}
+#edit-assignment-modal .modal-actions .cyber-btn-save {
+    background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(255,0,255,0.1) 50%, rgba(0,255,255,0.2));
+    border: 2px solid var(--cyber-primary);
+    color: white;
+    font-family: 'Orbitron', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+#edit-assignment-modal .modal-actions .cyber-btn-save:hover {
+    background: linear-gradient(135deg, rgba(0,255,255,0.3), rgba(255,0,255,0.2) 50%, rgba(0,255,255,0.3));
+}
+
+/* ========== MISC ========== */
+#messages-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    max-width: 300px;
+    width: 100%;
+    z-index: 1000;
+}
+.cyber-message {
+    background: rgba(0, 255, 255, 0.1);
+    border-left: 4px solid var(--cyber-primary);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    animation: slideIn 0.5s ease-out forwards;
+}
+.cyber-message.error {
+    border-left-color: var(--red);
+    background: rgba(255, 0, 0, 0.1);
+}
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 </style>
+
 {% endblock %}

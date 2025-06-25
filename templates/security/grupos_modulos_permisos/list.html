@@ -1,8 +1,7 @@
-{% extends 'home.html' %}
+{% extends 'base.html' %}
 <title>{% block title %}{{ title }}{% endblock %}</title>
 {% block content %}
     {% load static %}
-    {% include 'fragments/messages.html' %}
     <section class="dark:bg-principal mt-2">
         <div class="text-center" data-aos="fade-up" data-aos-delay="200">
             <div class="sm:pt-8 lg:pt-4">
@@ -117,10 +116,6 @@
                     <a class="bg-gradient-to-r from-cyan-700 via-fuchsia-700 to-blue-700 hover:from-cyan-400 hover:to-fuchsia-500 text-white py-3 px-6 rounded-2xl flex items-center justify-center transition-all duration-300 gap-3 shadow-xl border-2 border-cyan-400/60 hover:border-fuchsia-400 text-lg font-[Orbitron]"
                         href="{% url 'security:group_module_permission_create' %}">
                         <i class="fa-solid fa-plus"></i> Nuevo Grupo-Módulo-Permiso
-                    </a>
-                    <a class="bg-gradient-to-r from-cyan-700 via-fuchsia-700 to-blue-700 hover:from-cyan-400 hover:to-fuchsia-500 text-white py-3 px-6 rounded-2xl flex items-center justify-center transition-all duration-300 gap-3 shadow-xl border-2 border-cyan-400/60 hover:border-fuchsia-400 text-lg font-[Orbitron]"
-                        href="{% url 'security:group_module_permission_create_interactive' %}">
-                        <i class="fa-solid fa-plus"></i> Nuevo Grupo-Módulo-Permiso-Interactivo
                     </a>
                     {% endif %}
                     <a class="bg-gradient-to-r from-cyan-700 via-fuchsia-700 to-blue-700 hover:from-cyan-400 hover:to-fuchsia-500 text-white py-3 px-6 rounded-2xl flex items-center justify-center transition-all duration-300 gap-3 shadow-xl border-2 border-cyan-400/60 hover:border-fuchsia-400 text-lg font-[Orbitron]"

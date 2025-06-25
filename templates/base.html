@@ -9,12 +9,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <title>{% block title %}SaludTotal - Sistema Médico Avanzado{% endblock %}</title>
 {% tailwind_css %}
-<link rel="stylesheet" href="/static/dashboard/loader.css">
 <link rel="stylesheet" href="/static/dashboard/base.css">
 {% block extra_head %}{% endblock %}
 </head>
 <body>
-{% include 'fragments/loader.html' %}
+<!-- {% block loader %}{% endblock %} -->
 {% block navBar %}
 <header class="glass-header border-b border-cyan-400/20 shadow-lg">
     <div class="max-w-7xl mx-auto px-6 py-4">
@@ -161,8 +160,11 @@
 <div class="content-wrapper">
 {% block content %}{% endblock content %}
 </div>
+
+<!-- Messages System - Available for all pages -->
+{% include 'fragments/messages.html' %}
+
 {% block js %}
-<script src="{% static 'dashboard/loader.js' %}"></script>
 <script src="{% static 'dashboard/base.js' %}"></script>
 {% endblock %}
 </body> 

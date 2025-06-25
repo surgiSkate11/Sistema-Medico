@@ -9,9 +9,11 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, T
 from django.db.models import Q
 from django.contrib.auth.models import Group, Permission
 from applications.security.models import Module
-import json
-from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views import View
+import json
 
 
 class GroupModulePermissionListView(PermissionMixin, ListViewMixin, ListView):
@@ -45,13 +47,35 @@ class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateVi
         context = super().get_context_data(**kwargs)
         context['grabar'] = 'Grabar Grupo Módulo Permiso'
         context['back_url'] = self.success_url
-        # Relación grupo → módulos (TODOS los módulos, no solo los del grupo)
+        
+        # Limpiar asignaciones anteriores de la sesión al acceder al formulario
+        if 'recent_assignments' in self.request.session:
+            del self.request.session['recent_assignments']
+            self.request.session.modified = True
+        
+        # Obtener todos los datos necesarios para la página dinámica
+        all_groups = Group.objects.all()
         all_modules = Module.objects.all()
-        group_modules = {}
-        for group in Group.objects.all():
-            group_modules[group.id] = [
-                {"id": m.id, "name": m.name} for m in all_modules
+        existing_assignments = GroupModulePermission.objects.select_related('group', 'module').prefetch_related('permissions').all()
+        
+        # Datos para los acordeones dinámicos
+        groups_data = []
+        for group in all_groups:
+            # Obtener módulos ya asignados a este grupo
+            assigned_modules = set(existing_assignments.filter(group=group).values_list('module_id', flat=True))
+            
+            # Módulos disponibles (no asignados)
+            available_modules = [
+                {"id": m.id, "name": m.name, "icon": m.icon} 
+                for m in all_modules if m.id not in assigned_modules
             ]
+            
+            groups_data.append({
+                "id": group.id,
+                "name": group.name,
+                "available_modules": available_modules
+            })
+        
         # Relación módulo → permisos
         module_permissions = {}
         for module in all_modules:
@@ -59,18 +83,27 @@ class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateVi
             module_permissions[module.id] = [
                 {"id": p.id, "name": p.name, "codename": p.codename} for p in perms
             ]
-        # Agregar nombres de grupo
-        group_names = {str(g.id): g.name for g in Group.objects.all()}
-        context["group_modules"] = json.dumps(group_modules)
-        context["module_permissions"] = json.dumps(module_permissions)
-        context["group_names"] = json.dumps(group_names)
-        # Permisos seleccionados para el template (para mantener checkboxes marcados tras error de validación)
-        if self.request.method == "POST":
-            context["selected_permissions"] = self.request.POST.getlist("permissions")
-        else:
-            context["selected_permissions"] = []
+          # Asignaciones recientes de la sesión (solo las que el usuario ha creado en esta sesión)
+        session_assignments = self.request.session.get('recent_assignments', [])
+        assignments_data = session_assignments
+        
+        context.update({
+            "groups_data": json.dumps(groups_data),
+            "module_permissions": json.dumps(module_permissions),
+            "assignments_data": json.dumps(assignments_data),
+            "all_groups": all_groups,
+            "all_modules": all_modules
+        })
+        
         return context
-      
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        grupo_modulo_permiso = self.object
+        messages.success(self.request, f"Éxito al crear el grupo módulo permiso {grupo_modulo_permiso.id}.")
+        return response
+
+
 
 class GroupModulePermissionUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
     model = GroupModulePermission
@@ -134,53 +167,123 @@ class GroupModulePermissionDeleteView(PermissionMixin, DeleteViewMixin, DeleteVi
         # Guardar info antes de eliminar
         group_module_permission = self.object
         response = super().form_valid(form)
-        messages.success(self.request, f"Éxito al eliminar lógicamente el grupo módulo permiso {group_module_permission.id}.")
+        messages.success(self.request, f"Éxito al eliminar el grupo módulo permiso {group_module_permission.id}.")
 
         return response
 
 
-class GroupModulePermissionCreateInteractiveView(TemplateView):
-    template_name = 'security/grupos_modulos_permisos/form_interactivo.html'
+@method_decorator(csrf_exempt, name='dispatch')
+class GroupModulePermissionAjaxView(PermissionMixin, View):
+    permission_required = 'add_groupmodulepermission'
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            group_id = data.get('group_id')
+            module_id = data.get('module_id')
+            permission_ids = data.get('permission_ids', [])
+            
+            # Validar que los datos estén completos
+            if not group_id or not module_id or not permission_ids:
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Datos incompletos: grupo, módulo y al menos un permiso son requeridos.'
+                })
+            
+            # Obtener objetos
+            try:
+                group = Group.objects.get(id=group_id)
+                module = Module.objects.get(id=module_id)
+                permissions = Permission.objects.filter(id__in=permission_ids)
+            except (Group.DoesNotExist, Module.DoesNotExist):
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Grupo o módulo no encontrado.'
+                })
+            
+            # Verificar si ya existe una asignación para este grupo y módulo
+            existing = GroupModulePermission.objects.filter(group=group, module=module).first()
+            if existing:
+                return JsonResponse({
+                    'success': False, 
+                    'message': f'Ya existe una asignación para el grupo "{group.name}" y módulo "{module.name}".'
+                })
+              # Crear nueva asignación
+            assignment = GroupModulePermission.objects.create(
+                group=group,
+                module=module
+            )
+            assignment.permissions.set(permissions)
+            
+            # Datos de respuesta
+            assignment_data = {
+                'id': assignment.id,
+                'group_id': group.id,
+                'group_name': group.name,
+                'module_id': module.id,
+                'module_name': module.name,
+                'module_icon': module.icon,
+                'permissions': [{'id': p.id, 'name': p.name} for p in permissions]
+            }
+            
+            # Guardar en la sesión para mostrar en la tabla de asignaciones recientes
+            if 'recent_assignments' not in request.session:
+                request.session['recent_assignments'] = []
+            
+            request.session['recent_assignments'].append(assignment_data)
+            request.session.modified = True
+            
+            response_data = {
+                'success': True,
+                'message': f'Asignación creada exitosamente para {group.name} - {module.name}.',
+                'assignment': assignment_data
+            }
+            
+            return JsonResponse(response_data)
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False, 
+                'message': 'Error en el formato de datos enviados.'
+            })
+        except Exception as e:            return JsonResponse({
+                'success': False, 
+                'message': f'Error interno: {str(e)}'
+            })
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['grabar'] = 'Grabar Grupo Módulo Permiso (Interactivo)'
-        context['back_url'] = reverse_lazy('security:group_module_permission_list')
-        context['grupos_json'] = json.dumps([
-            {'id': g.id, 'nombre': g.name} for g in Group.objects.all()
-        ])
-        context['modulos_por_grupo_json'] = json.dumps({
-            str(g.id): [
-                {'id': m.id, 'nombre': m.name}
-                for m in Module.objects.filter(group_permissions__group=g).distinct()
-            ] for g in Group.objects.all()
-        })
-        context['permisos_por_modulo_json'] = json.dumps({
-            str(m.id): [
-                {'id': p.id, 'nombre': p.name}
-                for p in m.permissions.all()
-            ] for m in Module.objects.all()
-        })
-        return context
+    def delete(self, request, pk=None):
+        try:
+            if not pk:
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'ID de asignación requerido.'
+                })
+            
+            assignment = GroupModulePermission.objects.get(id=pk)
+            assignment_info = f"{assignment.group.name} - {assignment.module.name}"
+            assignment.delete()
+            
+            # También remover de la sesión si existe
+            if 'recent_assignments' in request.session:
+                request.session['recent_assignments'] = [
+                    a for a in request.session['recent_assignments'] 
+                    if a['id'] != pk
+                ]
+                request.session.modified = True
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Asignación "{assignment_info}" eliminada exitosamente.'
+            })
+            
+        except GroupModulePermission.DoesNotExist:
+            return JsonResponse({
+                'success': False, 
+                'message': 'Asignación no encontrada.'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False, 
+                'message': f'Error interno: {str(e)}'
+            })
 
-@csrf_exempt
-def ajax_guardar_asignacion(request):
-    """
-    Vista para guardar asignación de grupo-módulo-permisos vía AJAX.
-    """
-    if request.method == "POST":
-        import json
-        data = json.loads(request.body)
-        grupo_id = data.get('grupo_id')
-        modulo_id = data.get('modulo_id')
-        permisos = data.get('permisos', [])
-        if not grupo_id or not modulo_id or not permisos:
-            return JsonResponse({'success': False, 'error': 'Datos incompletos.'}, status=400)
-        obj = GroupModulePermission.objects.create(
-            group_id=grupo_id,
-            module_id=modulo_id
-        )
-        obj.permissions.set(permisos)
-        obj.save()
-        return JsonResponse({'success': True, 'id': obj.id})
-    return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)

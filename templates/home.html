@@ -4,7 +4,12 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="/static/dashboard/home.css">
+<link rel="stylesheet" href="/static/dashboard/loader.css">
 {% endblock %}
+
+<!-- {% block loader %}
+    {# {% include 'fragments/loader.html' %} #}
+{% endblock %} -->
 
 {% block content %}
 <main class="w-full max-w-7xl mx-auto px-0 py-0">
@@ -85,7 +90,12 @@
                     {% endfor %}
                 </div>
             </div>
-        {% endfor %}
-    {% endif %}
+        {% endfor %}    {% endif %}
 </main>
+{% endblock %}
+
+{% block js %}
+{% load static %}
+<script src="{% static 'dashboard/base.js' %}"></script>
+<script src="{% static 'dashboard/loader.js' %}"></script>
 {% endblock %}
