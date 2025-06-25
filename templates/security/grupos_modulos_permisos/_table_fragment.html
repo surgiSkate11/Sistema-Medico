@@ -1,81 +1,60 @@
-{# Solo la tabla y la paginación, para AJAX #}
+<!-- {# Tabla de las asignaciones recientes de la sesión (solo frontend) #}
 <div class="cyber-table-container rounded-2xl overflow-hidden shadow-2xl">
-    <table class="w-full text-center text-sm font-['Rajdhani'] text-cyan-100">
+    <table class="w-full text-center text-sm font-['Rajdhani'] text-cyan-100" id="tabla-asignaciones-recientes">
         <thead class="text-cyan-300 border-b-2 border-cyan-400/30">
             <tr>
                 <th class="px-6 py-4 text-sm font-bold tracking-wider">GRUPO</th>
                 <th class="px-6 py-4 text-sm font-bold tracking-wider">MÓDULO</th>
                 <th class="px-6 py-4 text-sm font-bold tracking-wider">PERMISOS</th>
-                <th class="px-6 py-4 text-sm font-bold tracking-wider">ACCIONES</th>
             </tr>
         </thead>
-        <tbody>
-            {% for item in page_obj %}
-                <tr class="transition-all duration-200 bg-cyan-950/60 border-b border-cyan-800 hover:bg-cyan-900/80 hover:shadow-xl">
-                    <td class="px-6 py-4 font-bold">{{ item.group.name }}</td>
-                    <td class="px-6 py-4">
-                        <i class="{{ item.module.icon }} text-2xl text-cyan-400 drop-shadow-glow"></i>
-                        {{ item.module.name }}
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="bg-cyan-800/60 px-3 py-1 rounded-full text-cyan-200 font-semibold shadow-inner border border-cyan-400/30 text-sm">
-                            {% for perm in item.permissions.all %}
-                                {{ perm.name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 flex items-center justify-center gap-2">
-                        {% if permissions.change_groupmodulepermission %}
-                        <a href="{% url 'security:group_module_permission_update' item.id %}"
-                            class="cyber-btn bg-gradient-to-r from-cyan-600 via-blue-700 to-fuchsia-700 text-white px-3 py-1 rounded-lg shadow-md hover:from-cyan-400 hover:to-fuchsia-500 transition-all duration-200 flex items-center gap-1">
-                            <i class="fa-solid fa-edit"></i>
-                        </a>
-                        {% endif %}
-                        {% if permissions.delete_groupmodulepermission %}
-                        <a href="#"
-                            class="cyber-btn bg-gradient-to-r from-pink-600 via-fuchsia-700 to-cyan-700 text-white px-3 py-1 rounded-lg shadow-md hover:from-pink-400 hover:to-cyan-500 transition-all duration-200 flex items-center gap-1"
-                            onclick="openDeleteModal('{{ item.id }}', '{{ item.group.name }} - {{ item.module.name }}')">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="4" class="py-4 text-cyan-400/60 italic">No hay registros.</td>
-                </tr>
-            {% endfor %}
+        <tbody id="cuerpo-asignaciones-recientes">
+            <!-- Las filas se llenan con JS -->
         </tbody>
     </table>
 </div>
-{# Paginación #}
-{% if page_obj.has_other_pages %}
-<div class="flex justify-center mt-4">
-    <nav aria-label="Page navigation example">
-        <ul class="inline-flex -space-x-px">
-            {% if page_obj.has_previous %}
-            <li>
-                <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                    class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-[#0b1121] dark:border-secundario dark:text-gray-400 dark:hover:bg-[#121c33] dark:hover:text-white">Anterior</a>
-            </li>
-            {% endif %}
-            {% for num in page_obj.paginator.page_range %}
-            <li>
-                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                    class="flex items-center justify-center px-3 h-8 leading-tight {% if num == page_obj.number %}text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:bg-secundario dark:border-principal dark:text-blue-300{% else %}text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-[#0b1121] dark:border-secundario dark:text-gray-400 dark:hover:bg-[#121c33] dark:hover:text-white{% endif %}">
-                    {{ num }}
-                </a>
-            </li>
-            {% endfor %}
-            {% if page_obj.has_next %}
-            <li>
-                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                    class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-[#0b1121] dark:border-secundario dark:text-gray-400 dark:hover:bg-[#121c33] dark:hover:text-white">Siguiente</a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-</div>
-{% endif %}
-{# Modal de eliminación #}
-{% include 'fragments/delete.html' %}
+<script>
+// Array global para asignaciones recientes (máximo 5)
+// window.asignacionesRecientes = [];
+
+// Inicializa la tabla al cargar la página
+// if (document.readyState !== 'loading') {
+//     renderizarAsignacionesRecientes();
+// } else {
+//     document.addEventListener('DOMContentLoaded', renderizarAsignacionesRecientes);
+// }
+
+// function agregarAsignacionReciente(asignacion) {
+//     window.asignacionesRecientes.unshift(asignacion);
+//     if (window.asignacionesRecientes.length > 5) {
+//         window.asignacionesRecientes = window.asignacionesRecientes.slice(0, 5);
+//     }
+//     renderizarAsignacionesRecientes();
+// }
+
+// function renderizarAsignacionesRecientes() {
+//     const cuerpo = document.getElementById('cuerpo-asignaciones-recientes');
+//     if (!cuerpo) return;
+//     cuerpo.innerHTML = '';
+//     if (window.asignacionesRecientes.length === 0) {
+//         cuerpo.innerHTML = `<tr><td colspan="3" class="py-4 text-cyan-400/60 italic">No hay asignaciones recientes en esta sesión.</td></tr>`;
+//         return;
+//     }
+//     window.asignacionesRecientes.forEach(item => {
+//         const fila = document.createElement('tr');
+//         fila.className = "transition-all duration-200 bg-cyan-950/60 border-b border-cyan-800 hover:bg-cyan-900/80 hover:shadow-xl";
+//         fila.innerHTML = `
+//             <td class='px-6 py-4 font-bold'>${item.group_name}</td>
+//             <td class='px-6 py-4'><i class='${item.module_icon} text-2xl text-cyan-400 drop-shadow-glow'></i> ${item.module_name}</td>
+//             <td class='px-6 py-4'><span class='bg-cyan-800/60 px-3 py-1 rounded-full text-cyan-200 font-semibold shadow-inner border border-cyan-400/30 text-sm'>${item.permissions.map(p => p.name).join(', ')}</span></td>
+//         `;
+//         cuerpo.appendChild(fila);
+//     });
+// }
+
+// function manejarAsignacionRecienteDesdeAjax(data) {
+//     if (data && data.success && data.assignment) {
+//         agregarAsignacionReciente(data.assignment);
+//     }
+// }
+// </script> -->

@@ -7,11 +7,16 @@ class UserForm(forms.ModelForm):
         model = User
         fields = [
             'username', 'email', 'first_name', 'last_name',
-             'is_active', 'is_staff', 'is_superuser'
+            'dni', 'phone', 'direction', 'image',
+            'is_active', 'is_staff', 'is_superuser'
         ]
         widgets = {
             'icon': forms.TextInput(attrs={'placeholder': 'fa-solid fa-user'}),
             'order': forms.NumberInput(attrs={'min': 0}),
+            'dni': forms.TextInput(attrs={'placeholder': 'Cédula o RUC'}),
+            'phone': forms.TextInput(attrs={'placeholder': 'Teléfono'}),
+            'direction': forms.TextInput(attrs={'placeholder': 'Dirección'}),
+            'image': forms.ClearableFileInput(),
         }
 
 class CustomUserCreationForm(UserCreationForm):

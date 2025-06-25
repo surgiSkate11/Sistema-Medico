@@ -48,31 +48,8 @@
 
             <!-- Panel derecho: Tabla de asignaciones paginada -->
             <div class="space-y-8 slide-in-right">
-                <h2 class="text-3xl font-bold text-center font-['Orbitron'] mb-8 text-cyan-300">
-                    <i class="fas fa-table mr-3 text-purple-400"></i>
-                    Asignaciones de Grupos-Módulos-Permisos
-                </h2>
-                <!-- Barra de búsqueda -->
-                <div class="p-4 flex justify-center">
-                    <label for="table-search" class="sr-only">Buscar</label>
-                    <div class="relative mt-1">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                            </svg>
-                        </div>
-                        <form method="GET">
-                            <input type="text" name="q" id="table-search"
-                                class="text-center pl-10 shadow-sm bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-12 dark:bg-principal dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-                                placeholder="Buscar grupo-módulo-permiso..." value="{{ request.GET.q }}">
-                        </form>
-                    </div>
-                </div>
                 <!-- Tabla paginada y paginación (fragmento AJAX) -->
-                {% include 'security/grupos_modulos_permisos/_table_fragment.html' %}
+                {# {% include 'security/grupos_modulos_permisos/_table_fragment.html' %} #}
                 <!-- Modal de eliminación -->
                 {% include 'fragments/delete.html' %}
             </div>
@@ -81,9 +58,14 @@
         <!-- Botones de navegación -->
         <div class="flex justify-center mt-12 gap-6 fade-in-up">
             <a class="cyber-btn py-4 px-8 rounded-2xl text-lg font-bold shadow-2xl flex items-center gap-3"
+                href="{% url 'security:group_module_permission_list' %}">
+                <i class="fas fa-list"></i>Ver Listado
+            </a>
+            <a class="cyber-btn py-4 px-8 rounded-2xl text-lg font-bold shadow-2xl flex items-center gap-3"
                 href="{% url 'home' %}">
                 <i class="fas fa-home"></i>Inicio
             </a>
+
         </div>
     </div>
 </section>
@@ -330,27 +312,14 @@ function saveAssignment(groupId) {
     })
     .then(response => response.json())
     .then(data => {
+        // manejarAsignacionRecienteDesdeAjax(data); // <-- Tabla de asignaciones recientes (comentado temporalmente)
         if (data.success) {
             showMessage('success', data.message);
             refreshGroupsData(() => {
-                resetAllAccordions();
                 reloadAssignmentsTable(true);
             });
             setTimeout(() => {
-                const moduleSelect = document.getElementById(`module-select-${groupId}`);
-                if (moduleSelect) moduleSelect.value = '';
-                const permissionsContainer = document.getElementById(`permissions-container-${groupId}`);
-                if (permissionsContainer) {
-                    permissionsContainer.classList.add('hidden');
-                    permissionsContainer.style.display = 'none';
-                }
-                const accordionContent = document.getElementById(`accordion-content-${groupId}`);
-                if (accordionContent) {
-                    accordionContent.classList.add('hidden');
-                    accordionContent.style.maxHeight = '0px';
-                }
             }, 300);
-            // Espera 200ms antes de recargar la tabla para asegurar que el registro esté en la BD
             setTimeout(reloadAssignmentsTable, 200);
         } else {
             showMessage('error', data.message);
@@ -476,21 +445,24 @@ function guardarTodasLasAsignaciones() {
             },
             body: JSON.stringify(asignacion)
         })
-        .then(respuesta => respuesta.json())
+        .then(parsearRespuestaAJAX)
         .then(data => {
-            console.log('Respuesta backend:', data);
-            if (data.success) {
+            if (data && data.success) {
                 exitos++;
                 ultimoMensaje = data.message;
                 if (data.assignment) ultimasAsignaciones.push(data.assignment);
-            } else {
+            } else if (data) {
                 errores++;
                 ultimoMensaje = data.message;
             }
         })
         .catch(error => {
             errores++;
-            ultimoMensaje = 'Error de conexión.';
+            if (error && error.message === 'No autorizado') {
+                ultimoMensaje = 'No autorizado o sesión expirada.';
+            } else {
+                ultimoMensaje = 'Error de conexión o respuesta inesperada.';
+            }
             console.error('Error:', error);
         });
     });
@@ -499,7 +471,8 @@ function guardarTodasLasAsignaciones() {
             mostrarMensaje('success', ultimoMensaje || 'Asignaciones guardadas correctamente.');
             refrescarDatosGrupos(() => {
                 resetearTodosAcordeones();
-                recargarTablaAsignaciones(true);
+                // Espera 200ms para asegurar que la sesión esté actualizada antes de refrescar la tabla
+                setTimeout(refrescarTablaAsignacionesRecientes, 200);
             });
         } else {
             mostrarMensaje('error', ultimoMensaje || 'No se pudo guardar ninguna asignación.');
@@ -509,15 +482,47 @@ function guardarTodasLasAsignaciones() {
     });
 }
 
+// Utilidad global para parsear respuesta AJAX de forma segura
+async function parsearRespuestaAJAX(respuesta) {
+    const contentType = respuesta.headers.get('content-type') || '';
+    if (respuesta.status === 403 || respuesta.status === 401) {
+        mostrarMensaje('error', 'No autorizado o sesión expirada. Por favor, recarga la página e inicia sesión.');
+        throw new Error('No autorizado');
+    }
+    if (contentType.includes('application/json')) {
+        try {
+            return await respuesta.json();
+        } catch (e) {
+            mostrarMensaje('error', 'Respuesta JSON inválida del servidor.');
+            throw new Error('Respuesta JSON inválida');
+        }
+    } else {
+        const text = await respuesta.text();
+        if (text.includes('login') || text.toLowerCase().includes('csrf')) {
+            mostrarMensaje('error', 'Sesión expirada o autenticación requerida. Por favor, recarga la página e inicia sesión.');
+        } else {
+            mostrarMensaje('error', 'Error inesperado del servidor. Intenta recargar la página.');
+        }
+        console.error('Respuesta inesperada del servidor:', text.substring(0, 300));
+        throw new Error('Respuesta inesperada del servidor');
+    }
+}
+
 // Refresca los datos de grupos y módulos desde el backend tras guardar
 function refrescarDatosGrupos(callback) {
-    fetch(window.location.pathname + '?refresh=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(respuesta => respuesta.json())
+    // Usar la URL del listado, no la del formulario
+    const urlListado = '{% url "security:group_module_permission_list" %}?refresh=1';
+    fetch(urlListado, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(parsearRespuestaAJAX)
         .then(data => {
             window.datosGrupos = data.groupsData;
             window.permisosPorModulo = data.modulePermissions;
             inicializarAcordeonesGrupos();
             if (typeof callback === 'function') callback();
+        })
+        .catch(error => {
+            mostrarMensaje('error', 'Error al refrescar datos de grupos.');
+            console.error('Error refrescando datos de grupos:', error);
         });
 }
 
@@ -650,7 +655,7 @@ function eliminarAsignacion(id) {
             'X-Requested-With': 'XMLHttpRequest',
         },
     })
-    .then(respuesta => respuesta.json())
+    .then(parsearRespuestaAJAX)
     .then(data => {
         if (data.success) {
             mostrarMensaje('success', data.message);
@@ -665,9 +670,38 @@ function eliminarAsignacion(id) {
     })
     .catch(error => {
         mostrarMensaje('error', 'Error al eliminar.');
+        console.error('Error al eliminar:', error);
     });
 }
-// ...existing code...
+
+// =============================
+// ACTUALIZAR TABLA DE ASIGNACIONES RECIENTES EN TIEMPO REAL
+// =============================
+function refrescarTablaAsignacionesRecientes() {
+    // Petición AJAX para obtener el fragmento HTML actualizado de la tabla SOLO de la sesión
+    const urlListado = '{% url "security:group_module_permission_list" %}?form=1';
+    fetch(urlListado, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.text())
+    .then(html => {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const nuevaTabla = tempDiv.querySelector('.cyber-table-container');
+        const tablaActual = document.querySelector('.cyber-table-container');
+        if (nuevaTabla && tablaActual) {
+            tablaActual.replaceWith(nuevaTabla);
+        }
+    });
+}
+
+// Si tienes un formulario AJAX para guardar, llama refrescarTablaAsignacionesRecientes() tras éxito
+// Ejemplo:
+// fetch('URL', { ... })
+//   .then(res => res.json())
+//   .then(data => {
+//      if (data.success) refrescarTablaAsignacionesRecientes();
+//   });
 </script>
 
 <style>
@@ -711,6 +745,29 @@ body {
     background: var(--cyber-primary);
     border-radius: 50%;
     animation: float 10s linear infinite;
+    box-shadow: 0 0 10px var(--cyber-glow);
+}
+@keyframes float {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10%,90% { opacity: 1; }
+    100% { transform: translateY(-10vh) translateX(50px); opacity: 0; }
+}
+
+.cyber-title {
+    font-family: 'Orbitron', monospace;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary);
+    animation: titleGlow 2s ease-in-out infinite alternate;
+}
+@keyframes titleGlow {
+    from { text-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary); }
+    to { text-shadow: 0 0 15px var(--cyber-secondary), 0 0 25px var(--cyber-secondary), 0 0 40px var(--cyber-secondary); }
+}
+
+/* ========== ACCORDION ========== */
+.cyber-accordion {
+    background: linear-gradient(135deg, rgba(0,255,255,0.05), rgba(255,0,255,0.03) 50%, rgba(0,255,255,0.05));
     box-shadow: 0 0 10px var(--cyber-glow);
 }
 @keyframes float {
@@ -936,11 +993,16 @@ body {
     transition: all 0.3s;
     position: relative;
     overflow: hidden;
-    width: 100%;
-    font-size: 1.15rem;
+    width: auto; /* Cambiado de 100% a auto para evitar que ocupe todo el ancho */
+    min-width: 180px;
+    max-width: 320px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 0.95rem;
     font-weight: bold;
     border-radius: 1rem;
-    padding: 1.3rem 0; /* Más padding para mayor visibilidad */
+    padding: 0.6rem 1.5rem;
     margin-top: 0.7rem;
     margin-bottom: 0.7rem;
     box-shadow: 0 0 24px rgba(0,255,255,0.25), 0 0 0 rgba(255,0,255,0.1);

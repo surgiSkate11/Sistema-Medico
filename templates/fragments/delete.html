@@ -28,3 +28,45 @@
         </form>
     </div>
 </div>
+<script>
+    // =============================
+    // MODAL DE ELIMINACIÓN PARA GRUPOS-MÓDULOS-PERMISOS
+    // =============================
+    // Esta función adapta el modal para enviar el formulario al endpoint correcto de Django
+    function openDeleteModal(id, descripcion) {
+        // Mostrar el modal
+        const modal = document.getElementById('deleteModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+        // Cambiar el texto de descripción
+        const desc = document.getElementById('Description');
+        if (desc) {
+            desc.textContent = `¿Eliminar: ${descripcion}?`;
+        }
+        // Cambiar la acción del formulario para que apunte al endpoint de borrado de Django
+        const form = document.getElementById('deleteForm');
+        if (form) {
+            form.action = `/security/group_module_permission_delete/${id}/`;
+        }
+    }
+    // =============================
+    // FUNCIÓN PARA CERRAR EL MODAL DE ELIMINACIÓN
+    // =============================
+    function closeModal() {
+        const modal = document.getElementById('deleteModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+        // Limpiar la acción del formulario para evitar envíos accidentales
+        const form = document.getElementById('deleteForm');
+        if (form) {
+            form.action = '';
+        }
+        // Limpiar el texto de descripción
+        const desc = document.getElementById('Description');
+        if (desc) {
+            desc.textContent = '';
+        }
+    }
+</script>

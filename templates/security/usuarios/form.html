@@ -51,11 +51,48 @@
                         <h2 class="dark:text-blue-300 text-2xl font-Pacifico">Vista previa del ícono</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <style>
+                        .field-container input, .field-container select {
+                            background: #fff;
+                            border: 2px solid #6366f1;
+                            border-radius: 0.5rem;
+                            padding: 0.8rem 1.1rem;
+                            font-size: 1.08rem;
+                            color: #22223b;
+                            transition: border 0.2s, box-shadow 0.2s;
+                            width: 100%;
+                            box-shadow: 0 1px 8px 0 rgba(99,102,241,0.07);
+                        }
+                        .field-container input:focus, .field-container select:focus {
+                            border-color: #3b82f6;
+                            box-shadow: 0 0 0 2px #3b82f6;
+                            outline: none;
+                            background: #f0f9ff;
+                            color: #1e293b;
+                        }
+                        .field-container.has-error input {
+                            border-color: #ef4444;
+                            background: #fef2f2;
+                            color: #b91c1c;
+                        }
+                        .field-container label {
+                            font-weight: 700;
+                            letter-spacing: 1px;
+                            color: #3730a3;
+                        }
+                        .field-container.has-error label {
+                            color: #b91c1c;
+                        }
+                        .field-container input::placeholder {
+                            color: #a1a1aa;
+                            opacity: 1;
+                        }
+                    </style>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
                         <!-- Username -->
-                        <div class="field-container {% if form.username.errors %}has-error{% endif %}">
+                        <div class="field-container flex flex-col gap-2 {% if form.username.errors %}has-error{% endif %}">
                             <label for="{{ form.username.id_for_label }}"
-                                class="font-black uppercase text-lg block mb-2
+                                class="font-black uppercase text-base block mb-1 tracking-wide
                                        {% if form.username.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
                                 {{ form.username.label }}
                                 {% if form.username.field.required %}<span class="text-red-500">*</span>{% endif %}
@@ -69,10 +106,10 @@
                                 {% endif %}
                             </div>
                             {% if form.username.errors %}
-                            <div class="mt-2 text-red-600 dark:text-red-400 text-sm">
+                            <div class="mt-1 text-red-600 dark:text-red-400 text-xs">
                                 {% for error in form.username.errors %}
-                                <div class="flex items-center mt-1">
-                                    <i class="fa-solid fa-circle-exclamation text-xs mr-2"></i>
+                                <div class="flex items-center mt-0.5">
+                                    <i class="fa-solid fa-circle-exclamation text-xs mr-1"></i>
                                     {{ error }}
                                 </div>
                                 {% endfor %}
@@ -80,9 +117,9 @@
                             {% endif %}
                         </div>
                         <!-- Email -->
-                        <div class="field-container {% if form.email.errors %}has-error{% endif %}">
+                        <div class="field-container flex flex-col gap-2 {% if form.email.errors %}has-error{% endif %}">
                             <label for="{{ form.email.id_for_label }}"
-                                class="font-black uppercase text-lg block mb-2
+                                class="font-black uppercase text-base block mb-1 tracking-wide
                                        {% if form.email.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
                                 {{ form.email.label }}
                                 {% if form.email.field.required %}<span class="text-red-500">*</span>{% endif %}
@@ -96,10 +133,10 @@
                                 {% endif %}
                             </div>
                             {% if form.email.errors %}
-                            <div class="mt-2 text-red-600 dark:text-red-400 text-sm">
+                            <div class="mt-1 text-red-600 dark:text-red-400 text-xs">
                                 {% for error in form.email.errors %}
-                                <div class="flex items-center mt-1">
-                                    <i class="fa-solid fa-circle-exclamation text-xs mr-2"></i>
+                                <div class="flex items-center mt-0.5">
+                                    <i class="fa-solid fa-circle-exclamation text-xs mr-1"></i>
                                     {{ error }}
                                 </div>
                                 {% endfor %}
@@ -107,9 +144,9 @@
                             {% endif %}
                         </div>
                         <!-- First Name -->
-                        <div class="field-container {% if form.first_name.errors %}has-error{% endif %}">
+                        <div class="field-container flex flex-col gap-2 {% if form.first_name.errors %}has-error{% endif %}">
                             <label for="{{ form.first_name.id_for_label }}"
-                                class="font-black uppercase text-lg block mb-2
+                                class="font-black uppercase text-base block mb-1 tracking-wide
                                        {% if form.first_name.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
                                 {{ form.first_name.label }}
                                 {% if form.first_name.field.required %}<span class="text-red-500">*</span>{% endif %}
@@ -123,10 +160,10 @@
                                 {% endif %}
                             </div>
                             {% if form.first_name.errors %}
-                            <div class="mt-2 text-red-600 dark:text-red-400 text-sm">
+                            <div class="mt-1 text-red-600 dark:text-red-400 text-xs">
                                 {% for error in form.first_name.errors %}
-                                <div class="flex items-center mt-1">
-                                    <i class="fa-solid fa-circle-exclamation text-xs mr-2"></i>
+                                <div class="flex items-center mt-0.5">
+                                    <i class="fa-solid fa-circle-exclamation text-xs mr-1"></i>
                                     {{ error }}
                                 </div>
                                 {% endfor %}
@@ -134,9 +171,9 @@
                             {% endif %}
                         </div>
                         <!-- Last Name -->
-                        <div class="field-container {% if form.last_name.errors %}has-error{% endif %}">
+                        <div class="field-container flex flex-col gap-2 {% if form.last_name.errors %}has-error{% endif %}">
                             <label for="{{ form.last_name.id_for_label }}"
-                                class="font-black uppercase text-lg block mb-2
+                                class="font-black uppercase text-base block mb-1 tracking-wide
                                        {% if form.last_name.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
                                 {{ form.last_name.label }}
                                 {% if form.last_name.field.required %}<span class="text-red-500">*</span>{% endif %}
@@ -150,136 +187,43 @@
                                 {% endif %}
                             </div>
                             {% if form.last_name.errors %}
-                            <div class="mt-2 text-red-600 dark:text-red-400 text-sm">
+                            <div class="mt-1 text-red-600 dark:text-red-400 text-xs">
                                 {% for error in form.last_name.errors %}
-                                <div class="flex items-center mt-1">
-                                    <i class="fa-solid fa-circle-exclamation text-xs mr-2"></i>
+                                <div class="flex items-center mt-0.5">
+                                    <i class="fa-solid fa-circle-exclamation text-xs mr-1"></i>
                                     {{ error }}
                                 </div>
                                 {% endfor %}
                             </div>
                             {% endif %}
                         </div>
-                        <!-- Icon -->
-                        <div class="field-container {% if form.icon.errors %}has-error{% endif %}">
-                            <label for="{{ form.icon.id_for_label }}"
-                                class="font-black uppercase text-lg block mb-2
-                                       {% if form.icon.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
-                                {{ form.icon.label }}
-                                {% if form.icon.field.required %}<span class="text-red-500">*</span>{% endif %}
-                            </label>
-                            <div class="relative">
-                                {{ form.icon }}
-                                {% if form.icon.errors %}
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <i class="fa-solid fa-exclamation-circle text-red-500"></i>
-                                </div>
-                                {% endif %}
-                            </div>
-                            {% if form.icon.errors %}
-                            <div class="mt-2 text-red-600 dark:text-red-400 text-sm">
-                                {% for error in form.icon.errors %}
-                                <div class="flex items-center mt-1">
-                                    <i class="fa-solid fa-circle-exclamation text-xs mr-2"></i>
-                                    {{ error }}
-                                </div>
-                                {% endfor %}
+                    </div>
+                    <!-- DNI (Cédula/RUC) -->
+                    <div class="field-container flex flex-col gap-2 {% if form.dni.errors %}has-error{% endif %} mt-6 max-w-xs">
+                        <label for="{{ form.dni.id_for_label }}"
+                            class="font-black uppercase text-base block mb-1 tracking-wide
+                                   {% if form.dni.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
+                            {{ form.dni.label|default:'Cédula o RUC' }}
+                            {% if form.dni.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="relative">
+                            {{ form.dni }}
+                            {% if form.dni.errors %}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-exclamation-circle text-red-500"></i>
                             </div>
                             {% endif %}
                         </div>
-                        <!-- Order -->
-                        <div class="field-container {% if form.order.errors %}has-error{% endif %}">
-                            <label for="{{ form.order.id_for_label }}"
-                                class="font-black uppercase text-lg block mb-2
-                                       {% if form.order.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
-                                {{ form.order.label }}
-                                {% if form.order.field.required %}<span class="text-red-500">*</span>{% endif %}
-                            </label>
-                            <div class="relative">
-                                {{ form.order }}
-                                {% if form.order.errors %}
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <i class="fa-solid fa-exclamation-circle text-red-500"></i>
-                                </div>
-                                {% endif %}
+                        {% if form.dni.errors %}
+                        <div class="mt-1 text-red-600 dark:text-red-400 text-xs">
+                            {% for error in form.dni.errors %}
+                            <div class="flex items-center mt-0.5">
+                                <i class="fa-solid fa-circle-exclamation text-xs mr-1"></i>
+                                {{ error }}
                             </div>
-                            {% if form.order.errors %}
-                            <div class="mt-2 text-red-600 dark:text-red-400 text-sm">
-                                {% for error in form.order.errors %}
-                                <div class="flex items-center mt-1">
-                                    <i class="fa-solid fa-circle-exclamation text-xs mr-2"></i>
-                                    {{ error }}
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
+                            {% endfor %}
                         </div>
-                        <!-- is_active -->
-                        <div class="field-container {% if form.is_active.errors %}has-error{% endif %}">
-                            <div class="flex items-center space-x-3 {% if form.is_active.errors %}p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg{% endif %}">
-                                {{ form.is_active }}
-                                <label for="{{ form.is_active.id_for_label }}"
-                                    class="font-black uppercase text-lg
-                                           {% if form.is_active.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
-                                    {{ form.is_active.label }}
-                                    {% if form.is_active.field.required %}<span class="text-red-500">*</span>{% endif %}
-                                </label>
-                            </div>
-                            {% if form.is_active.errors %}
-                            <div class="mt-2 text-red-600 dark:text-red-400 text-sm">
-                                {% for error in form.is_active.errors %}
-                                <div class="flex items-center mt-1">
-                                    <i class="fa-solid fa-circle-exclamation text-xs mr-2"></i>
-                                    {{ error }}
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                        <!-- is_staff -->
-                        <div class="field-container {% if form.is_staff.errors %}has-error{% endif %}">
-                            <div class="flex items-center space-x-3 {% if form.is_staff.errors %}p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg{% endif %}">
-                                {{ form.is_staff }}
-                                <label for="{{ form.is_staff.id_for_label }}"
-                                    class="font-black uppercase text-lg
-                                           {% if form.is_staff.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
-                                    {{ form.is_staff.label }}
-                                    {% if form.is_staff.field.required %}<span class="text-red-500">*</span>{% endif %}
-                                </label>
-                            </div>
-                            {% if form.is_staff.errors %}
-                            <div class="mt-2 text-red-600 dark:text-red-400 text-sm">
-                                {% for error in form.is_staff.errors %}
-                                <div class="flex items-center mt-1">
-                                    <i class="fa-solid fa-circle-exclamation text-xs mr-2"></i>
-                                    {{ error }}
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                        <!-- is_superuser -->
-                        <div class="field-container {% if form.is_superuser.errors %}has-error{% endif %}">
-                            <div class="flex items-center space-x-3 {% if form.is_superuser.errors %}p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg{% endif %}">
-                                {{ form.is_superuser }}
-                                <label for="{{ form.is_superuser.id_for_label }}"
-                                    class="font-black uppercase text-lg
-                                           {% if form.is_superuser.errors %}text-red-600 dark:text-red-400{% else %}dark:text-blue-300{% endif %}">
-                                    {{ form.is_superuser.label }}
-                                    {% if form.is_superuser.field.required %}<span class="text-red-500">*</span>{% endif %}
-                                </label>
-                            </div>
-                            {% if form.is_superuser.errors %}
-                            <div class="mt-2 text-red-600 dark:text-red-400 text-sm">
-                                {% for error in form.is_superuser.errors %}
-                                <div class="flex items-center mt-1">
-                                    <i class="fa-solid fa-circle-exclamation text-xs mr-2"></i>
-                                    {{ error }}
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
+                        {% endif %}
                     </div>
 
                     <!-- Botones de acción -->

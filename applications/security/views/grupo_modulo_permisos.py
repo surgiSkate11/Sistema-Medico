@@ -17,7 +17,7 @@ import json
 
 
 class GroupModulePermissionListView(PermissionMixin, ListViewMixin, ListView):
-    template_name = 'security/grupos_modulos_permisos/form.html'
+    template_name = 'security/grupos_modulos_permisos/list.html'
     model = GroupModulePermission
     context_object_name = 'GroupModulePermissions'
     permission_required = 'view_groupmodulepermission'
@@ -34,7 +34,6 @@ class GroupModulePermissionListView(PermissionMixin, ListViewMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['create_url'] = reverse_lazy('security:group_module_permission_create')
         # --- INICIO: Datos para acordeones y permisos (igual que en CreateView) ---
-        import json
         from django.contrib.auth.models import Group, Permission
         from applications.security.models import Module, GroupModulePermission
         all_groups = Group.objects.all()
@@ -63,6 +62,20 @@ class GroupModulePermissionListView(PermissionMixin, ListViewMixin, ListView):
             "module_permissions": json.dumps(module_permissions, ensure_ascii=False),
         })
         # --- FIN: Datos para acordeones y permisos ---
+        # Mostrar siempre los últimos 10 registros reales
+        recent_db = self.model.objects.select_related('group', 'module').prefetch_related('permissions').order_by('-id')[:10]
+        context['recent_assignments'] = [
+            {
+                'id': a.id,
+                'group_id': a.group.id,
+                'group_name': a.group.name,
+                'module_id': a.module.id,
+                'module_name': a.module.name,
+                'module_icon': a.module.icon,
+                'permissions': [{'id': p.id, 'name': p.name} for p in a.permissions.all()]
+            }
+            for a in recent_db
+        ]
         return context
 
     def render_to_response(self, context, **response_kwargs):
@@ -77,10 +90,29 @@ class GroupModulePermissionListView(PermissionMixin, ListViewMixin, ListView):
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             from django.template.loader import render_to_string
             from django.http import HttpResponse
+            # Si viene de form.html (parámetro form=1), muestra solo la última asignación por grupo
+            if request.GET.get('form') == '1':
+                context = context.copy()
+                session_assignments = request.session.get('recent_assignments', [])
+                # Filtrar: solo la última asignación por grupo
+                seen_groups = set()
+                filtered = []
+                for a in session_assignments:
+                    if a['group_id'] not in seen_groups:
+                        filtered.append(a)
+                        seen_groups.add(a['group_id'])
+                context['recent_assignments'] = filtered
             table_html = render_to_string('security/grupos_modulos_permisos/_table_fragment.html', context, request=request)
             return HttpResponse(table_html)
         else:
             return super().render_to_response(context, **response_kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Limpiar la sesión de asignaciones recientes al entrar a la lista completa
+        if 'recent_assignments' in request.session:
+            del request.session['recent_assignments']
+            request.session.modified = True
+        return super().get(request, *args, **kwargs)
 
 
 class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateView):
@@ -94,35 +126,27 @@ class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateVi
         context = super().get_context_data(**kwargs)
         context['grabar'] = 'Grabar Grupo Módulo Permiso'
         context['back_url'] = self.success_url
-        
         # Limpiar asignaciones anteriores de la sesión al acceder al formulario
         if 'recent_assignments' in self.request.session:
             del self.request.session['recent_assignments']
             self.request.session.modified = True
-        
         # Obtener todos los datos necesarios para la página dinámica
         all_groups = Group.objects.all()
         all_modules = Module.objects.all()
         existing_assignments = GroupModulePermission.objects.select_related('group', 'module').prefetch_related('permissions').all()
-        
         # Datos para los acordeones dinámicos
         groups_data = []
         for group in all_groups:
-            # Obtener módulos ya asignados a este grupo
             assigned_modules = set(existing_assignments.filter(group=group).values_list('module_id', flat=True))
-            
-            # Módulos disponibles (no asignados)
             available_modules = [
                 {"id": m.id, "name": m.name, "icon": m.icon} 
                 for m in all_modules if m.id not in assigned_modules
             ]
-            
             groups_data.append({
                 "id": group.id,
                 "name": group.name,
                 "available_modules": available_modules
             })
-        
         # Relación módulo → permisos
         module_permissions = {}
         for module in all_modules:
@@ -130,18 +154,18 @@ class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateVi
             module_permissions[module.id] = [
                 {"id": p.id, "name": p.name, "codename": p.codename} for p in perms
             ]
-          # Asignaciones recientes de la sesión (solo las que el usuario ha creado en esta sesión)
+        # Asignaciones recientes de la sesión (solo las que el usuario ha creado en esta sesión)
         session_assignments = self.request.session.get('recent_assignments', [])
-        assignments_data = session_assignments
-        
+        assignments_data = session_assignments[:5]  # Mostrar solo las primeras 5
         context.update({
             "groups_data": json.dumps(groups_data),
             "module_permissions": json.dumps(module_permissions),
             "assignments_data": json.dumps(assignments_data),
             "all_groups": all_groups,
-            "all_modules": all_modules
+            "all_modules": all_modules,
+            "recent_assignments": assignments_data,  # <-- Solo las primeras 5 para el fragmento
+            "show_actions": False  # No mostrar acciones en el formulario
         })
-        
         return context
 
     def form_valid(self, form):
@@ -150,11 +174,17 @@ class GroupModulePermissionCreateView(PermissionMixin, CreateViewMixin, CreateVi
         messages.success(self.request, f"Éxito al crear el grupo módulo permiso {grupo_modulo_permiso.id}.")
         return response
 
+    def get(self, request, *args, **kwargs):
+        # Limpiar asignaciones recientes de la sesión al entrar al formulario
+        if 'recent_assignments' in request.session:
+            del request.session['recent_assignments']
+            request.session.modified = True
+        return super().get(request, *args, **kwargs)
 
 
 class GroupModulePermissionUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
     model = GroupModulePermission
-    template_name = 'security/grupos_modulos_permisos/form.html'
+    template_name = 'security/grupos_modulos_permisos/form_update.html'
     form_class = GroupModulePermissionForm
     success_url = reverse_lazy('security:group_module_permission_list')
     permission_required = 'change_groupmodulepermission'
@@ -163,36 +193,13 @@ class GroupModulePermissionUpdateView(PermissionMixin, UpdateViewMixin, UpdateVi
         context = super().get_context_data(**kwargs)
         context['grabar'] = 'Actualizar Grupo Módulo Permiso'
         context['back_url'] = self.success_url
-        # Relación grupo → módulos
-        all_modules = Module.objects.all()
-        group_modules = {}
-        for group in Group.objects.all():
-            group_modules[group.id] = [
-                {"id": m.id, "name": m.name} for m in all_modules
-            ]
-        # Relación módulo → permisos
-        module_permissions = {}
-        for module in all_modules:
-            perms = module.permissions.all()
-            module_permissions[module.id] = [
-                {"id": p.id, "name": p.name, "codename": p.codename} for p in perms
-            ]
-        # Agregar nombres de grupo
-        group_names = {str(g.id): g.name for g in Group.objects.all()}
-        context["group_modules"] = json.dumps(group_modules)
-        context["module_permissions"] = json.dumps(module_permissions)
-        context["group_names"] = json.dumps(group_names)
-        # Permisos seleccionados para el template (para mantener checkboxes marcados tras error de validación)
-        if self.request.method == "POST":
-            context["selected_permissions"] = self.request.POST.getlist("permissions")
-        else:
-            context["selected_permissions"] = []
+        # No es necesario pasar más datos, el template usa self.object
         return context
 
     def form_valid(self, form):
         response = super().form_valid(form)
         group_module_permission = self.object
-        messages.success(self.request, f"Éxito al actualizar el grupo módulo permiso {group_module_permission.id}.")
+        messages.success(self.request, f"Éxito al actualizar el grupo módulo permiso {group_module_permission.module.name}.")
         return response
 
 
@@ -214,7 +221,7 @@ class GroupModulePermissionDeleteView(PermissionMixin, DeleteViewMixin, DeleteVi
         # Guardar info antes de eliminar
         group_module_permission = self.object
         response = super().form_valid(form)
-        messages.success(self.request, f"Éxito al eliminar el grupo módulo permiso {group_module_permission.id}.")
+        messages.success(self.request, f"Éxito al eliminar el grupo módulo permiso {group_module_permission.module.name}.")
 
         return response
 
@@ -276,10 +283,11 @@ class GroupModulePermissionAjaxView(PermissionMixin, View):
             # Guardar en la sesión para mostrar en la tabla de asignaciones recientes
             if 'recent_assignments' not in request.session:
                 request.session['recent_assignments'] = []
-            
-            request.session['recent_assignments'].append(assignment_data)
+            # Insertar al inicio para que los más recientes aparezcan primero
+            request.session['recent_assignments'].insert(0, assignment_data)
             request.session.modified = True
-            
+            # DEBUG: Imprimir en consola del servidor el contenido de la sesión
+            print('DEBUG recent_assignments:', request.session['recent_assignments'])
             response_data = {
                 'success': True,
                 'message': f'Asignación creada exitosamente para {group.name} - {module.name}.',
@@ -333,4 +341,3 @@ class GroupModulePermissionAjaxView(PermissionMixin, View):
                 'success': False, 
                 'message': f'Error interno: {str(e)}'
             })
-
