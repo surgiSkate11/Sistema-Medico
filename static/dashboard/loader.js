@@ -1,37 +1,25 @@
 // Loader Futurista Médico PRO
 window.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded: loader.js ejecutado');
     const loader = document.getElementById('medicalLoading');
-    console.log('Loader encontrado:', loader);
-    if (!loader) {
-        document.body.classList.remove('loading'); // Forzar quitar la clase loading si loader no existe
-        return;
-    }
     const progressFill = document.getElementById('progressFill');
     const progressPercent = document.getElementById('progressPercent');
     const subtitle = document.getElementById('loadingSubtitle');
-    const statusDb = document.getElementById('status-db');
+    const statusDb = document.getElementById('status-db');      // Forzar estilo del título para eliminar borrosidad
     const loaderTitle = document.getElementById('loaderTitle');
-    if (!loaderTitle) {
-        console.log('Loader title element not found!');
+    // Eliminar cualquier forzado de estilos visuales desde JS, dejar solo el texto
+    if (loaderTitle) {
+        loaderTitle.textContent = 'SISTEMA MÉDICO';
+        // Debug opcional
+        // console.log('Loader title element found:', loaderTitle);
+    } else {
+        console.error('Loader title element not found!');
     }
-    // Forzar body y html para loader full screen
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlHeight = html.style.height;
-    const prevBodyHeight = body.style.height;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    html.style.height = '100%';
-    body.style.height = '100%';
-    html.style.overflow = 'hidden';
-    body.style.overflow = 'hidden';
-
-    // Crear status-server virtual si no existe
+    
+    // El loader espera un status-server, pero no existe en loader.html, así que lo creamos virtualmente para la animación
     let statusServer = document.getElementById('status-server');
     if (!statusServer) {
+        // Crear un div temporal invisible para no romper la animación
         statusServer = document.createElement('div');
-        statusServer.id = 'status-server';
         statusServer.style.display = 'none';
         document.body.appendChild(statusServer);
     }
@@ -45,15 +33,75 @@ window.addEventListener('DOMContentLoaded', function() {
     ];
     let percent = 0;
     let msgIndex = 0;
-    let duration = 4200; // 4.2 segundos
-    let intervalMs = 18;
-    let steps = Math.floor(duration / intervalMs);
+    let duration = 4200; // 4.2 segundos: premium, rápido pero visible
+    let intervalMs = 18; // ultra fluido
+    let steps = Math.floor(duration / intervalMs); // Usar Math.floor para asegurar el 100%
     let step = 0;
-    let loaderFinished = false;
     function setStatusChecked(el) {
         if (el) el.classList.add('checked');
     }
-    function resetLoaderVisuals() {
+    function animateLoader() {
+        let interval = setInterval(() => {
+            step++;
+            // Forzar el último paso a 100% y asegurar que la barra llegue al final
+            if (step >= steps) {
+                percent = 100;
+                if (progressFill) {
+                    progressFill.style.width = '100%';
+                    progressFill.style.transition = 'width 0.3s cubic-bezier(.4,2,.6,1)';
+                }
+                if (progressPercent) progressPercent.textContent = '100%';
+            } else {
+                percent = Math.round((step / steps) * 100);
+                if (progressFill) {
+                    progressFill.style.width = percent + '%';
+                    progressFill.style.transition = 'width 0.18s linear';
+                }
+                if (progressPercent) progressPercent.textContent = percent + '%';
+            }
+            if (percent >= 18 && msgIndex === 0) {
+                subtitle.textContent = messages[1];
+                setStatusChecked(statusDb);
+                msgIndex = 1;
+            }
+            if (percent >= 48 && msgIndex === 1) {
+                subtitle.textContent = messages[2];
+                setStatusChecked(statusServer);
+                msgIndex = 2;
+            }
+            if (percent >= 78 && msgIndex === 2) {
+                subtitle.textContent = messages[3];
+                setStatusChecked(statusSec);
+                msgIndex = 3;
+            }
+            // Cambia aquí: solo ocultar y eliminar el loader si la página ya está cargada
+            if (step > steps) {
+                subtitle.textContent = messages[4];
+                function hideLoaderIfReady() {
+                    if (document.readyState === 'complete') {
+                        if (loader) {
+                            loader.classList.add('hidden');
+                            loader.style.transition = 'opacity 0.6s cubic-bezier(.4,2,.6,1)';
+                            loader.style.opacity = '0';
+                            document.body.classList.remove('loading');
+                            setTimeout(() => {
+                                if (loader.parentNode) loader.parentNode.removeChild(loader);
+                            }, 700);
+                        }
+                    } else {
+                        setTimeout(hideLoaderIfReady, 100);
+                    }
+                }
+                setTimeout(hideLoaderIfReady, 500);
+                clearInterval(interval);
+            }
+        }, intervalMs);
+    }
+    // Forzar el loader a ejecutarse siempre, incluso si la página se recarga rápido
+    if (loader) {
+        loader.classList.remove('hidden');
+        loader.style.opacity = '1';
+        loader.style.transition = '';
         if (progressFill) {
             progressFill.style.width = '0%';
             progressFill.style.transition = 'width 0.18s linear';
@@ -62,91 +110,36 @@ window.addEventListener('DOMContentLoaded', function() {
         if (statusDb) statusDb.classList.remove('checked');
         if (statusServer) statusServer.classList.remove('checked');
         if (statusSec) statusSec.classList.remove('checked');
-        if (subtitle) subtitle.textContent = messages[0];
+        subtitle.textContent = messages[0];
+        // Esperar a que todo el DOM esté listo y forzar el loader
+        setTimeout(animateLoader, 350);
+        // Evitar que el loader se oculte por otros scripts antes de tiempo
+        window.addEventListener('beforeunload', function(e) {
+            if (loader) loader.classList.remove('hidden');
+        });
     }
-    function finishLoader() {
-        if (loaderFinished) return;
-        loaderFinished = true;
-        if (progressFill) progressFill.style.width = '100%';
-        // if (progressPercent) progressPercent.textContent = '100%';
-        if (subtitle) subtitle.textContent = messages[4];
-        setStatusChecked(statusDb);
-        setStatusChecked(statusServer);
-        setStatusChecked(statusSec);
+
+    // Función que se ejecuta cuando el loader termina
+    function onLoaderComplete() {
+        // Remover clase loading del body
+        document.body.classList.remove('loading');
+        
+        // Activar el tema oscuro del dashboard
         setTimeout(() => {
-            if (loader) {
-                loader.classList.add('hidden');
-                loader.style.transition = 'opacity 0.6s ease-out';
-                loader.style.opacity = '0';
-                document.body.classList.remove('loading');
-                // Restaurar estilos originales
-                html.style.height = prevHtmlHeight;
-                body.style.height = prevBodyHeight;
-                html.style.overflow = prevHtmlOverflow;
-                body.style.overflow = prevBodyOverflow;
-                setTimeout(() => {
-                    if (loader.parentNode) loader.parentNode.removeChild(loader);
-                    console.log('Loader eliminado del DOM');
-                }, 600);
+            if (window.forceHealthFlowTheme) {
+                window.forceHealthFlowTheme();
             }
-        }, 800);
+        }, 500);
+        
+        console.log('🎯 Loader completed, activating dark theme');
     }
-    function animateLoader() {
-        // Solución mínima: animación forzada de 0 a 100% en 1 segundo
-        let fakePercent = 0;
-        const interval = setInterval(() => {
-            fakePercent += 10;
-            if (progressFill) progressFill.style.width = fakePercent + '%';
-            if (progressPercent) progressPercent.textContent = fakePercent + '%';
-            if (fakePercent === 10 && subtitle) subtitle.textContent = messages[1];
-            if (fakePercent === 40 && subtitle) subtitle.textContent = messages[2];
-            if (fakePercent === 70 && subtitle) subtitle.textContent = messages[3];
-            if (fakePercent >= 100) {
-                if (progressFill) progressFill.style.width = '100%';
-                // if (progressPercent) progressPercent.textContent = '100%';
-                if (subtitle) subtitle.textContent = messages[4];
-                setStatusChecked(statusDb);
-                setStatusChecked(statusServer);
-                setStatusChecked(statusSec);
-                clearInterval(interval);
-                setTimeout(finishLoader, 400);
-            }
-        }, 100);
-    }
-    // Siempre reinicia y ejecuta la animación
-    loader.classList.remove('hidden');
-    loader.style.opacity = '1';
-    loader.style.transition = '';
-    if (progressFill) progressFill.style.width = '100%';
-    // if (progressPercent) progressPercent.textContent = '100%';
-    if (subtitle) subtitle.textContent = messages[4];
-    setStatusChecked(statusDb);
-    setStatusChecked(statusServer);
-    setStatusChecked(statusSec);
-    setTimeout(() => {
-        console.log('Forzando finishLoader tras 800ms');
-        finishLoader();
-    }, 800); // Oculta el loader tras 0.8s
-    setTimeout(() => {
-        if (!loaderFinished) {
-            if (progressFill) progressFill.style.width = '100%';
-            // if (progressPercent) progressPercent.textContent = '100%';
-            if (subtitle) subtitle.textContent = '¡Listo para usar! (emergencia)';
-            setStatusChecked(statusDb);
-            setStatusChecked(statusServer);
-            setStatusChecked(statusSec);
-            finishLoader();
-            console.log('Forzando finishLoader tras 7s (emergencia)');
-        }
-    }, 7000);
-    window.addEventListener('beforeunload', function() {
-        if (loader) loader.classList.remove('hidden');
-    });
+
+    // Agregar clase loading al body inicialmente
     document.body.classList.add('loading');
-    window.resetMedicalLoader = resetLoaderVisuals;
 });
 
 window.addEventListener('load', function() {
+    // Solo forzar ocultar y eliminar el loader si sigue visible después de 7 segundos (por error)
     const loader = document.getElementById('medicalLoading');
     setTimeout(() => {
         if (loader && !loader.classList.contains('hidden')) {
@@ -154,17 +147,9 @@ window.addEventListener('load', function() {
             loader.style.transition = 'opacity 0.6s cubic-bezier(.4,2,.6,1)';
             loader.style.opacity = '0';
             document.body.classList.remove('loading');
-            // Restaurar estilos originales si loader se fuerza a cerrar
-            const html = document.documentElement;
-            const body = document.body;
-            html.style.height = '';
-            body.style.height = '';
-            html.style.overflow = '';
-            body.style.overflow = '';
             setTimeout(() => {
                 if (loader.parentNode) loader.parentNode.removeChild(loader);
-                console.log('Loader eliminado del DOM tras 7s');
             }, 700);
         }
-    }, 7000);
+    }, 7000); // Solo si el loader sigue tras 7s
 });
