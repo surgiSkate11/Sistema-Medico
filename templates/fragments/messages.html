@@ -1,339 +1,270 @@
 <!-- templates/fragments/messages.html -->
 {% if messages %}
-<div id="messagesContainer" class="messages-container">
+<div id="messagesContainer" class="messages-container-cyber">
     {% for message in messages %}
     <div id="message-{{ forloop.counter }}" 
-         class="message-alert message-{{ message.tags }}"
+         class="message-alert-cyber message-{{ message.tags }}"
          data-message-id="{{ forloop.counter }}">
-        
-        <div class="message-content">
-            <div class="message-body">
+        <div class="cyber-glitch-border"></div>
+        <div class="message-content-cyber">
+            <div class="message-body-cyber">
                 <!-- Icono según tipo de mensaje -->
-                <div class="message-icon">
+                <div class="message-icon-cyber">
                     {% if message.tags == 'success' %}
-                        <div class="icon-circle icon-success">
-                            <i class="fa-solid fa-check"></i>
+                        <div class="icon-circle-cyber icon-success-cyber">
+                            <i class="fa-solid fa-check fa-2x"></i>
                         </div>
                     {% elif message.tags == 'error' %}
-                        <div class="icon-circle icon-error">
-                            <i class="fa-solid fa-times"></i>
+                        <div class="icon-circle-cyber icon-error-cyber">
+                            <i class="fa-solid fa-times fa-2x"></i>
                         </div>
                     {% elif message.tags == 'warning' %}
-                        <div class="icon-circle icon-warning">
-                            <i class="fa-solid fa-exclamation"></i>
+                        <div class="icon-circle-cyber icon-warning-cyber">
+                            <i class="fa-solid fa-exclamation fa-2x"></i>
                         </div>
                     {% elif message.tags == 'info' %}
-                        <div class="icon-circle icon-info">
-                            <i class="fa-solid fa-info"></i>
+                        <div class="icon-circle-cyber icon-info-cyber">
+                            <i class="fa-solid fa-info fa-2x"></i>
                         </div>
                     {% endif %}
                 </div>
-                
                 <!-- Contenido del mensaje -->
-                <div class="message-text">
+                <div class="message-text-cyber">
                     <p>{{ message|safe }}</p>
                 </div>
             </div>
-            
             <!-- Botón cerrar -->
-            <button onclick="closeMessage({{ forloop.counter }})" class="close-btn">
+            <button onclick="closeMessage('{{ forloop.counter }}')" class="close-btn-cyber">
                 <i class="fa-solid fa-times"></i>
             </button>
         </div>
-        
         <!-- Barra de progreso para auto-hide -->
-        <div class="progress-bar"></div>
+        <div class="progress-bar-cyber"></div>
     </div>
     {% endfor %}
 </div>
 
-<!-- CSS personalizado -->
 <style>
-/* Contenedor principal */
-.messages-container {
+:root {
+    --cyber-primary: #00ffff;
+    --cyber-secondary: #ff00ff;
+    --cyber-accent: #ffff00;
+    --cyber-success: #00ff88;
+    --cyber-warning: #ff9900;
+    --cyber-error: #ff0066;
+    --cyber-dark: #0a0a0f;
+    --cyber-darker: #050507;
+    --cyber-grid: #1a1a2e;
+    --cyber-surface: #16213e;
+    --cyber-glow: rgba(0, 255, 255, 0.5);
+    --cyber-purple-glow: rgba(255, 0, 255, 0.5);
+    --cyber-yellow-glow: rgba(255, 255, 0, 0.5);
+}
+.messages-container-cyber {
     position: fixed;
-    top: 1rem;
+    top: 2.5rem;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
     width: 100%;
-    max-width: 28rem;
+    max-width: 32rem;
     padding: 0 1rem;
+    pointer-events: none;
 }
-
-/* Alerta base */
-.message-alert {
+.message-alert-cyber {
     position: relative;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    border-left: 4px solid;
-    backdrop-filter: blur(4px);
-    animation: slideInDown 0.5s ease-out forwards;
+    margin-bottom: 1.5rem;
+    padding: 1.2rem 2.2rem 1.2rem 1.2rem;
+    border-radius: 1.25rem;
+    background: rgba(10, 10, 30, 0.92);
+    box-shadow: 0 0 32px 4px var(--cyber-primary), 0 0 0 2px var(--cyber-secondary);
+    border: 2.5px solid var(--cyber-primary);
     overflow: hidden;
+    backdrop-filter: blur(8px) saturate(1.5);
+    animation: cyberFadeIn 0.7s cubic-bezier(.77,0,.18,1) both, cyberGlow 2.5s infinite alternate;
+    pointer-events: auto;
 }
-
-/* Tipos de mensaje */
+.message-alert-cyber:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.25rem;
+    pointer-events: none;
+    box-shadow: 0 0 40px 8px var(--cyber-glow);
+    opacity: 0.25;
+    z-index: 0;
+}
 .message-success {
-    background: linear-gradient(to right, #ecfdf5, #d1fae5);
-    border-left-color: #10b981;
-    color: #065f46;
+    border-color: #00fff7;
+    box-shadow: 0 0 32px 4px #00fff7, 0 0 0 2px #00fff7;
 }
-
 .message-error {
-    background: linear-gradient(to right, #fef2f2, #fecaca);
-    border-left-color: #ef4444;
-    color: #991b1b;
-    animation: slideInDown 0.5s ease-out forwards, shake 0.5s ease-in-out;
+    border-color: #ff006e;
+    box-shadow: 0 0 32px 4px #ff006e, 0 0 0 2px #ff006e;
 }
-
 .message-warning {
-    background: linear-gradient(to right, #fffbeb, #fde68a);
-    border-left-color: #f59e0b;
-    color: #92400e;
+    border-color: #ffe600;
+    box-shadow: 0 0 32px 4px #ffe600, 0 0 0 2px #ffe600;
 }
-
 .message-info {
-    background: linear-gradient(to right, #eff6ff, #bfdbfe);
-    border-left-color: #3b82f6;
-    color: #1e40af;
+    border-color: #00b3ff;
+    box-shadow: 0 0 32px 4px #00b3ff, 0 0 0 2px #00b3ff;
 }
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-    .message-success {
-        background: linear-gradient(to right, rgba(6, 95, 70, 0.3), rgba(4, 120, 87, 0.3));
-        color: #a7f3d0;
-    }
-    
-    .message-error {
-        background: linear-gradient(to right, rgba(153, 27, 27, 0.3), rgba(185, 28, 28, 0.3));
-        color: #fca5a5;
-    }
-    
-    .message-warning {
-        background: linear-gradient(to right, rgba(146, 64, 14, 0.3), rgba(180, 83, 9, 0.3));
-        color: #fcd34d;
-    }
-    
-    .message-info {
-        background: linear-gradient(to right, rgba(30, 64, 175, 0.3), rgba(37, 99, 235, 0.3));
-        color: #93c5fd;
-    }
+.cyber-glitch-border {
+    position: absolute;
+    inset: 0;
+    border-radius: 1.25rem;
+    pointer-events: none;
+    z-index: 2;
+    border: 2px solid transparent;
+    background: repeating-linear-gradient(135deg, #00fff7 0 2px, transparent 2px 8px, #ff00ea 8px 10px, transparent 10px 16px);
+    opacity: 0.18;
+    filter: blur(1.5px);
+    animation: cyberGlitch 1.5s infinite linear alternate;
 }
-
-/* Contenido del mensaje */
-.message-content {
+@keyframes cyberGlitch {
+    0% { opacity: 0.18; filter: blur(1.5px); }
+    50% { opacity: 0.32; filter: blur(2.5px); }
+    100% { opacity: 0.18; filter: blur(1.5px); }
+}
+@keyframes cyberFadeIn {
+    from { opacity: 0; transform: translateY(-40px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes cyberGlow {
+    from { box-shadow: 0 0 32px 4px var(--cyber-primary); }
+    to { box-shadow: 0 0 48px 8px var(--cyber-secondary); }
+}
+.message-content-cyber {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    position: relative;
+    z-index: 3;
 }
-
-.message-body {
+.message-body-cyber {
     display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 1.1rem;
     flex: 1;
 }
-
-.message-icon {
+.message-icon-cyber {
     flex-shrink: 0;
-    padding-top: 0.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
 }
-
-.icon-circle {
-    width: 1.5rem;
-    height: 1.5rem;
+.icon-circle-cyber {
+    width: 2.5rem;
+    height: 2.5rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 0.75rem;
+    font-size: 1.5rem;
+    box-shadow: 0 0 16px 2px var(--cyber-primary), 0 0 0 2px var(--cyber-secondary);
+    background: linear-gradient(135deg, rgba(0,255,255,0.18), rgba(255,0,255,0.12));
+    border: 2px solid #fff2;
+    animation: cyberIconPulse 1.5s infinite alternate;
 }
-
-.icon-success { background-color: #10b981; }
-.icon-error { background-color: #ef4444; }
-.icon-warning { background-color: #f59e0b; }
-.icon-info { background-color: #3b82f6; }
-
-.message-text {
+.icon-success-cyber { color: #00fff7; text-shadow: 0 0 8px #00fff7; }
+.icon-error-cyber { color: #ff006e; text-shadow: 0 0 8px #ff006e; }
+.icon-warning-cyber { color: #ffe600; text-shadow: 0 0 8px #ffe600; }
+.icon-info-cyber { color: #00b3ff; text-shadow: 0 0 8px #00b3ff; }
+@keyframes cyberIconPulse {
+    from { box-shadow: 0 0 16px 2px var(--cyber-primary); }
+    to { box-shadow: 0 0 32px 4px var(--cyber-secondary); }
+}
+.message-text-cyber {
     flex: 1;
+    font-family: 'Orbitron', 'Rajdhani', monospace;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-shadow: 0 0 6px #00fff7, 0 0 12px #ff00ea;
+    filter: drop-shadow(0 0 2px #00fff7);
+    padding-right: 0.5rem;
 }
-
-.message-text p {
+.message-text-cyber p {
     margin: 0;
-    font-weight: 600;
-    font-size: 0.875rem;
     line-height: 1.5;
+    word-break: break-word;
 }
-
-/* Botón cerrar */
-.close-btn {
+.close-btn-cyber {
     flex-shrink: 0;
-    margin-left: 1rem;
-    padding: 0.25rem;
+    margin-left: 1.2rem;
+    padding: 0.4rem 0.6rem;
     border: none;
-    background: none;
+    background: linear-gradient(135deg, #00fff7 0%, #ff00ea 100%);
     border-radius: 50%;
     cursor: pointer;
-    opacity: 0.6;
+    opacity: 0.7;
+    color: #fff;
+    font-size: 1.1rem;
+    box-shadow: 0 0 8px #00fff7, 0 0 8px #ff00ea;
     transition: all 0.2s;
-    color: inherit;
+    outline: none;
+    z-index: 4;
 }
-
-.close-btn:hover {
+.close-btn-cyber:hover {
     opacity: 1;
-    background-color: rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #ff00ea 0%, #00fff7 100%);
+    box-shadow: 0 0 16px #ff00ea, 0 0 16px #00fff7;
 }
-
-@media (prefers-color-scheme: dark) {
-    .close-btn:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-}
-
-/* Barra de progreso */
-.progress-bar {
+.progress-bar-cyber {
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 0.25rem;
-    background-color: currentColor;
-    opacity: 0.2;
-    border-radius: 0 0 0.75rem 0;
-    animation: progressBar 5s linear forwards;
+    height: 0.22rem;
+    background: linear-gradient(90deg, #00fff7, #ff00ea, #ffe600);
+    opacity: 0.7;
+    border-radius: 0 0 1.25rem 1.25rem;
+    animation: cyberProgressBar 5s linear forwards;
+    z-index: 5;
 }
-
-/* Animaciones */
-@keyframes slideInDown {
-    from {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOutUp {
-    from {
-        transform: translateY(0);
-        opacity: 1;
-        max-height: 200px;
-        margin-bottom: 1rem;
-    }
-    to {
-        transform: translateY(-100%);
-        opacity: 0;
-        max-height: 0;
-        margin-bottom: 0;
-    }
-}
-
-@keyframes progressBar {
+@keyframes cyberProgressBar {
     from { width: 100%; }
     to { width: 0%; }
 }
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-    20%, 40%, 60%, 80% { transform: translateX(2px); }
-}
-
-.animate-slideOutUp {
-    animation: slideOutUp 0.4s ease-in forwards;
-}
-
-/* Responsive */
 @media (max-width: 640px) {
-    .messages-container {
-        max-width: 95%;
-        padding: 0 0.5rem;
+    .messages-container-cyber {
+        max-width: 98vw;
+        padding: 0 0.25rem;
     }
-    
-    .message-alert {
-        padding: 0.75rem;
+    .message-alert-cyber {
+        padding: 0.7rem 1rem 0.7rem 0.7rem;
     }
+    .icon-circle-cyber {
+        width: 1.5rem; height: 1.5rem; font-size: 1rem;
+    }
+    .message-text-cyber { font-size: 0.92rem; }
 }
 </style>
-
 <script>
-// JavaScript para manejo de mensajes
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-hide messages después de 5 segundos
     setTimeout(function() {
-        const messages = document.querySelectorAll('.message-alert');
+        const messages = document.querySelectorAll('.message-alert-cyber');
         messages.forEach(function(message) {
             closeMessage(message.dataset.messageId);
         });
     }, 5000);
 });
-
 function closeMessage(messageId) {
     const message = document.getElementById('message-' + messageId);
     if (message) {
         message.classList.add('animate-slideOutUp');
-        
-        // Remover del DOM después de la animación
         setTimeout(function() {
             if (message.parentNode) {
                 message.parentNode.removeChild(message);
             }
-            
-            // Ocultar el contenedor si no hay más mensajes
             const container = document.getElementById('messagesContainer');
             if (container && container.children.length === 0) {
                 container.style.display = 'none';
             }
         }, 400);
     }
-}
-
-// Función para mostrar mensaje programáticamente
-function showMessage(text, type = 'info') {
-    const container = document.getElementById('messagesContainer');
-    if (!container) return;
-    
-    const messageId = Date.now();
-    const icons = {
-        'success': 'check',
-        'error': 'times', 
-        'warning': 'exclamation',
-        'info': 'info'
-    };
-    
-    const messageHtml = `
-        <div id="message-${messageId}" 
-             class="message-alert message-${type}"
-             data-message-id="${messageId}">
-            <div class="message-content">
-                <div class="message-body">
-                    <div class="message-icon">
-                        <div class="icon-circle icon-${type}">
-                            <i class="fa-solid fa-${icons[type] || 'info'}"></i>
-                        </div>
-                    </div>
-                    <div class="message-text">
-                        <p>${text}</p>
-                    </div>
-                </div>
-                <button onclick="closeMessage(${messageId})" class="close-btn">
-                    <i class="fa-solid fa-times"></i>
-                </button>
-            </div>
-            <div class="progress-bar"></div>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', messageHtml);
-    container.style.display = 'block';
-    
-    // Auto-hide después de 5 segundos
-    setTimeout(() => closeMessage(messageId), 5000);
 }
 </script>
 {% endif %}
